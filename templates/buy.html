@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}
+	Buy
+{% endblock %}
+
+{% block main %}
+
+	<h1>Buy</h1>
+	<form action="{{ url_for('buy') }}" method="post">
+		<div class="mb-3">
+			<input required class="form-control mx-auto w-auto" name="symbol" placeholder="Symbol" type="text"/>
+		</div>
+		<div class="mb-3">
+			<input required class="form-control mx-auto w-auto" name="shares" min= "1" placeholder="Shares" type="number"/>
+		</div>
+		<div class="mb-3">
+			<button class="btn btn-primary" type="submit">Buy</button>
+		</div>
+	</form>
+
+	{% if symbol and shares and total %}
+		<p class="mb-3">You bought {{ shares }} shares of {{ symbol }} for ${{ total }}!</p>
+	{% endif %}
+
+	{% if error %}
+		<p class="text-danger">{{ error }}</p>
+	{% endif %}
+{% endblock %}

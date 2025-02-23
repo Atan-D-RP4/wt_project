@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Portfolio
+{% endblock %}
+
+{% block main %}
+
+	<div class="form-group">
+		<h1>Portfolio</h1>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Symbol</th>
+					<th>Name</th>
+					<th>Shares</th>
+					<th>Price</th>
+					<th>Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for stock in stocks %}
+					{% if stock["shares"] != 0 %}
+					<tr>
+						<td>{{ stock["symbol"] }}</td>
+						<td>{{ stock["name"] }}</td>
+						<td>{{ stock["shares"] }}</td>
+						<td>{{ stock["price"] }}</td>
+						<td>{{ stock["total"] }}</td>
+						<td>
+							<form action="/sell" method="post">
+								<input type="hidden" name="symbol" value="{{ stock['symbol'] }}">
+								<input type="hidden" name="shares" value="{{ stock['shares'] }}">
+								<input type="submit" value="Sell">
+							</form>
+						</td>
+					</tr>
+					{% endif %}
+				{% endfor %}
+				<tr>
+					<td colspan="4" align="right">Cash</td>
+					<td>{{ cash }}</td>
+				</tr>
+				<tr>
+					<td colspan="4" align="right">Total</td>
+					<td>{{ total }}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+{% endblock %}

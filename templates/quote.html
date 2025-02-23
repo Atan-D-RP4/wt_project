@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Quote
+{% endblock %}
+
+{% block main %}
+	{% if not quote %}
+	<h2>Get a Quote</h2>
+	<form action="{{ url_for('quote') }}" method="post">
+		<div class="form-group">
+			<input autofocus class="form-control" name="symbol" placeholder="Symbol" type="text" required/>
+			<button class="btn btn-primary" type="submit">Get Quote</button>
+		</div>
+	</form>
+
+	{% else %}
+	<h3>{{ quote['name'] }} ({{ quote['symbol'] }})</h3>
+	<h4>Price: {{ quote['price'] }}</h4>
+	{% endif %}
+
+{% endblock %}

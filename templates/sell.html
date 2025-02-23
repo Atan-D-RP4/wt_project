@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+
+{% block main %}
+
+<h1>Sell</h1>
+<div class="form-group">
+    <form action="{{ url_for('sell') }}" method="post">
+        <div class="mb-3">
+            <select class="form-select mx-auto w-auto" name="symbol" required>
+                <option value="">Symbol</option>
+                {% for stock in stocks %}
+                <option value="{{ stock['symbol'] }}" data-shares="{{ stock['shares'] or 0 }}">
+                    {{ stock['symbol'] }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" name="shares" placeholder="Shares" type="number" min="0" max="0" value="" required/>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-primary" type="submit">Sell</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const symbolSelect = document.querySelector('select[name="symbol"]');
+    const sharesInput = document.querySelector('input[name="shares"]');
+
+    symbolSelect.addEventListener('change', () => {
+        const selectedOption = symbolSelect.options[symbolSelect.selectedIndex];
+        const maxShares = selectedOption.dataset.shares || '';
+        sharesInput.max = maxShares ? parseInt(maxShares, 10) : '';
+    });
+
+    symbolSelect.dispatchEvent(new Event('change', { bubbles: true }));
+</script>
+
+{% endblock %}

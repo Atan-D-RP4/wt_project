@@ -1,0 +1,117 @@
+{% extends 'layout.html' %}
+
+{% block main %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const inputElements = document.querySelectorAll('.form-number');
+
+        inputElements.forEach(inputElement => {
+            const row = inputElement.closest('tr');
+            const stockPriceElement = row.querySelector('.stock-price');
+            const totalValueElement = row.querySelector('.total-value');
+
+            if (!stockPriceElement || !totalValueElement) {
+                console.error('Stock price or total value element not found.');
+                return;
+            }
+
+            const stockPrice = parseFloat(stockPriceElement.textContent.replace(/[^\d.-]/g, ''));
+            if (isNaN(stockPrice)) {
+                console.error('Invalid stock price:', stockPriceElement.textContent);
+                return;
+            }
+
+            inputElement.addEventListener('input', () => {
+                const shares = parseInt(inputElement.value, 10);
+                const totalValue = isNaN(shares) ? 0 : shares * stockPrice;
+                totalValueElement.textContent = totalValue.toFixed(2);
+            });
+        });
+    });
+</script>
+
+<h1>Sell</h1>
+<div class="form-group">
+    <form action="/sell" method="post">
+        <table class="table table-striped table-bordered">
+            <tbody>
+                {% for stock in stocks %}
+                    {% if stock.shares > 0 %}
+                    <tr>
+                        <td>
+                            <select class="form-control" name="symbol_{{ stock.symbol }}">
+                                <option value="{{ stock.symbol }}">{{ stock.symbol }}</option>
+                            </select>
+                        </td>
+                        <td class="stock-price">{{ stock.price }}</td>
+                        <td id="sell-inp">
+                            <input class="form-number" name="shares_{{ stock.symbol }}" placeholder="Shares" type="number" min="0" max="{{ stock.shares }}">
+                            / {{ stock.shares }}
+                        </td>
+                        <td><label class="total-value">0.00</label></td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <button class="btn btn-primary" type="submit">Sell</button>
+    </form>
+</div>
+
+{% endblock %}
+
+<!--
+
+def sell():
+    """Sell shares of stock"""
+    stocks = db.execute(
+        "SELECT symbol, SUM(shares) as shares FROM transactions WHERE user_id = ? GROUP BY symbol HAVING shares > 0",
+        session["user_id"],
+    )
+
+    if request.method == "POST":
+        # Get all the symbol and shares pairs from the form data
+        symbol_shares_pairs = [(symbol, shares) for symbol, shares in request.form.items() if symbol.startswith("symbol_") and shares.startswith("shares_")]
+        print()
+        print(symbol_shares_pairs)
+        print()
+
+        for symbol, shares in symbol_shares_pairs:
+            symbol = symbol.split("_")[1]
+            shares = int(shares.split("_")[1])
+
+            print()
+            print(symbol + shares)
+            print()
+
+            if not symbol or not shares or shares < 1:
+                return apology("Invalid input", 400)
+
+            stock = next((s for s in stocks if s["symbol"] == symbol), None)
+            if not stock or stock["shares"] < shares:
+                return apology("Insufficient shares", 400)
+
+            quote = lookup(symbol)
+            if quote is None:
+                return apology("Invalid symbol", 400)
+
+            sale = quote["price"] * shares
+            db.execute("UPDATE users SET cash = cash + ? WHERE id = ?", sale, session["user_id"])
+            db.execute(
+                "INSERT INTO transactions (user_id, symbol, shares, price) VALUES (?, ?, ?, ?)",
+                session["user_id"],
+                symbol,
+                -shares,
+                quote["price"],
+            )
+
+        flash("Stocks sold successfully!")
+        return redirect("/")
+
+    for stock in stocks:
+        stock["price"] = usd(lookup(stock["symbol"])["price"])
+
+    return render_template("sell.html", stocks=stocks)
+
+-->
