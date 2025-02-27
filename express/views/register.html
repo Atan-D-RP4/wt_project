@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>E(xpress)-Bank</title>
+	<!-- Bootstrap CSS from CDN -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/css/styles.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+	<div class="container py-5">
+		<div class="card shadow form-container">
+			<div class="bank-header">
+				<div class="bank-logo">E(xpress)-Bank</div>
+				<h2 class="mt-2">Create an Account</h2>
+				<p class="text-muted">Join our secure banking platform</p>
+			</div>
+
+			<form id="registrationForm">
+				<!-- Personal Information -->
+				<div class="mb-3">
+					<label for="fullName" class="form-label">Full Name</label>
+					<input type="text" class="form-control" id="fullName" required>
+				</div>
+
+				<div class="row mb-3">
+					<div class="col">
+						<label for="email" class="form-label">Email</label>
+						<input type="email" class="form-control" id="email" required>
+					</div>
+					<div class="col">
+						<label for="phone" class="form-label">Phone Number</label>
+						<input type="tel" class="form-control" id="phone" required>
+					</div>
+				</div>
+
+				<!-- Address Information -->
+				<div class="mb-3">
+					<label for="address" class="form-label">Address</label>
+					<input type="text" class="form-control" id="address" required>
+				</div>
+
+				<div class="row mb-3">
+					<div class="col">
+						<label for="city" class="form-label">City</label>
+						<input type="text" class="form-control" id="city" required>
+					</div>
+					<div class="col">
+						<label for="state" class="form-label">State</label>
+						<input type="text" class="form-control" id="state" required>
+					</div>
+					<div class="col">
+						<label for="zipCode" class="form-label">Zip Code</label>
+						<input type="text" class="form-control" id="zipCode" required>
+					</div>
+				</div>
+
+				<!-- Account Security -->
+				<div class="mb-3">
+					<label for="username" class="form-label">Username</label>
+					<input type="text" class="form-control" id="username" required>
+				</div>
+
+				<div class="mb-3">
+					<label for="password" class="form-label">Password</label>
+					<input type="password" class="form-control" id="password" required>
+					<div class="password-requirements mt-1">
+						Password must be at least 8 characters and include uppercase, lowercase, number, and special
+						character.
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label for="confirmPassword" class="form-label">Confirm Password</label>
+					<input type="password" class="form-control" id="confirmPassword" required>
+				</div>
+
+				<!-- Account Type Selection -->
+				<div class="mb-3">
+					<label class="form-label">Account Type</label>
+					<div class="form-check">
+						<input class="form-check-input" type="radio" name="accountType" id="checkingAccount"
+							value="checking" checked>
+						<label class="form-check-label" for="checkingAccount">
+							Checking Account
+						</label>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="radio" name="accountType" id="savingsAccount"
+							value="savings">
+						<label class="form-check-label" for="savingsAccount">
+							Savings Account
+						</label>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="radio" name="accountType" id="bothAccounts" value="both">
+						<label class="form-check-label" for="bothAccounts">
+							Both Checking & Savings
+						</label>
+					</div>
+				</div>
+
+				<!-- Terms and Conditions -->
+				<div class="mb-4">
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" id="termsAgreement" required>
+						<label class="form-check-label" for="termsAgreement">
+							I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and
+								Conditions</a>
+						</label>
+					</div>
+				</div>
+
+				<!-- Submit Button -->
+				<button type="submit" class="btn btn-primary w-100">Create Account</button>
+
+				<div class="text-center mt-3">
+					<p>Already have an account? <a href="/login">Log in</a></p>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Terms and Conditions Modal -->
+	<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Welcome to E(xpress)-Bank. By creating an account, you agree to the following terms:</p>
+					<h6>1. Account Usage</h6>
+					<p>Your account is for personal use only. You agree to keep your login credentials secure.</p>
+					<h6>2. Privacy Policy</h6>
+					<p>We collect personal information to provide banking services. Please review our full privacy
+						policy.</p>
+					<h6>3. Security</h6>
+					<p>We utilize encryption and security protocols, but you are responsible for maintaining the
+						confidentiality of your account.</p>
+					<h6>4. Fees</h6>
+					<p>Various fees may apply to your account. Please review our fee schedule.</p>
+					<h6>5. Termination</h6>
+					<p>We reserve the right to terminate accounts that violate our terms.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
