@@ -1,6 +1,8 @@
 // This is a simple in-memory model for demonstration
 // In a real application, you'd use a database
 
+import { AccountModel, AccountType } from "./account.ts";
+
 interface User {
   id: string;
   fullName: string;
@@ -13,6 +15,7 @@ interface User {
   username: string;
   password: string;
   createdAt: Date;
+  accountType: AccountType;
 }
 
 const admin = {
@@ -27,6 +30,7 @@ const admin = {
   username: 'admin',
   password: 'password',
   createdAt: new Date(),
+  accountType: AccountType.Both,
 }
 
 // In-memory storage
@@ -34,11 +38,22 @@ const users: User[] = [admin];
 
 export const UserModel = {
   create: async (userData: Omit<User, 'id' | 'createdAt'>): Promise<User> => {
+    const type = userData.accountType as AccountType;
+    console.log(type);
     const newUser: User = {
       ...userData,
+      accountType: type,
       id: crypto.randomUUID(),
       createdAt: new Date(),
     };
+
+    // Create accounts based on accountType
+    AccountModel.create({
+      userId: newUser.id,
+      type: userData.accountType,
+      balance: 0,
+      accountNumber: crypto.randomUUID(),
+    });
 
     users.push(newUser);
     return newUser;

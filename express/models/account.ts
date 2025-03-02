@@ -1,10 +1,16 @@
 // This is a simple in-memory model for demonstration
 // In a real application, you'd use a database
 
+export enum AccountType {
+  Checking = "checking",
+  Savings = "savings",
+  Both = "both",
+}
+
 interface Account {
   id: string;
   userId: string;
-  type: "checking" | "savings";
+  type: AccountType;
   accountNumber: string;
   balance: number;
   createdAt: Date;

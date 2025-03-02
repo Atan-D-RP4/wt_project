@@ -1,4 +1,4 @@
-import express from "npm:express@^4.18.2";
+import express from "npm:express";
 import { accountController } from "../controllers/accountController.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 

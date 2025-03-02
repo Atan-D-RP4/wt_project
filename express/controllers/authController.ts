@@ -1,12 +1,23 @@
-import { Request, Response } from "npm:express@^4.18.2";
+import { Request, Response } from "npm:express@^4.21.2";
 import { UserModel } from "../models/user.ts";
 import { AccountModel } from "../models/account.ts";
 
 export const authController = {
   register: async (req: Request, res: Response) => {
     try {
-      const { fullName, email, phone, address, city, state, zipCode,
-              username, password, accountType } = req.body;
+      const {
+        id,
+        fullName,
+        email,
+        phone,
+        address,
+        city,
+        state,
+        zipCode,
+        username,
+        password,
+        createdAt,
+      } = req.body;
 
       // Validate input
       if (!fullName || !email || !password || !username) {
@@ -54,7 +65,7 @@ export const authController = {
       // Return success response
       res.status(201).json({
         message: "Account created successfully",
-        user: { id: user.id, username: user.username, email: user.email }
+        user: { id: user.id, username: user.username, email: user.email },
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -83,7 +94,7 @@ export const authController = {
       res.status(200).json({
         message: "Login successful",
         token,
-        user: { id: user.id, username: user.username, email: user.email }
+        user: { id: user.id, username: user.username, email: user.email },
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -94,7 +105,7 @@ export const authController = {
   logout: (req: Request, res: Response) => {
     // Implement logout logic (invalidate token, etc.)
     res.status(200).json({ message: "Logged out successfully" });
-  }
+  },
 };
 
 // Helper function to generate account numbers

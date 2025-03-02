@@ -1,4 +1,4 @@
-import { Request, Response } from "npm:express@^4.18.2";
+import { Request, Response } from "npm:express@^4.21.2";
 import { AccountModel } from "../models/account.ts";
 import { TransactionModel } from "../models/transaction.ts";
 

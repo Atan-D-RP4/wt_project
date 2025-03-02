@@ -1,4 +1,4 @@
-import express from "npm:express@^4.18.2";
+import express from "npm:express@^4.21.2";
 import { authController } from "../controllers/authController.ts";
 
 const router = express.Router();

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "npm:express@^4.18.2";
+import { NextFunction, Request, Response } from "npm:express@^4.21.2";
 import { UserModel } from "../models/user.ts";
 
 export const authMiddleware = async (

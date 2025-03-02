@@ -1,12 +1,27 @@
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded');
   const registrationForm = document.getElementById('registrationForm');
 
   if (registrationForm) {
     registrationForm.addEventListener('submit', async function(e) {
       e.preventDefault();
+  //
+  // id: string;
+  // fullName: string;
+  // email: string;
+  // phone: string;
+  // address: string;
+  // city: string;
+  // state: string;
+  // zipCode: string;
+  // username: string;
+  // password: string;
+  // createdAt: Date;
+  //
 
       // Collect form data
       const formData = {
+        id: 0,
         fullName: document.getElementById('fullName').value,
         email: document.getElementById('email').value,
         phone: document.getElementById('phone').value,
@@ -16,11 +31,14 @@ document.addEventListener('DOMContentLoaded', function() {
         zipCode: document.getElementById('zipCode').value,
         username: document.getElementById('username').value,
         password: document.getElementById('password').value,
-        accountType: document.querySelector('input[name="accountType"]:checked').value
+        createdAt: new Date()
+        accountType: document.getElementById('accountType').value
       };
+      console.log(formData);
 
       // Validate password
       const confirmPassword = document.getElementById('confirmPassword').value;
+      // Check if confirm password is not null
       if (formData.password !== confirmPassword) {
         alert("Passwords do not match");
         return;
