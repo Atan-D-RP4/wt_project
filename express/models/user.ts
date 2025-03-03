@@ -19,56 +19,67 @@ interface User {
 }
 
 const admin = {
-  id: 'admin-id',
-  fullName: 'Admin User',
-  email: 'admin@gmail.com',
-  phone: '123-456-7890',
-  address: '123 Admin St',
-  city: 'Adminville',
-  state: 'CA',
-  zipCode: '12345',
-  username: 'admin',
-  password: 'password',
+  id: "admin-id",
+  fullName: "Admin User",
+  email: "admin@gmail.com",
+  phone: "123-456-7890",
+  address: "123 Admin St",
+  city: "Adminville",
+  state: "CA",
+  zipCode: "12345",
+  username: "admin",
+  password: "password",
   createdAt: new Date(),
   accountType: AccountType.Both,
-}
+};
 
 // In-memory storage
-const users: User[] = [admin];
+export const users: User[] = [admin];
 
 export const UserModel = {
-  create: async (userData: Omit<User, 'id' | 'createdAt'>): Promise<User> => {
-    const type = userData.accountType as AccountType;
-    console.log(type);
+  create: async (userData: Omit<User, "id" | "createdAt">): Promise<User> => {
     const newUser: User = {
       ...userData,
-      accountType: type,
+      accountType: userData.accountType as AccountType,
       id: crypto.randomUUID(),
       createdAt: new Date(),
     };
 
-    // Create accounts based on accountType
-    AccountModel.create({
-      userId: newUser.id,
-      type: userData.accountType,
-      balance: 0,
-      accountNumber: crypto.randomUUID(),
-    });
+    // Add user to users array if user.id not in users
+    if (!users.find((user) => user.id === newUser.id)) {
+      users.push(newUser);
+    }
+    client.execute(
+      `INSERT INTO users (id, fullName, email, phone, address, city, state, zipCode, username, password, createdAt, accountType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        newUser.id,
+        newUser.fullName,
+        newUser.email,
+        newUser.phone,
+        newUser.address,
+        newUser.city,
+        newUser.state,
+        newUser.zipCode,
+        newUser.username,
+        newUser.password,
+        newUser.createdAt,
+        newUser.accountType,
+      ],
+    );
 
-    users.push(newUser);
     return newUser;
   },
 
   findByEmail: async (email: string): Promise<User | undefined> => {
-    return users.find(user => user.email === email);
+    return users.find((user) => user.email === email);
   },
 
   findByUsername: async (username: string): Promise<User | undefined> => {
     console.log(users);
-    return users.find(user => user.username === username);
+    return users.find((user) => user.username === username);
   },
 
   findById: async (id: string): Promise<User | undefined> => {
-    return users.find(user => user.id === id);
-  }
+    return users.find((user) => user.id === id);
+  },
 };

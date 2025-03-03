@@ -1,13 +1,23 @@
-import * as fs from "node:fs";
 import { Buffer } from "node:buffer";
+import * as fs from "node:fs";
+
+import { users } from "./models/user.ts";
 
 import express from "npm:express";
+import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
 // Routes
-import authRoutes from "./routes/auth.ts";
 import accountRoutes from "./routes/accounts.ts";
+import authRoutes from "./routes/auth.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
+  const client = await new Client().connect({
+    hostname: "127.0.0.1",
+    username: "root",
+    password: "password",
+  });
+  console.log("Connected to the database", client);
+  client.execute(`CREATE DATABASE IF NOT EXISTS dbname`);
   const app = express();
   const PORT = 3000;
 
@@ -19,6 +29,11 @@ if (import.meta.main) {
   // Route setup
   app.use("/auth", authRoutes);
   app.use("/accounts", accountRoutes);
+
+  app.get("/users", (req: express.Request, res: express.Response) => {
+    console.log(users);
+    res.send();
+  });
 
   app.get("/", (_req: express.Request, res: express.Response) => {
     res.redirect("/login");

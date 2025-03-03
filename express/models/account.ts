@@ -17,7 +17,7 @@ interface Account {
 }
 
 // In-memory storage
-const accounts: Account[] = [];
+export const accounts: Account[] = [];
 
 export const AccountModel = {
   create: async (accountData: Omit<Account, 'id' | 'createdAt'>): Promise<Account> => {

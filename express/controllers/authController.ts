@@ -1,12 +1,12 @@
-import { Request, Response } from "npm:express@^4.21.2";
-import { UserModel } from "../models/user.ts";
-import { AccountModel } from "../models/account.ts";
+import { Request, Response } from "express";
+import { UserModel, users } from "../models/user.ts";
+import { AccountModel, accounts } from "../models/account.ts";
 
 export const authController = {
   register: async (req: Request, res: Response) => {
+    console.log("Registering user...");
     try {
       const {
-        id,
         fullName,
         email,
         phone,
@@ -16,7 +16,7 @@ export const authController = {
         zipCode,
         username,
         password,
-        createdAt,
+        accountType,
       } = req.body;
 
       // Validate input
@@ -40,27 +40,20 @@ export const authController = {
         state,
         zipCode,
         username,
-        password, // Should be hashed in a real implementation
+        password,
+        accountType,
       });
 
       // Create accounts based on accountType
-      if (accountType === "checking" || accountType === "both") {
-        await AccountModel.create({
-          userId: user.id,
-          type: "checking",
-          balance: 0,
-          accountNumber: generateAccountNumber(),
-        });
-      }
+      await AccountModel.create({
+        userId: user.id,
+        type: accountType,
+        balance: 0,
+        accountNumber: generateAccountNumber(),
+      });
 
-      if (accountType === "savings" || accountType === "both") {
-        await AccountModel.create({
-          userId: user.id,
-          type: "savings",
-          balance: 0,
-          accountNumber: generateAccountNumber(),
-        });
-      }
+      console.log("Users:", users);
+      console.log("Accounts:", accounts);
 
       // Return success response
       res.status(201).json({
