@@ -24,7 +24,7 @@ await client.execute(`CREATE TABLE IF NOT EXISTS accounts (
   id VARCHAR(36) PRIMARY KEY,
   userId VARCHAR(36),
   type ENUM('checking', 'savings', 'both'),
-  accountNumber VARCHAR(20),
+  accountNumber VARCHAR(36),
   balance DECIMAL(10, 2),
   createdAt DATETIME,
   FOREIGN KEY (userId) REFERENCES users(id)

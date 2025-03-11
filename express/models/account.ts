@@ -18,7 +18,6 @@ interface Account {
   createdAt: Date;
 }
 
-// In-memory storage
 const client = db.getClient();
 
 export const AccountModel = {
@@ -30,6 +29,22 @@ export const AccountModel = {
       id: crypto.randomUUID(),
       createdAt: new Date(),
     };
+
+    // Check if user already exists
+    const accounts = await client.execute(
+      "SELECT * FROM accounts WHERE id = ?",
+      [newAccount.id],
+    );
+
+    if (accounts.rows == undefined) {
+      console.log("SQL Query Error");
+      return newAccount;
+    }
+    if (accounts.rows.length > 0) {
+      console.log("Account already exists");
+      return accounts.rows[0] as Account;
+    }
+    console.log(newAccount);
 
     await client.execute(
       "INSERT INTO accounts (id, userId, type, accountNumber, balance, createdAt) VALUES (?, ?, ?, ?, ?, ?)",

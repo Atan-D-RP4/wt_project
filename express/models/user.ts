@@ -1,7 +1,7 @@
 // This is a simple in-memory model for demonstration
 // In a real application, you'd use a database
 
-import { AccountType } from "./account.ts";
+import { AccountModel, AccountType } from "./account.ts";
 import db from "../database.ts";
 
 interface User {
@@ -46,15 +46,21 @@ export const UserModel = {
     };
 
     // Check if user already exists
-    const users = await client.execute("SELECT * FROM users WHERE id = ?", [
-      newUser.id,
-    ]);
+    const users = await client.execute(
+      "SELECT * FROM users WHERE id = ? or username = ?",
+      [
+        newUser.id,
+        newUser.username,
+      ],
+    );
 
     if (users.rows == undefined) {
-      throw new Error("User already exists");
+      console.log("SQL Query Error");
+      return newUser;
     }
     if (users.rows.length > 0) {
-      throw new Error("User already exists");
+      console.log("User already exists");
+      return users.rows[0] as User;
     }
 
     await client.execute(
@@ -75,6 +81,15 @@ export const UserModel = {
         newUser.accountType,
       ],
     );
+
+    // Add an account for the user
+    await AccountModel.create({
+      userId: newUser.id,
+      type: newUser.accountType,
+      accountNumber: crypto.randomUUID(),
+      balance: 1000.0,
+    });
+
     return newUser;
   },
 
@@ -90,9 +105,12 @@ export const UserModel = {
   },
 
   findByUsername: async (username: string): Promise<User | undefined> => {
-    const users = await client.execute("SELECT * FROM users WHERE username = ?", [
-      username,
-    ]);
+    const users = await client.execute(
+      "SELECT * FROM users WHERE username = ?",
+      [
+        username,
+      ],
+    );
     if (users.rows == undefined) {
       return undefined;
     }
@@ -100,7 +118,7 @@ export const UserModel = {
   },
 
   findById: async (id: string): Promise<User | undefined> => {
-    console.log(id)
+    console.log(id);
     const users = await client.execute("SELECT * FROM users WHERE id = ?", [
       id,
     ]);
@@ -110,3 +128,5 @@ export const UserModel = {
     return users.rows[0] as User;
   },
 };
+
+UserModel.create(admin);
