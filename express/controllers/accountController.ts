@@ -86,11 +86,83 @@ export const accountController = {
       res.status(201).json({
         message: "Transaction completed successfully",
         transaction,
-        newBalance
+        newBalance,
       });
     } catch (error) {
       console.error("Transaction error:", error);
       res.status(500).json({ error: "Server error processing transaction" });
     }
-  }
+  },
+
+  createTransfer: async (req: Request, res: Response) => {
+    try {
+      const { accountId } = req.params; // Sender account
+      const { toAccountId, amount, description } = req.body;
+      const userId = (req as any).user.id; // From auth middleware
+
+      // Validate input
+      if (!toAccountId || !amount || amount <= 0) {
+        return res.status(400).json({ error: "Invalid transfer details" });
+      }
+
+      // Get sender account and check ownership
+      const senderAccount = await AccountModel.findById(accountId);
+      if (!senderAccount || senderAccount.userId !== userId) {
+        return res.status(404).json({ error: "Sender account not found" });
+      }
+
+      // Get receiver account
+      const receiverAccount = await AccountModel.findById(toAccountId);
+      if (!receiverAccount) {
+        return res.status(404).json({ error: "Receiver account not found" });
+      }
+
+      // Check for sufficient funds
+      if (senderAccount.balance < amount) {
+        return res.status(400).json({
+          error: "Insufficient funds for transfer",
+        });
+      }
+
+      // Update sender balance
+      const newSenderBalance = senderAccount.balance - amount;
+      await AccountModel.updateBalance(accountId, newSenderBalance);
+
+      // Update receiver balance
+      const newReceiverBalance = receiverAccount.balance + amount;
+      await AccountModel.updateBalance(toAccountId, newReceiverBalance);
+
+      // Create transaction record for sender (transfer out)
+      const senderTransaction = await TransactionModel.create({
+        accountId,
+        type: "transfer",
+        amount,
+        description: description || `Transfer to account ${toAccountId}`,
+        balance: newSenderBalance,
+        date: new Date(),
+        to_accountId: toAccountId,
+      });
+
+      // Create transaction record for receiver (transfer in)
+      const receiverTransaction = await TransactionModel.create({
+        accountId: toAccountId,
+        type: "deposit", // or "transfer" based on your business logic
+        amount,
+        description: description || `Transfer from account ${accountId}`,
+        balance: newReceiverBalance,
+        date: new Date(),
+      });
+
+      res.status(201).json({
+        message: "Transfer completed successfully",
+        senderTransaction,
+        receiverTransaction,
+        newSenderBalance,
+        newReceiverBalance,
+      });
+    } catch (error) {
+      console.error("Transfer error:", error);
+      res.status(500).json({ error: "Server error processing transfer" });
+    }
+  },
 };

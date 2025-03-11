@@ -1,23 +1,18 @@
-import { Buffer } from "node:buffer";
+// @ts-types="npm:@types/node"
 import * as fs from "node:fs";
+import { Buffer } from "node:buffer";
 
-import { users } from "./models/user.ts";
-
+// @ts-types="npm:@types/express"
 import express from "npm:express";
-import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
+
 // Routes
 import accountRoutes from "./routes/accounts.ts";
 import authRoutes from "./routes/auth.ts";
+import dashboardRoutes from "./routes/dashboard.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
-  const client = await new Client().connect({
-    hostname: "127.0.0.1",
-    username: "root",
-    password: "password",
-  });
-  console.log("Connected to the database", client);
-  client.execute(`CREATE DATABASE IF NOT EXISTS dbname`);
+
   const app = express();
   const PORT = 3000;
 
@@ -29,19 +24,23 @@ if (import.meta.main) {
   // Route setup
   app.use("/auth", authRoutes);
   app.use("/accounts", accountRoutes);
+  app.use("/dashboard", dashboardRoutes);
 
-  app.get("/users", (req: express.Request, res: express.Response) => {
-    console.log(users);
-    res.send();
-  });
-
+  // Index page
   app.get("/", (_req: express.Request, res: express.Response) => {
     res.redirect("/login");
   });
 
-  app.get("/register", (_req: express.Request, res: express.Response) => {
+
+  // Login page
+  app.get("/login.html", (_req: express.Request, res: express.Response) => {
+    res.redirect("/login");
+  });
+
+  // Re-direct to login page
+  app.get("/login", (_req: express.Request, res: express.Response) => {
     fs.readFile(
-      "./views/register.html",
+      "./views/login.html",
       (err: NodeJS.ErrnoException | null, data: Buffer<ArrayBufferLike>) => {
         if (err) throw err;
         res.contentType("html");
@@ -50,14 +49,9 @@ if (import.meta.main) {
     );
   });
 
-  // Login page
-  app.get("/login.html", (_req: express.Request, res: express.Response) => {
-    res.redirect("/login");
-  });
-
-  app.get("/login", (_req: express.Request, res: express.Response) => {
+  app.get("/register", (_req: express.Request, res: express.Response) => {
     fs.readFile(
-      "./views/login.html",
+      "./views/register.html",
       (err: NodeJS.ErrnoException | null, data: Buffer<ArrayBufferLike>) => {
         if (err) throw err;
         res.contentType("html");
@@ -79,6 +73,10 @@ if (import.meta.main) {
         res.send(data);
       },
     );
+  });
+
+  app.get("/users", (_req: express.Request, res: express.Response) => {
+    res.send();
   });
 
   app.listen(PORT, () => {

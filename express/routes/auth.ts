@@ -1,3 +1,4 @@
+// @ts-types="npm:@types/express"
 import express from "express";
 import { authController } from "../controllers/authController.ts";
 
@@ -9,10 +10,15 @@ router.get("/register", (_req: express.Request, res: express.Response) => {
 });
 
 // Registration endpoint
-router.post("/register", authController.register);
+router.post("/register", async (req: express.Request, res: express.Response) => {
+  await authController.register(req, res);
+});
 
 // Login endpoint
-router.post("/login", authController.login);
+// post does not take async functions
+router.post("/login", async (req: express.Request, res: express.Response) => {
+  await authController.login(req, res);
+});
 
 // Logout endpoint
 router.post("/logout", authController.logout);

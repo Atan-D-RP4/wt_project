@@ -1,7 +1,9 @@
 {
   "version": "4",
   "specifiers": {
+    "npm:@types/express@*": "5.0.0",
     "npm:@types/express@5": "5.0.0",
+    "npm:@types/node@*": "22.12.0",
     "npm:@types/node@^22.13.8": "22.13.8",
     "npm:express@*": "4.21.2",
     "npm:express@^4.18.2": "4.21.2",

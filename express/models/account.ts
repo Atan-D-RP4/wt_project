@@ -1,6 +1,8 @@
 // This is a simple in-memory model for demonstration
 // In a real application, you'd use a database
 
+import db from "../database.ts";
+
 export enum AccountType {
   Checking = "checking",
   Savings = "savings",
@@ -17,35 +19,68 @@ interface Account {
 }
 
 // In-memory storage
-export const accounts: Account[] = [];
+const client = db.getClient();
 
 export const AccountModel = {
-  create: async (accountData: Omit<Account, 'id' | 'createdAt'>): Promise<Account> => {
+  create: async (
+    accountData: Omit<Account, "id" | "createdAt">,
+  ): Promise<Account> => {
     const newAccount: Account = {
       ...accountData,
       id: crypto.randomUUID(),
       createdAt: new Date(),
     };
 
-    accounts.push(newAccount);
+    await client.execute(
+      "INSERT INTO accounts (id, userId, type, accountNumber, balance, createdAt) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        newAccount.id,
+        newAccount.userId,
+        newAccount.type,
+        newAccount.accountNumber,
+        newAccount.balance,
+        newAccount.createdAt,
+      ],
+    );
+
     return newAccount;
   },
 
   findById: async (id: string): Promise<Account | undefined> => {
-    return accounts.find(account => account.id === id);
+    const accounts = await client.execute(
+      "SELECT * FROM accounts WHERE id = ?",
+      [id],
+    );
+
+    if (accounts.rows == undefined) {
+      throw new Error("Account not found");
+    }
+
+    return accounts.rows.length > 0 ? accounts.rows[0] : undefined;
   },
 
   findByUserId: async (userId: string): Promise<Account[]> => {
-    return accounts.filter(account => account.userId === userId);
-  },
+    const accounts = await client.execute(
+      "SELECT * FROM accounts WHERE userId = ?",
+      [userId],
+    );
 
-  updateBalance: async (id: string, newBalance: number): Promise<Account | undefined> => {
-    const account = accounts.find(account => account.id === id);
-
-    if (account) {
-      account.balance = newBalance;
+    if (accounts.rows == undefined) {
+      return [];
     }
 
-    return account;
-  }
+    return accounts.rows as Account[];
+  },
+
+  updateBalance: async (
+    id: string,
+    newBalance: number,
+  ): Promise<Account | undefined> => {
+    await client.execute(
+      "UPDATE accounts SET balance = ? WHERE id = ?",
+      [newBalance, id],
+    );
+
+    return AccountModel.findById(id);
+  },
 };

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "npm:express@^4.21.2";
+import { NextFunction, Request, Response } from "express";
 import { UserModel } from "../models/user.ts";
 
 export const authMiddleware = async (
@@ -32,6 +32,7 @@ export const authMiddleware = async (
     }
 
     // Attach user to request
+    // deno-lint-ignore no-explicit-any
     (req as any).user = { id: user.id, username: user.username };
 
     next();

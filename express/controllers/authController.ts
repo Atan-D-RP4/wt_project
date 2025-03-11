@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { UserModel, users } from "../models/user.ts";
-import { AccountModel, accounts } from "../models/account.ts";
+import { UserModel } from "../models/user.ts";
+import { AccountModel } from "../models/account.ts";
 
 export const authController = {
   register: async (req: Request, res: Response) => {
@@ -52,9 +52,6 @@ export const authController = {
         accountNumber: generateAccountNumber(),
       });
 
-      console.log("Users:", users);
-      console.log("Accounts:", accounts);
-
       // Return success response
       res.status(201).json({
         message: "Account created successfully",
@@ -68,6 +65,7 @@ export const authController = {
 
   login: async (req: Request, res: Response) => {
     try {
+      console.log("Logging in user...");
       const { username, password } = req.body;
 
       // Find user
@@ -95,7 +93,7 @@ export const authController = {
     }
   },
 
-  logout: (req: Request, res: Response) => {
+  logout: (_req: Request, res: Response) => {
     // Implement logout logic (invalidate token, etc.)
     res.status(200).json({ message: "Logged out successfully" });
   },

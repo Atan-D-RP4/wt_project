@@ -1,7 +1,8 @@
 // This is a simple in-memory model for demonstration
 // In a real application, you'd use a database
 
-import { AccountModel, AccountType } from "./account.ts";
+import { AccountType } from "./account.ts";
+import db from "../database.ts";
 
 interface User {
   id: string;
@@ -33,8 +34,7 @@ const admin = {
   accountType: AccountType.Both,
 };
 
-// In-memory storage
-export const users: User[] = [admin];
+const client = db.getClient();
 
 export const UserModel = {
   create: async (userData: Omit<User, "id" | "createdAt">): Promise<User> => {
@@ -45,12 +45,21 @@ export const UserModel = {
       createdAt: new Date(),
     };
 
-    // Add user to users array if user.id not in users
-    if (!users.find((user) => user.id === newUser.id)) {
-      users.push(newUser);
+    // Check if user already exists
+    const users = await client.execute("SELECT * FROM users WHERE id = ?", [
+      newUser.id,
+    ]);
+
+    if (users.rows == undefined) {
+      throw new Error("User already exists");
     }
-    client.execute(
-      `INSERT INTO users (id, fullName, email, phone, address, city, state, zipCode, username, password, createdAt, accountType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    if (users.rows.length > 0) {
+      throw new Error("User already exists");
+    }
+
+    await client.execute(
+      "INSERT INTO users (id, fullName, email, phone, address, city, state, zipCode, username, password, createdAt, accountType) \
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         newUser.id,
         newUser.fullName,
@@ -66,20 +75,37 @@ export const UserModel = {
         newUser.accountType,
       ],
     );
-
     return newUser;
   },
 
   findByEmail: async (email: string): Promise<User | undefined> => {
-    return users.find((user) => user.email === email);
+    const users = await client.execute("SELECT * FROM users WHERE email = ?", [
+      email,
+    ]);
+    if (users.rows == undefined) {
+      throw new Error("Account not found");
+    }
+
+    return users.rows.length > 0 ? users.rows[0] : undefined;
   },
 
   findByUsername: async (username: string): Promise<User | undefined> => {
-    console.log(users);
-    return users.find((user) => user.username === username);
+    const users = await client.execute("SELECT * FROM users WHERE username = ?", [
+      username,
+    ]);
+    if (users.rows == undefined) {
+      return undefined;
+    }
+    return users.rows[0] as User;
   },
 
   findById: async (id: string): Promise<User | undefined> => {
-    return users.find((user) => user.id === id);
+    const users = await client.execute("SELECT * FROM users WHERE id = ?", [
+      id,
+    ]);
+    if (users.rows == undefined) {
+      return undefined;
+    }
+    return users.rows[0] as User;
   },
 };
