@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     accountsContainer.innerHTML = ""; // Clear any existing content
 
     data.accounts.forEach((account) => {
+      console.log("Account:", account);
       const accountCard = document.createElement("div");
       accountCard.classList.add("col-md-6", "col-lg-4", "mb-4");
       accountCard.innerHTML = `
@@ -42,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         account.accountNumber.slice(-4)
       }</p>
             <div class="account-balance mb-3">$${
-        account.balance.toFixed(2)
+        account.balance
       }</div>
             <div class="d-flex gap-2">
               <button class="btn btn-sm btn-outline-primary">Transfer</button>

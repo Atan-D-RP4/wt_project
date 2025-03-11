@@ -24,7 +24,7 @@ if (import.meta.main) {
   // Route setup
   app.use("/auth", authRoutes);
   app.use("/accounts", accountRoutes);
-  app.use("/dashboard", dashboardRoutes);
+  app.use("/api/dashboard", dashboardRoutes);
 
   // Index page
   app.get("/", (_req: express.Request, res: express.Response) => {

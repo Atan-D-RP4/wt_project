@@ -1,4 +1,7 @@
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import process from "node:process";
+
 import { UserModel } from "../models/user.ts";
 import { AccountModel } from "../models/account.ts";
 
@@ -80,7 +83,11 @@ export const authController = {
       }
 
       // Generate session/JWT token here
-      const token = "sample-jwt-token"; // Placeholder for real JWT implementation
+      const token = jwt.sign(
+        { id: user.id, username: user.username },
+        process.env.JWT_SECRET || "secret",
+        { expiresIn: "1h" },
+      );
 
       res.status(200).json({
         message: "Login successful",

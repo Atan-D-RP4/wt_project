@@ -1,4 +1,7 @@
 import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import process from "node:process";
+
 import { UserModel } from "../models/user.ts";
 
 export const authMiddleware = async (
@@ -20,12 +23,13 @@ export const authMiddleware = async (
     // This is NOT secure and only for demonstration
 
     // In a real app with JWT:
-    // const decoded = jwt.verify(token, 'your-secret-key');
-    // const user = await UserModel.findById(decoded.userId);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET! || "secret") as {
+      id: string;
+      username: string;
+    };
+    const user = await UserModel.findById(decoded.id);
 
-    // For demo purposes only:
-    const userId = "sample-user-id";
-    const user = await UserModel.findById(userId);
+    console.log(user);
 
     if (!user) {
       return res.status(401).json({ error: "Invalid authentication" });
