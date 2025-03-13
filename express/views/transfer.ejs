@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Funds - E-Bank</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Transfer Funds</h1>
+        <nav>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/transactions">Transactions</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Initiate Transfer</h2>
+            <form id="transfer-form" action="/api/transfer" method="POST">
+                <label for="fromAccount">From Account:</label>
+                <input type="text" id="fromAccount" name="fromAccount" required>
+
+                <label for="toAccount">To Account:</label>
+                <input type="text" id="toAccount" name="toAccount" required>
+
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" name="amount" min="0.01" step="0.01" required>
+
+                <label for="note">Note (optional):</label>
+                <input type="text" id="note" name="note">
+
+                <button type="submit">Transfer</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Transfer History</h2>
+            <div id="transfer-history">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/transfers.js"></script>
+</body>
+</html>

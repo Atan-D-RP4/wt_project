@@ -39,5 +39,6 @@ export const tokenService = {
   // Invalidate a JWT by adding it to the blacklist
   invalidateToken: (token: string): void => {
     tokenBlacklist.add(token);
+    console.log(tokenBlacklist)
   },
 };

@@ -1,6 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
-import process from "node:process";
 
 import { UserModel } from "../models/user.ts";
 import { tokenService } from "../tokenService.ts";
@@ -41,5 +39,6 @@ export const authMiddleware = async (
   } catch (error) {
     console.error("Auth middleware error:", error);
     res.status(401).json({ error: "Authentication failed" });
+    res.redirect("/login");
   }
 };

@@ -1,5 +1,35 @@
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("Dashboard loading...");
+
+  // Logout functionality
+  const logoutButton = document.getElementById("logoutButton");
+  if (logoutButton) {
+    logoutButton.addEventListener("click", async () => {
+      try {
+        const response = await fetch("/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("authToken"),
+          },
+        });
+
+        if (response.ok) {
+          // Clear the authentication token from localStorage
+          localStorage.removeItem("authToken");
+          // Redirect to the login page
+          globalThis.window.location.href = "/login";
+        } else {
+          console.error("Logout failed:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error during logout:", error);
+      }
+    });
+  } else {
+    console.error("Logout button not found");
+  }
+
   try {
     const response = await fetch("/api/dashboard", {
       method: "GET",
@@ -52,7 +82,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }</p>
             <div class="account-balance mb-3">$${account.balance}</div>
             <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-outline-primary">Transfer</button>
+              <button class="btn btn-sm btn-outline-primary">
+                Transfer
+              </button>
               <button class="btn btn-sm btn-outline-secondary">Details</button>
             </div>
           </div>

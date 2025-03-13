@@ -1,6 +1,4 @@
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken";
-import process from "node:process";
 
 import { UserModel } from "../models/user.ts";
 import { AccountModel } from "../models/account.ts";

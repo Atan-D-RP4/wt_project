@@ -1,7 +1,3 @@
-// @ts-types="npm:@types/node"
-import * as fs from "node:fs";
-import { Buffer } from "node:buffer";
-
 // @ts-types="npm:@types/express"
 import express from "npm:express";
 
@@ -32,30 +28,20 @@ if (import.meta.main) {
   });
 
   // Login page
-  app.get("/login.html", (_req: express.Request, res: express.Response) => {
-    res.redirect("/login");
-  });
-
-  // Re-direct to login page
   app.get("/login", (_req: express.Request, res: express.Response) => {
     res.render("login");
-  });
-
-  app.get("/logout", (req: express.Request, res: express.Response) => {
-    fetch("/auth/logout", { method: "POST" }, req);
-    res.redirect("/login");
   });
 
   app.get("/register", (_req: express.Request, res: express.Response) => {
     res.render("register");
   });
 
-  app.get("/dashboard.html", (_req: express.Request, res: express.Response) => {
-    res.redirect("/dashboard");
-  });
-
   app.get("/dashboard", (_req: express.Request, res: express.Response) => {
     res.render("dashboard");
+  });
+
+  app.get("/transfer", (_req: express.Request, res: express.Response) => {
+      res.render("transfer");
   });
 
   app.get("/users", (_req: express.Request, res: express.Response) => {
