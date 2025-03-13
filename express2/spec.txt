@@ -1,0 +1,1013 @@
+// Project structure:
+/*
+deno-auth-app/
+├── tsconfig.json
+├── src/
+│   ├── tsconfig.json
+│   ├── api/
+│   │   ├── tsconfig.json
+│   │   ├── controllers/
+│   │   │   ├── authController.ts
+│   │   │   ├── dashboardController.ts
+│   │   │   └── index.ts
+│   │   ├── middleware/
+│   │   │   ├── authMiddleware.ts
+│   │   │   └── index.ts
+│   │   ├── models/
+│   │   │   ├── userModel.ts
+│   │   │   └── index.ts
+│   │   ├── routes/
+│   │   │   ├── authRoutes.ts
+│   │   │   ├── dashboardRoutes.ts
+│   │   │   └── index.ts
+│   │   └── services/
+│   │       ├── jwtService.ts
+│   │       ├── passwordService.ts
+│   │       └── index.ts
+│   ├── config/
+│   │   ├── tsconfig.json
+│   │   ├── database.ts
+│   │   ├── server.ts
+│   │   └── index.ts
+│   ├── public/
+│   │   ├── tsconfig.json
+│   │   ├── css/
+│   │   │   └── style.css
+│   │   ├── js/
+│   │   │   ├── auth.js
+│   │   │   └── dashboard.js
+│   │   └── index.ts
+│   └── views/
+│       ├── tsconfig.json
+│       ├── layouts/
+│       │   └── main.ejs
+│       ├── pages/
+│       │   ├── login.ejs
+│       │   ├── register.ejs
+│       │   └── dashboard.ejs
+│       └── index.ts
+└── mod.ts
+*/
+
+// Root tsconfig.json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "declaration": true,
+    "composite": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "references": [
+    { "path": "./src" }
+  ],
+  "files": []
+}
+
+// src/tsconfig.json
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../dist",
+    "rootDir": "."
+  },
+  "references": [
+    { "path": "./api" },
+    { "path": "./config" },
+    { "path": "./public" },
+    { "path": "./views" }
+  ],
+  "files": ["index.ts"]
+}
+
+// src/api/tsconfig.json
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/api",
+    "rootDir": "."
+  },
+  "references": [
+    { "path": "../config" }
+  ],
+  "include": ["./**/*.ts"]
+}
+
+// src/config/tsconfig.json
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/config",
+    "rootDir": "."
+  },
+  "include": ["./**/*.ts"]
+}
+
+// src/public/tsconfig.json
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/public",
+    "rootDir": "."
+  },
+  "include": ["./**/*.ts"]
+}
+
+// src/views/tsconfig.json
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/views",
+    "rootDir": "."
+  },
+  "include": ["./**/*.ts"]
+}
+
+// mod.ts - Main entry point
+import { startServer } from "./src/config/server.ts";
+
+// Start the server
+startServer();
+
+// src/index.ts
+export * from "./api/index.ts";
+export * from "./config/index.ts";
+export * from "./public/index.ts";
+export * from "./views/index.ts";
+
+// src/config/index.ts
+export * from "./database.ts";
+export * from "./server.ts";
+
+// src/config/database.ts
+import mysql from "mysql2/promise";
+
+export interface DatabaseConfig {
+  host: string;
+  user: string;
+  password: string;
+  database: string;
+}
+
+export class Database {
+  private static instance: mysql.Pool;
+  private static config: DatabaseConfig = {
+    host: Deno.env.get("DB_HOST") || "localhost",
+    user: Deno.env.get("DB_USER") || "root",
+    password: Deno.env.get("DB_PASSWORD") || "password",
+    database: Deno.env.get("DB_NAME") || "deno_auth_app"
+  };
+
+  public static getConnection(): mysql.Pool {
+    if (!Database.instance) {
+      Database.instance = mysql.createPool(Database.config);
+    }
+    return Database.instance;
+  }
+
+  public static async initialize(): Promise<void> {
+    const connection = Database.getConnection();
+    try {
+      // Create users table if it doesn't exist
+      await connection.execute(`
+        CREATE TABLE IF NOT EXISTS users (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          username VARCHAR(50) NOT NULL UNIQUE,
+          email VARCHAR(100) NOT NULL UNIQUE,
+          password VARCHAR(255) NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+      `);
+      console.log("Database initialized successfully");
+    } catch (error) {
+      console.error("Error initializing database:", error);
+      throw error;
+    }
+  }
+}
+
+// src/config/server.ts
+import express from "express";
+import { Application } from "express";
+import path from "path";
+import { Database } from "./database.ts";
+import { authRoutes, dashboardRoutes } from "../api/routes/index.ts";
+
+export async function startServer(): Promise<void> {
+  const app: Application = express();
+  const port: number = parseInt(Deno.env.get("PORT") || "3000");
+
+  // Initialize database
+  await Database.initialize();
+
+  // Middleware
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.static(path.join(Deno.cwd(), "src/public")));
+
+  // Set view engine
+  app.set("view engine", "ejs");
+  app.set("views", path.join(Deno.cwd(), "src/views/pages"));
+
+  // Routes
+  app.use("/auth", authRoutes);
+  app.use("/dashboard", dashboardRoutes);
+
+  // Home route
+  app.get("/", (req, res) => {
+    res.redirect("/auth/login");
+  });
+
+  // Start server
+  app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+  });
+}
+
+// src/api/index.ts
+export * from "./controllers/index.ts";
+export * from "./middleware/index.ts";
+export * from "./models/index.ts";
+export * from "./routes/index.ts";
+export * from "./services/index.ts";
+
+// src/api/controllers/index.ts
+export * from "./authController.ts";
+export * from "./dashboardController.ts";
+
+// src/api/controllers/authController.ts
+import { Request, Response } from "express";
+import { User, UserService } from "../models/userModel.ts";
+import { JWTService } from "../services/jwtService.ts";
+import { PasswordService } from "../services/passwordService.ts";
+
+export class AuthController {
+  static async login(req: Request, res: Response): Promise<void> {
+    try {
+      const { username, password } = req.body;
+
+      if (!username || !password) {
+        res.status(400).json({ message: "Username and password are required" });
+        return;
+      }
+
+      const user = await UserService.findByUsername(username);
+
+      if (!user) {
+        res.status(401).json({ message: "Invalid credentials" });
+        return;
+      }
+
+      const isValidPassword = await PasswordService.verify(password, user.password);
+
+      if (!isValidPassword) {
+        res.status(401).json({ message: "Invalid credentials" });
+        return;
+      }
+
+      const token = JWTService.generateToken({ id: user.id, username: user.username });
+
+      res.json({ message: "Login successful", token });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+
+  static async register(req: Request, res: Response): Promise<void> {
+    try {
+      const { username, email, password } = req.body;
+
+      if (!username || !email || !password) {
+        res.status(400).json({ message: "All fields are required" });
+        return;
+      }
+
+      const existingUser = await UserService.findByUsername(username);
+
+      if (existingUser) {
+        res.status(409).json({ message: "Username already exists" });
+        return;
+      }
+
+      const existingEmail = await UserService.findByEmail(email);
+
+      if (existingEmail) {
+        res.status(409).json({ message: "Email already in use" });
+        return;
+      }
+
+      const hashedPassword = await PasswordService.hash(password);
+
+      const user: User = {
+        username,
+        email,
+        password: hashedPassword
+      };
+
+      const newUser = await UserService.create(user);
+
+      const token = JWTService.generateToken({ id: newUser.id, username: newUser.username });
+
+      res.status(201).json({ message: "User created successfully", token });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+
+  static async renderLogin(req: Request, res: Response): Promise<void> {
+    res.render("login", { title: "Login" });
+  }
+
+  static async renderRegister(req: Request, res: Response): Promise<void> {
+    res.render("register", { title: "Register" });
+  }
+
+  static async logout(req: Request, res: Response): Promise<void> {
+    res.json({ message: "Logout successful" });
+  }
+}
+
+// src/api/controllers/dashboardController.ts
+import { Request, Response } from "express";
+import { UserService } from "../models/userModel.ts";
+
+export class DashboardController {
+  static async getData(req: Request, res: Response): Promise<void> {
+    try {
+      // @ts-ignore - We're using middleware to set userId
+      const userId = req.userId;
+
+      const user = await UserService.findById(userId);
+
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
+      res.json({
+        username: user.username,
+        email: user.email,
+        joinedDate: user.created_at
+      });
+    } catch (error) {
+      console.error("Dashboard error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+
+  static async renderDashboard(req: Request, res: Response): Promise<void> {
+    res.render("dashboard", { title: "Dashboard" });
+  }
+}
+
+// src/api/middleware/index.ts
+export * from "./authMiddleware.ts";
+
+// src/api/middleware/authMiddleware.ts
+import { Request, Response, NextFunction } from "express";
+import { JWTService } from "../services/jwtService.ts";
+
+export function authenticateToken(req: Request, res: Response, next: NextFunction): void {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+      res.status(401).json({ message: "Access token required" });
+      return;
+    }
+
+    const payload = JWTService.verifyToken(token);
+
+    if (!payload) {
+      res.status(403).json({ message: "Invalid or expired token" });
+      return;
+    }
+
+    // @ts-ignore - Adding userId to request
+    req.userId = payload.id;
+    next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+    res.status(403).json({ message: "Invalid token" });
+  }
+}
+
+export function checkAuthentication(req: Request, res: Response, next: NextFunction): void {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+      res.redirect("/auth/login");
+      return;
+    }
+
+    const payload = JWTService.verifyToken(token);
+
+    if (!payload) {
+      res.redirect("/auth/login");
+      return;
+    }
+
+    // @ts-ignore - Adding userId to request
+    req.userId = payload.id;
+    next();
+  } catch (error) {
+    res.redirect("/auth/login");
+  }
+}
+
+// src/api/models/index.ts
+export * from "./userModel.ts";
+
+// src/api/models/userModel.ts
+import { Database } from "../../config/database.ts";
+import { RowDataPacket, ResultSetHeader } from "mysql2";
+
+export interface User {
+  id?: number;
+  username: string;
+  email: string;
+  password: string;
+  created_at?: Date;
+  updated_at?: Date;
+}
+
+export class UserService {
+  static async findById(id: number): Promise<User | null> {
+    try {
+      const connection = Database.getConnection();
+      const [rows] = await connection.execute<RowDataPacket[]>(
+        "SELECT * FROM users WHERE id = ?",
+        [id]
+      );
+
+      return rows.length > 0 ? rows[0] as User : null;
+    } catch (error) {
+      console.error("Error finding user by ID:", error);
+      throw error;
+    }
+  }
+
+  static async findByUsername(username: string): Promise<User | null> {
+    try {
+      const connection = Database.getConnection();
+      const [rows] = await connection.execute<RowDataPacket[]>(
+        "SELECT * FROM users WHERE username = ?",
+        [username]
+      );
+
+      return rows.length > 0 ? rows[0] as User : null;
+    } catch (error) {
+      console.error("Error finding user by username:", error);
+      throw error;
+    }
+  }
+
+  static async findByEmail(email: string): Promise<User | null> {
+    try {
+      const connection = Database.getConnection();
+      const [rows] = await connection.execute<RowDataPacket[]>(
+        "SELECT * FROM users WHERE email = ?",
+        [email]
+      );
+
+      return rows.length > 0 ? rows[0] as User : null;
+    } catch (error) {
+      console.error("Error finding user by email:", error);
+      throw error;
+    }
+  }
+
+  static async create(user: User): Promise<User> {
+    try {
+      const connection = Database.getConnection();
+      const [result] = await connection.execute<ResultSetHeader>(
+        "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+        [user.username, user.email, user.password]
+      );
+
+      return { ...user, id: result.insertId };
+    } catch (error) {
+      console.error("Error creating user:", error);
+      throw error;
+    }
+  }
+}
+
+// src/api/routes/index.ts
+export { default as authRoutes } from "./authRoutes.ts";
+export { default as dashboardRoutes } from "./dashboardRoutes.ts";
+
+// src/api/routes/authRoutes.ts
+import express from "express";
+import { AuthController } from "../controllers/authController.ts";
+
+const router = express.Router();
+
+// API routes
+router.post("/login", AuthController.login);
+router.post("/register", AuthController.register);
+router.post("/logout", AuthController.logout);
+
+// View routes
+router.get("/login", AuthController.renderLogin);
+router.get("/register", AuthController.renderRegister);
+
+export default router;
+
+// src/api/routes/dashboardRoutes.ts
+import express from "express";
+import { DashboardController } from "../controllers/dashboardController.ts";
+import { authenticateToken, checkAuthentication } from "../middleware/authMiddleware.ts";
+
+const router = express.Router();
+
+// API routes
+router.get("/data", authenticateToken, DashboardController.getData);
+
+// View routes
+router.get("/", checkAuthentication, DashboardController.renderDashboard);
+
+export default router;
+
+// src/api/services/index.ts
+export * from "./jwtService.ts";
+export * from "./passwordService.ts";
+
+// src/api/services/jwtService.ts
+import jwt from "jsonwebtoken";
+
+interface JWTPayload {
+  id: number;
+  username: string;
+}
+
+export class JWTService {
+  private static readonly SECRET_KEY = Deno.env.get("JWT_SECRET") || "your-secret-key";
+  private static readonly EXPIRES_IN = "24h";
+
+  static generateToken(payload: JWTPayload): string {
+    return jwt.sign(payload, JWTService.SECRET_KEY, { expiresIn: JWTService.EXPIRES_IN });
+  }
+
+  static verifyToken(token: string): JWTPayload | null {
+    try {
+      return jwt.verify(token, JWTService.SECRET_KEY) as JWTPayload;
+    } catch (error) {
+      console.error("Token verification failed:", error);
+      return null;
+    }
+  }
+}
+
+// src/api/services/passwordService.ts
+import bcrypt from "bcrypt";
+
+export class PasswordService {
+  private static readonly SALT_ROUNDS = 10;
+
+  static async hash(password: string): Promise<string> {
+    return bcrypt.hash(password, PasswordService.SALT_ROUNDS);
+  }
+
+  static async verify(password: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(password, hash);
+  }
+}
+
+// src/public/index.ts
+// This file exports public assets
+export const PUBLIC_DIR = "./public";
+
+// src/public/css/style.css
+/*
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.container {
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  background: #333;
+  color: #fff;
+  padding: 20px 0;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+nav ul {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  justify-content: center;
+}
+
+nav ul li {
+  margin: 0 10px;
+}
+
+nav ul li a {
+  color: #fff;
+  text-decoration: none;
+}
+
+form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  max-width: 500px;
+}
+
+form div {
+  margin-bottom: 15px;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+form input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+button {
+  background: #333;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #555;
+}
+
+.error {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.success {
+  color: green;
+  margin-bottom: 10px;
+}
+
+.dashboard {
+  background: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-info div {
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+.logout-btn {
+  margin-top: 20px;
+}
+*/
+
+// src/public/js/auth.js
+/*
+document.addEventListener('DOMContentLoaded', function() {
+  // Login form submission
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorMsg = document.getElementById('error-message');
+
+      try {
+        const response = await fetch('/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Store token in localStorage
+          localStorage.setItem('auth_token', data.token);
+          // Redirect to dashboard
+          window.location.href = '/dashboard';
+        } else {
+          errorMsg.textContent = data.message;
+        }
+      } catch (error) {
+        errorMsg.textContent = 'Server error. Please try again.';
+        console.error('Login error:', error);
+      }
+    });
+  }
+
+  // Register form submission
+  const registerForm = document.getElementById('register-form');
+  if (registerForm) {
+    registerForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const errorMsg = document.getElementById('error-message');
+
+      if (password !== confirmPassword) {
+        errorMsg.textContent = 'Passwords do not match';
+        return;
+      }
+
+      try {
+        const response = await fetch('/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Store token in localStorage
+          localStorage.setItem('auth_token', data.token);
+          // Redirect to dashboard
+          window.location.href = '/dashboard';
+        } else {
+          errorMsg.textContent = data.message;
+        }
+      } catch (error) {
+        errorMsg.textContent = 'Server error. Please try again.';
+        console.error('Registration error:', error);
+      }
+    });
+  }
+
+  // Logout function
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async function() {
+      try {
+        await fetch('/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          }
+        });
+
+        // Clear token from localStorage
+        localStorage.removeItem('auth_token');
+        // Redirect to login page
+        window.location.href = '/auth/login';
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    });
+  }
+});
+*/
+
+// src/public/js/dashboard.js
+/*
+document.addEventListener('DOMContentLoaded', function() {
+  const token = localStorage.getItem('auth_token');
+
+  if (!token) {
+    window.location.href = '/auth/login';
+    return;
+  }
+
+  // Fetch user data for dashboard
+  async function fetchUserData() {
+    try {
+      const response = await fetch('/dashboard/data', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('auth_token');
+          window.location.href = '/auth/login';
+          return;
+        }
+        throw new Error('Failed to fetch user data');
+      }
+
+      const userData = await response.json();
+
+      // Update dashboard with user data
+      document.getElementById('username').textContent = userData.username;
+      document.getElementById('email').textContent = userData.email;
+      document.getElementById('joined-date').textContent = new Date(userData.joinedDate).toLocaleDateString();
+
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  }
+
+  fetchUserData();
+
+  // Logout handler
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+      localStorage.removeItem('auth_token');
+      window.location.href = '/auth/login';
+    });
+  }
+});
+*/
+
+// src/views/index.ts
+// This file exports views
+export const VIEWS_DIR = "./views";
+
+// src/views/layouts/main.ejs
+/*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Deno Auth App</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Deno Auth App</h1>
+      <nav>
+        <ul>
+          <li><a href="/auth/login">Login</a></li>
+          <li><a href="/auth/register">Register</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <%- body %>
+  </main>
+
+  <script src="/js/auth.js"></script>
+</body>
+</html>
+*/
+
+// src/views/pages/login.ejs
+/*
+<%- include('../layouts/main', { title: 'Login' }) %>
+
+<form id="login-form">
+  <h2>Login</h2>
+
+  <div id="error-message" class="error"></div>
+
+  <div>
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" required>
+  </div>
+
+  <div>
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+  </div>
+
+  <button type="submit">Login</button>
+
+  <p>Don't have an account? <a href="/auth/register">Register</a></p>
+</form>
+*/
+
+// src/views/pages/register.ejs
+/*
+<%- include('../layouts/main', { title: 'Register' }) %>
+
+<form id="register-form">
+  <h2>Register</h2>
+
+  <div id="error-message" class="error"></div>
+
+  <div>
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" required>
+  </div>
+
+  <div>
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required>
+  </div>
+
+  <div>
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+  </div>
+
+  <div>
+    <label for="confirm-password">Confirm Password</label>
+    <input type="password" id="confirm-password" name="confirm-password" required>
+  </div>
+
+  <button type="submit">Register</button>
+
+  <p>Already have an account? <a href="/auth/login">Login</a></p>
+</form>
+*/
+
+// src/views/pages/dashboard.ejs
+/*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Deno Auth App</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Deno Auth App</h1>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="dashboard">
+      <h2>Welcome to your Dashboard</h2>
+
+      <div class="user-info">
+        <h3>User Information</h3>
+
+        <div>
+          <strong>Username:</strong> <span id="username">Loading...</span>
+        </div>
+
+        <div>
+          <strong>Email:</strong> <span id="email">Loading...</span>
+        </div>
+
+        <div>
+          <strong>Member Since:</strong> <span id="joined-date">Loading...</span>
+        </div>
+      </div>
+
+      <button id="logout-btn" class="logout-btn">Logout</button>
+    </div>
+  </main>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
+*/

@@ -10,24 +10,20 @@ document.addEventListener("DOMContentLoaded", async () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.getItem("authToken"),
           },
         });
 
         if (response.ok) {
-          // Clear the authentication token from localStorage
-          localStorage.removeItem("authToken");
-          // Redirect to the login page
+          // Redirect to the login page after successful logout
           globalThis.window.location.href = "/login";
         } else {
-          console.error("Logout failed:", response.statusText);
+          console.error("Logout failed");
         }
       } catch (error) {
         console.error("Error during logout:", error);
+        globalThis.window.location.href = "/login";
       }
     });
-  } else {
-    console.error("Logout button not found");
   }
 
   try {
@@ -35,10 +31,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // In a real app, include your JWT token or session info here:
-        "Authorization": "Bearer " + localStorage.getItem("authToken"),
       },
     });
+    console.log("Response:", response);
 
     if (!response.ok) {
       throw new Error("Failed to fetch dashboard data");
@@ -82,9 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }</p>
             <div class="account-balance mb-3">$${account.balance}</div>
             <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-outline-primary">
-                Transfer
-              </button>
+              <button class="btn btn-sm btn-outline-primary">Transfer</button>
               <button class="btn btn-sm btn-outline-secondary">Details</button>
             </div>
           </div>
@@ -93,13 +86,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       accountsContainer.appendChild(accountCard);
     });
 
-    // Update financial summary elements (example for monthly spending)
-    // You can target more elements as needed:
+    // Example: Update monthly spending (similar updates can be applied to other elements)
     const spendingElem = document.querySelector(".stats-card .stat-value");
     if (spendingElem) {
       spendingElem.textContent = "$" + data.summary.monthlySpending.toFixed(2);
     }
-    // (Similarly update monthly income, savings progress, credit score, etc.)
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
   }

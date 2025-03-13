@@ -10,9 +10,12 @@ router.get("/register", (_req: express.Request, res: express.Response) => {
 });
 
 // Registration endpoint
-router.post("/register", async (req: express.Request, res: express.Response) => {
-  await authController.register(req, res);
-});
+router.post(
+  "/register",
+  async (req: express.Request, res: express.Response) => {
+    await authController.register(req, res);
+  },
+);
 
 // Login endpoint
 // post does not take async functions

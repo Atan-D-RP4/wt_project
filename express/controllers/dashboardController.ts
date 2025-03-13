@@ -16,12 +16,14 @@ export const dashboardController = {
       // For each account, get recent transactions (limit to 5 for demonstration)
       const accountsWithTransactions = await Promise.all(
         accounts.map(async (account) => {
-          const transactions = await TransactionModel.findByAccountId(account.id);
+          const transactions = await TransactionModel.findByAccountId(
+            account.id,
+          );
           return {
             ...account,
             transactions: transactions.slice(0, 5), // recent 5 transactions
           };
-        })
+        }),
       );
 
       // Calculate a simple financial summary (this can be made more detailed)

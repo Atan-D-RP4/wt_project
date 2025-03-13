@@ -33,7 +33,7 @@ export const TransactionModel = {
       [
         newTransaction.id,
         newTransaction.accountId,
-        '',
+        "",
         newTransaction.type,
         newTransaction.amount,
         newTransaction.description,

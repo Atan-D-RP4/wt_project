@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
         zipCode: getInputElement("zipCode").value,
         username: getInputElement("username").value,
         password: getInputElement("password").value,
-        accountType: /** @type {HTMLInputElement} */(
+        accountType: /** @type {HTMLInputElement} */ (
           document.querySelector(
             'input[name="accountType"]:checked',
           )

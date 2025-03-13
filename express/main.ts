@@ -1,5 +1,6 @@
 // @ts-types="npm:@types/express"
 import express from "npm:express";
+import session from "npm:express-session";
 
 // Routes
 import accountRoutes from "./routes/accounts.ts";
@@ -14,6 +15,13 @@ if (import.meta.main) {
   // Middleware
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(session({
+    secret: "yourSecretKey", // Replace with a strong secret key
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true in production with HTTPS
+  }));
+
   app.use(express.static("public"));
   app.set("view engine", "ejs");
 
@@ -32,16 +40,10 @@ if (import.meta.main) {
     res.render("login");
   });
 
-  app.get("/register", (_req: express.Request, res: express.Response) => {
-    res.render("register");
-  });
 
-  app.get("/dashboard", (_req: express.Request, res: express.Response) => {
+  app.get("/dashboard", async (req, res) => {
+    // Make sure middleware is applied
     res.render("dashboard");
-  });
-
-  app.get("/transfer", (_req: express.Request, res: express.Response) => {
-      res.render("transfer");
   });
 
   app.get("/users", (_req: express.Request, res: express.Response) => {

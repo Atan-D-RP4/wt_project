@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 
 import { UserModel } from "../models/user.ts";
 import { AccountModel } from "../models/account.ts";
-import { tokenService } from "../tokenService.ts"; // Service to handle token blacklisting
 
 export const authController = {
   register: async (req: Request, res: Response) => {
@@ -81,12 +80,16 @@ export const authController = {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
-      // Generate session/JWT token here
-      const token = tokenService.generateToken({ id: user.id, username: user.username });
+      req.session.user = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      };
+
+      console.log("Session ID:", req.session.id, "\nUser ID:", user.id);
 
       res.status(200).json({
         message: "Login successful",
-        token,
         user: { id: user.id, username: user.username, email: user.email },
       });
     } catch (error) {
@@ -96,16 +99,17 @@ export const authController = {
   },
 
   logout: (req: Request, res: Response) => {
-    try {
-      const token = req.headers.authorization?.split(" ")[1];
-      if (token) {
-        tokenService.invalidateToken(token); // Add token to blacklist
+    // Destroy the session
+    console.log(req.session);
+    req.session.destroy((err: any) => {
+      if (err) {
+        console.error("Logout error:", err);
+        return res.status(500).json({ error: "Server error during logout" });
       }
+      // Clear the session cookie (using the default name "connect.sid")
+      res.clearCookie("connect.sid");
       res.status(200).json({ message: "Logged out successfully" });
-    } catch (error) {
-      console.error("Logout error:", error);
-      res.status(500).json({ error: "Server error during logout" });
-    }
+    });
   },
 };
 
