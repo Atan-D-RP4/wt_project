@@ -41,8 +41,8 @@ if (import.meta.main) {
     res.render("login");
   });
 
-  app.get("/logout", (_req: express.Request, res: express.Response) => {
-    fetch("/logout", { method: "POST" });
+  app.get("/logout", (req: express.Request, res: express.Response) => {
+    fetch("/auth/logout", { method: "POST" }, req);
     res.redirect("/login");
   });
 
