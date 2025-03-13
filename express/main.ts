@@ -12,7 +12,6 @@ import dashboardRoutes from "./routes/dashboard.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
-
   const app = express();
   const PORT = 3000;
 
@@ -20,6 +19,7 @@ if (import.meta.main) {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.static("public"));
+  app.set("view engine", "ejs");
 
   // Route setup
   app.use("/auth", authRoutes);
@@ -31,7 +31,6 @@ if (import.meta.main) {
     res.redirect("/login");
   });
 
-
   // Login page
   app.get("/login.html", (_req: express.Request, res: express.Response) => {
     res.redirect("/login");
@@ -39,25 +38,16 @@ if (import.meta.main) {
 
   // Re-direct to login page
   app.get("/login", (_req: express.Request, res: express.Response) => {
-    fs.readFile(
-      "./views/login.html",
-      (err: NodeJS.ErrnoException | null, data: Buffer<ArrayBufferLike>) => {
-        if (err) throw err;
-        res.contentType("html");
-        res.send(data);
-      },
-    );
+    res.render("login");
+  });
+
+  app.get("/logout", (_req: express.Request, res: express.Response) => {
+    fetch("/logout", { method: "POST" });
+    res.redirect("/login");
   });
 
   app.get("/register", (_req: express.Request, res: express.Response) => {
-    fs.readFile(
-      "./views/register.html",
-      (err: NodeJS.ErrnoException | null, data: Buffer<ArrayBufferLike>) => {
-        if (err) throw err;
-        res.contentType("html");
-        res.send(data);
-      },
-    );
+    res.render("register");
   });
 
   app.get("/dashboard.html", (_req: express.Request, res: express.Response) => {
@@ -65,14 +55,7 @@ if (import.meta.main) {
   });
 
   app.get("/dashboard", (_req: express.Request, res: express.Response) => {
-    fs.readFile(
-      "./views/dashboard.html",
-      (err: NodeJS.ErrnoException | null, data: Buffer<ArrayBufferLike>) => {
-        if (err) throw err;
-        res.contentType("html");
-        res.send(data);
-      },
-    );
+    res.render("dashboard");
   });
 
   app.get("/users", (_req: express.Request, res: express.Response) => {

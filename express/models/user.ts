@@ -118,7 +118,6 @@ export const UserModel = {
   },
 
   findById: async (id: string): Promise<User | undefined> => {
-    console.log(id);
     const users = await client.execute("SELECT * FROM users WHERE id = ?", [
       id,
     ]);

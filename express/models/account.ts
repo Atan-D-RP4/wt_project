@@ -9,7 +9,7 @@ export enum AccountType {
   Both = "both",
 }
 
-interface Account {
+export interface Account {
   id: string;
   userId: string;
   type: AccountType;
@@ -44,7 +44,6 @@ export const AccountModel = {
       console.log("Account already exists");
       return accounts.rows[0] as Account;
     }
-    console.log(newAccount);
 
     await client.execute(
       "INSERT INTO accounts (id, userId, type, accountNumber, balance, createdAt) VALUES (?, ?, ?, ?, ?, ?)",

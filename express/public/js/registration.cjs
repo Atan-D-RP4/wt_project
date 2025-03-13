@@ -1,33 +1,45 @@
+/**
+ * Gets an input element by ID.
+ * @param {string} id - The ID of the element.
+ * @returns {HTMLInputElement} The input element.
+ * @throws Will throw an error if the element is not found.
+ */
+function getInputElement(id) {
+  const element = document.getElementById(id);
+  if (!element) {
+    throw new Error(`Element with id '${id}' not found`);
+  }
+  return /** @type {HTMLInputElement} */ (element);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM loaded");
   const registrationForm = document.getElementById("registrationForm");
 
   if (registrationForm) {
     registrationForm.addEventListener("submit", async function (e) {
-      console.log(document.getElementById("accountType"));
       e.preventDefault();
-      // Collect form data
       const formData = {
-        // If you're running the deno language server, you will see a bunch of errors here. That's because document.getElementById() returns
-        // an HTMLElement object, which doesn't have a value property. But the HTMLInputElement object does have a value property.
-        // and JavaScript can just trivially cast the HTMLElement object to an HTMLInputElement object. So we don't need to worry about it.
-        fullName: document.getElementById("fullName").value,
-        email: document.getElementById("email").value,
-        phone: document.getElementById("phone").value,
-        address: document.getElementById("address").value,
-        city: document.getElementById("city").value,
-        state: document.getElementById("state").value,
-        zipCode: document.getElementById("zipCode").value,
-        username: document.getElementById("username").value,
-        password: document.getElementById("password").value,
-        accountType: document.querySelector('input[name="accountType"]:checked').value,
+        fullName: getInputElement("fullName").value,
+        email: getInputElement("email").value,
+        phone: getInputElement("phone").value,
+        address: getInputElement("address").value,
+        city: getInputElement("city").value,
+        state: getInputElement("state").value,
+        zipCode: getInputElement("zipCode").value,
+        username: getInputElement("username").value,
+        password: getInputElement("password").value,
+        accountType: /** @type {HTMLInputElement} */(
+          document.querySelector(
+            'input[name="accountType"]:checked',
+          )
+        ).value,
       };
-      console.log(formData);
 
       // Validate password
-      const confirmPassword = document.getElementById("confirmPassword").value;
+      const confirmPassword = getInputElement("confirmPassword");
       // Check if confirm password is not null
-      if (formData.password !== confirmPassword) {
+      if (formData.password !== confirmPassword.value) {
         alert("Passwords do not match");
         return;
       }
@@ -53,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (response.ok) {
           alert("Account created successfully! You can now log in.");
-          window.location.href = "/login";
+          globalThis.window.location.href = "/login";
         } else {
           alert(data.error || "Registration failed");
         }

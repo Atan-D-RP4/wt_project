@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import process from "node:process";
 
 import { UserModel } from "../models/user.ts";
+import { tokenService } from "../tokenService.ts";
 
 export const authMiddleware = async (
   req: Request,
@@ -22,14 +23,11 @@ export const authMiddleware = async (
     // For this demo, we'll simulate by looking up a user
     // This is NOT secure and only for demonstration
 
-    // In a real app with JWT:
-    const decoded = jwt.verify(token, process.env.JWT_SECRET! || "secret") as {
+    const decoded = tokenService.verifyToken(token) as {
       id: string;
       username: string;
     };
     const user = await UserModel.findById(decoded.id);
-
-    console.log(user);
 
     if (!user) {
       return res.status(401).json({ error: "Invalid authentication" });

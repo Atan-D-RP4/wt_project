@@ -1,4 +1,3 @@
-// public/js/dashboard.js
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("Dashboard loading...");
   try {
@@ -22,7 +21,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!accountsContainer) throw new Error("No accounts container found");
     accountsContainer.innerHTML = ""; // Clear any existing content
 
-    data.accounts.forEach((account) => {
+    /**
+     * @typedef {Object} Account
+     * @property {string} id
+     * @property {string} userId
+     * @property {string} type
+     * @property {string} accountNumber
+     * @property {number} balance
+     * @property {string} createdAt
+     */
+    data.accounts.forEach((/** @type {Account}*/ account) => {
       console.log("Account:", account);
       const accountCard = document.createElement("div");
       accountCard.classList.add("col-md-6", "col-lg-4", "mb-4");
@@ -42,9 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <p class="card-text text-muted mb-1">Account: ••••${
         account.accountNumber.slice(-4)
       }</p>
-            <div class="account-balance mb-3">$${
-        account.balance
-      }</div>
+            <div class="account-balance mb-3">$${account.balance}</div>
             <div class="d-flex gap-2">
               <button class="btn btn-sm btn-outline-primary">Transfer</button>
               <button class="btn btn-sm btn-outline-secondary">Details</button>

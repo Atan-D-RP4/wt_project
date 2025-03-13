@@ -8,10 +8,15 @@
     "dev": "deno run --allow-all --watch main.ts",
   },
   "imports": {
-    "@types/jsonwebtoken": "npm:@types/jsonwebtoken@^8.5.1",
-    "@types/express": "npm:@types/express@^5.0.0",
     "@types/node": "npm:@types/node@^22.13.8",
+
+    "@types/express": "npm:@types/express@^5.0.0",
     "express": "npm:express@^5.0.0",
+
+    "@types/jsonwebtoken": "npm:@types/jsonwebtoken@^8.5.1",
     "jsonwebtoken": "npm:jsonwebtoken@^8.5.1",
+
+    "@types/ejs": "npm:@types/ejs@^3.1.5",
+    "ejs": "npm:ejs@^3.1.10",
   }
 }

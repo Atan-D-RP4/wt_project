@@ -4,6 +4,7 @@ import process from "node:process";
 
 import { UserModel } from "../models/user.ts";
 import { AccountModel } from "../models/account.ts";
+import { tokenService } from "../tokenService.ts"; // Service to handle token blacklisting
 
 export const authController = {
   register: async (req: Request, res: Response) => {
@@ -83,11 +84,7 @@ export const authController = {
       }
 
       // Generate session/JWT token here
-      const token = jwt.sign(
-        { id: user.id, username: user.username },
-        process.env.JWT_SECRET || "secret",
-        { expiresIn: "1h" },
-      );
+      const token = tokenService.generateToken({ id: user.id, username: user.username });
 
       res.status(200).json({
         message: "Login successful",
@@ -100,9 +97,17 @@ export const authController = {
     }
   },
 
-  logout: (_req: Request, res: Response) => {
-    // Implement logout logic (invalidate token, etc.)
-    res.status(200).json({ message: "Logged out successfully" });
+  logout: (req: Request, res: Response) => {
+    try {
+      const token = req.headers.authorization?.split(" ")[1];
+      if (token) {
+        tokenService.invalidateToken(token); // Add token to blacklist
+      }
+      res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ error: "Server error during logout" });
+    }
   },
 };
 
