@@ -1,3 +1,4 @@
+<!-- File: dashboard.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,7 +36,7 @@
             </li>
             <li class="nav-item mt-5">
                 <a class="nav-link text-danger" id="logoutButton">
-                    <i class="fas fa-sign-out-alt"></i> Log Out
+                    <i class="fas fa-sign-out-alt" onclick="logout()"> </i> Logout
                 </a>
             </li>
         </ul>
@@ -183,6 +184,33 @@
 
     <!-- Dashboard Script -->
     <script src="/js/dashboard.cjs"></script>
+  <script>
+  // Logout functionality
+    async function logout() {
+      console.log("Logging out...");
+      try {
+        const response = await fetch("/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        console.log("Logout response:", response);
+
+        if (response.ok) {
+          // Redirect to the login page after successful logout
+          globalThis.window.location.href = "/login";
+        } else {
+          console.error("Logout failed");
+        }
+      } catch (error) {
+        console.error("Error during logout:", error);
+        globalThis.window.location.href = "/login";
+      }
+    }
+</script>
+
 </body>
 
 </html>
+

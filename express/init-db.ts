@@ -1,3 +1,4 @@
+// File: init-db.ts
 import db from "./database.ts";
 
 const client = db.getClient();
@@ -42,3 +43,4 @@ await client.execute(`CREATE TABLE IF NOT EXISTS transactions (
 )`);
 
 console.log("Database initialized");
+

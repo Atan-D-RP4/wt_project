@@ -1,3 +1,4 @@
+// File: main.ts
 // @ts-types="npm:@types/express"
 import express from "npm:express";
 import session from "npm:express-session";
@@ -6,6 +7,9 @@ import session from "npm:express-session";
 import accountRoutes from "./routes/accounts.ts";
 import authRoutes from "./routes/auth.ts";
 import dashboardRoutes from "./routes/dashboard.ts";
+
+// Auth
+import { authMiddleware } from "./middleware/auth.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -40,11 +44,19 @@ if (import.meta.main) {
     res.render("login");
   });
 
-
-  app.get("/dashboard", async (req, res) => {
-    // Make sure middleware is applied
-    res.render("dashboard");
+  app.get("/register", (_req: express.Request, res: express.Response) => {
+    res.render("register");
   });
+
+  // Create a dashboard route protected by auth middleware
+  app.get(
+    "/dashboard",
+    async (req: express.Request, res: express.Response) => {
+      await authMiddleware(req, res, () => {
+        res.render('dashboard');
+      });
+    },
+  );
 
   app.get("/users", (_req: express.Request, res: express.Response) => {
     res.send();

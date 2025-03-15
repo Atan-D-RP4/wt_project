@@ -1,3 +1,4 @@
+// File: transaction.ts
 // This is a simple in-memory model for demonstration
 // In a real application, you'd use a database
 
@@ -54,3 +55,4 @@ export const TransactionModel = {
       .sort((a, b) => b.date.getTime() - a.date.getTime()); // Sort by date, newest first
   },
 };
+

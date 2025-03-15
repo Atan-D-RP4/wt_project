@@ -1,3 +1,4 @@
+// File: dashboard.cjs
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("Dashboard loading...");
 
@@ -95,3 +96,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Error fetching dashboard data:", error);
   }
 });
+

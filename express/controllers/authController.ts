@@ -1,3 +1,4 @@
+// File: authController.ts
 import { Request, Response } from "express";
 
 import { UserModel } from "../models/user.ts";
@@ -110,6 +111,7 @@ export const authController = {
       res.clearCookie("connect.sid");
       res.status(200).json({ message: "Logged out successfully" });
     });
+    console.log('Session destroyed');
   },
 };
 
@@ -117,3 +119,4 @@ export const authController = {
 function generateAccountNumber(): string {
   return Math.floor(10000000 + Math.random() * 90000000).toString();
 }
+

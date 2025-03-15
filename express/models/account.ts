@@ -1,3 +1,4 @@
+// File: account.ts
 // This is a simple in-memory model for demonstration
 // In a real application, you'd use a database
 
@@ -98,3 +99,4 @@ export const AccountModel = {
     return AccountModel.findById(id);
   },
 };
+

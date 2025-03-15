@@ -1,3 +1,4 @@
+// File: user.ts
 // This is a simple in-memory model for demonstration
 // In a real application, you'd use a database
 
@@ -18,21 +19,6 @@ interface User {
   createdAt: Date;
   accountType: AccountType;
 }
-
-const admin = {
-  id: "admin-id",
-  fullName: "Admin User",
-  email: "admin@gmail.com",
-  phone: "123-456-7890",
-  address: "123 Admin St",
-  city: "Adminville",
-  state: "CA",
-  zipCode: "12345",
-  username: "admin",
-  password: "password",
-  createdAt: new Date(),
-  accountType: AccountType.Both,
-};
 
 const client = db.getClient();
 
@@ -127,5 +113,3 @@ export const UserModel = {
     return users.rows[0] as User;
   },
 };
-
-UserModel.create(admin);

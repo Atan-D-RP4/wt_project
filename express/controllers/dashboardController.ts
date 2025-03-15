@@ -1,3 +1,4 @@
+// File: dashboardController.ts
 // controllers/dashboardController.ts
 
 import { Request, Response } from "express";
@@ -6,6 +7,7 @@ import { TransactionModel } from "../models/transaction.ts";
 
 export const dashboardController = {
   getDashboardData: async (req: Request, res: Response) => {
+    console.log("Getting dashboard data...");
     try {
       // deno-lint-ignore no-explicit-any
       const userId = (req as any).user.id; // from auth middleware
@@ -49,3 +51,4 @@ export const dashboardController = {
     }
   },
 };
+

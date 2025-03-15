@@ -1,3 +1,4 @@
+// File: registration.cjs
 /**
  * Gets an input element by ID.
  * @param {string} id - The ID of the element.
@@ -76,3 +77,4 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+

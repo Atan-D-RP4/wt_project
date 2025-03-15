@@ -1,3 +1,4 @@
+// File: database.ts
 import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
 
 class Database {
@@ -32,3 +33,4 @@ class Database {
 }
 
 export default await Database.getInstance();
+

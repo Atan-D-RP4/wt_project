@@ -1,3 +1,4 @@
+// File: deno.json
 {
   "compilerOptions": {
     "checkJs": true,
@@ -20,3 +21,4 @@
     "express-session": "npm:express-session@^1.17.2"
   }
 }
+
