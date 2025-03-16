@@ -1,4 +1,4 @@
-// File: authController.ts
+// File: controllers/authController.ts
 import { Request, Response } from "express";
 
 import { UserModel } from "../models/user.ts";
@@ -51,7 +51,6 @@ export const authController = {
         userId: user.id,
         type: accountType,
         balance: 0,
-        accountNumber: generateAccountNumber(),
       });
 
       // Return success response

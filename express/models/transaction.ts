@@ -1,58 +1,89 @@
-// File: transaction.ts
-// This is a simple in-memory model for demonstration
-// In a real application, you'd use a database
+// File: models/transaction.ts
 
 import db from "../database.ts";
 
-interface Transaction {
+export interface Transaction {
   id: string;
-  accountId: string;
+  fromId: string;
+  toId: string;
   type: "deposit" | "withdrawal" | "transfer";
-  to_accountId?: string;
   amount: number;
   description: string;
   balance: number;
-  date: Date;
+  createdAt: Date;
 }
 
 // In-memory storage
-const transactions: Transaction[] = [];
 const client = db.getClient();
 
 export const TransactionModel = {
   create: async (
-    transactionData: Omit<Transaction, "id">,
+    transactionData: Omit<Transaction, "id"|"createdAt">,
   ): Promise<Transaction> => {
+    const count = await client.execute(
+      "SELECT COUNT(*) FROM transactions",
+    );
+    if (count.rows == undefined) {
+      throw new Error("SQL Query Error");
+    }
+    const id = count.rows[0]["COUNT(*)"] + 1;
+
     const newTransaction: Transaction = {
       ...transactionData,
-      id: crypto.randomUUID(),
+      createdAt: new Date(),
+      id,
     };
 
-    transactions.push(newTransaction);
     await client.execute(
-      "INSERT INTO transactions (id, accountId, to_accountId, type, amount, description, balance, date) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO transactions (id, toId, fromId, type, amount, description, balance, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [
         newTransaction.id,
-        newTransaction.accountId,
-        "",
+        newTransaction.fromId,
+        newTransaction.toId,
         newTransaction.type,
         newTransaction.amount,
         newTransaction.description,
         newTransaction.balance,
-        newTransaction.date,
+        newTransaction.createdAt,
       ],
     );
     return newTransaction;
   },
 
   findById: async (id: string): Promise<Transaction | undefined> => {
-    return transactions.find((transaction) => transaction.id === id);
+    const transactions = await client.execute(
+      "SELECT * FROM transactions WHERE id = ?",
+      [id],
+    );
+    if (transactions.rows == undefined) {
+      throw new Error("Account not found");
+    }
+
+    return transactions.rows.length > 0 ? transactions.rows[0] : undefined;
+  },
+
+  findByUserId: async (userId: string): Promise<Transaction[]> => {
+    const transactions = await client.execute(
+      "SELECT * FROM transactions WHERE userId = ?",
+      [userId],
+    );
+
+    if (transactions.rows == undefined) {
+      throw new Error("Account not found");
+    }
+
+    return transactions.rows as Transaction[];
   },
 
   findByAccountId: async (accountId: string): Promise<Transaction[]> => {
-    return transactions
-      .filter((transaction) => transaction.accountId === accountId)
-      .sort((a, b) => b.date.getTime() - a.date.getTime()); // Sort by date, newest first
+    const transactions = await client.execute(
+      "SELECT * FROM transactions WHERE fromId = ?",
+      [accountId],
+    );
+    if (transactions.rows == undefined) {
+      throw new Error("Account not found");
+    }
+
+    return transactions.rows as Transaction[];
   },
 };
-

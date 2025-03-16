@@ -1,13 +1,64 @@
-// File: accountController.ts
+// File: controllers/accountController.ts
+// @ts-tpes="npm:@types/node"
 import { Request, Response } from "npm:express@^4.21.2";
 import { AccountModel } from "../models/account.ts";
-import { TransactionModel } from "../models/transaction.ts";
 
 export const accountController = {
+  createAccount: async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.id; // From auth middleware
+      const { type } = req.body;
+
+      console.log("Creating an account");
+      if (!type) {
+        console.log("Type are required");
+        return res.status(400).json({ error: "Name and type are required" });
+      }
+
+      const account = await AccountModel.create({
+        userId,
+        type,
+        balance: 1000.0,
+      });
+      console.log("Account created:", account);
+
+      res.status(201).json({ account });
+    } catch (error) {
+      console.error("Create account error:", error);
+      res.status(500).json({
+        error: "Server error creating account",
+        details: (error as Error).message,
+      });
+    }
+  },
+
+  getAllAccounts: async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.id; // From auth middleware
+      const accounts = await AccountModel.findByUserId(userId);
+
+      if (!accounts || accounts.length === 0) {
+        return res.status(200).json({ accounts: [] });
+      }
+
+      res.status(200).json({ accounts });
+    } catch (error) {
+      console.error("Get accounts error:", error);
+      res.status(500).json({
+        error: "Server error retrieving accounts",
+        details: (error as Error).message,
+      });
+    }
+  },
+
   getAccount: async (req: Request, res: Response) => {
     try {
       const { accountId } = req.params;
       const userId = (req as any).user.id; // From auth middleware
+
+      if (!accountId) {
+        return res.status(400).json({ error: "Account ID is required" });
+      }
 
       const account = await AccountModel.findById(accountId);
 
@@ -19,7 +70,10 @@ export const accountController = {
       res.status(200).json({ account });
     } catch (error) {
       console.error("Get account error:", error);
-      res.status(500).json({ error: "Server error retrieving account" });
+      res.status(500).json({
+        error: "Server error retrieving account",
+        details: (error as Error).message,
+      });
     }
   },
 
@@ -28,6 +82,10 @@ export const accountController = {
       const { accountId } = req.params;
       const userId = (req as any).user.id; // From auth middleware
 
+      if (!accountId) {
+        return res.status(400).json({ error: "Account ID is required" });
+      }
+
       const account = await AccountModel.findById(accountId);
 
       // Check if account exists and belongs to user
@@ -35,136 +93,15 @@ export const accountController = {
         return res.status(404).json({ error: "Account not found" });
       }
 
-      const transactions = await TransactionModel.findByAccountId(accountId);
+      const transactions = await AccountModel.findTransactions(accountId);
 
       res.status(200).json({ transactions });
     } catch (error) {
-      console.error("Get transactions error:", error);
-      res.status(500).json({ error: "Server error retrieving transactions" });
-    }
-  },
-
-  createTransaction: async (req: Request, res: Response) => {
-    try {
-      const { accountId } = req.params;
-      const { type, amount, description } = req.body;
-      const userId = (req as any).user.id; // From auth middleware
-
-      // Validate input
-      if (!type || !amount || amount <= 0) {
-        return res.status(400).json({ error: "Invalid transaction details" });
-      }
-
-      const account = await AccountModel.findById(accountId);
-
-      // Check if account exists and belongs to user
-      if (!account || account.userId !== userId) {
-        return res.status(404).json({ error: "Account not found" });
-      }
-
-      // Handle deposits and withdrawals
-      if (type === "withdrawal" && account.balance < amount) {
-        return res.status(400).json({ error: "Insufficient funds" });
-      }
-
-      // Update account balance
-      const newBalance = type === "deposit"
-        ? account.balance + amount
-        : account.balance - amount;
-
-      await AccountModel.updateBalance(accountId, newBalance);
-
-      // Create transaction record
-      const transaction = await TransactionModel.create({
-        accountId,
-        type,
-        amount,
-        description,
-        balance: newBalance,
-        date: new Date(),
+      console.error("Get account transactions error:", error);
+      res.status(500).json({
+        error: "Server error retrieving account transactions",
+        details: (error as Error).message,
       });
-
-      res.status(201).json({
-        message: "Transaction completed successfully",
-        transaction,
-        newBalance,
-      });
-    } catch (error) {
-      console.error("Transaction error:", error);
-      res.status(500).json({ error: "Server error processing transaction" });
-    }
-  },
-
-  createTransfer: async (req: Request, res: Response) => {
-    try {
-      const { accountId } = req.params; // Sender account
-      const { toAccountId, amount, description } = req.body;
-      const userId = (req as any).user.id; // From auth middleware
-
-      // Validate input
-      if (!toAccountId || !amount || amount <= 0) {
-        return res.status(400).json({ error: "Invalid transfer details" });
-      }
-
-      // Get sender account and check ownership
-      const senderAccount = await AccountModel.findById(accountId);
-      if (!senderAccount || senderAccount.userId !== userId) {
-        return res.status(404).json({ error: "Sender account not found" });
-      }
-
-      // Get receiver account
-      const receiverAccount = await AccountModel.findById(toAccountId);
-      if (!receiverAccount) {
-        return res.status(404).json({ error: "Receiver account not found" });
-      }
-
-      // Check for sufficient funds
-      if (senderAccount.balance < amount) {
-        return res.status(400).json({
-          error: "Insufficient funds for transfer",
-        });
-      }
-
-      // Update sender balance
-      const newSenderBalance = senderAccount.balance - amount;
-      await AccountModel.updateBalance(accountId, newSenderBalance);
-
-      // Update receiver balance
-      const newReceiverBalance = receiverAccount.balance + amount;
-      await AccountModel.updateBalance(toAccountId, newReceiverBalance);
-
-      // Create transaction record for sender (transfer out)
-      const senderTransaction = await TransactionModel.create({
-        accountId,
-        type: "transfer",
-        amount,
-        description: description || `Transfer to account ${toAccountId}`,
-        balance: newSenderBalance,
-        date: new Date(),
-        to_accountId: toAccountId,
-      });
-
-      // Create transaction record for receiver (transfer in)
-      const receiverTransaction = await TransactionModel.create({
-        accountId: toAccountId,
-        type: "deposit", // or "transfer" based on your business logic
-        amount,
-        description: description || `Transfer from account ${accountId}`,
-        balance: newReceiverBalance,
-        date: new Date(),
-      });
-
-      res.status(201).json({
-        message: "Transfer completed successfully",
-        senderTransaction,
-        receiverTransaction,
-        newSenderBalance,
-        newReceiverBalance,
-      });
-    } catch (error) {
-      console.error("Transfer error:", error);
-      res.status(500).json({ error: "Server error processing transfer" });
     }
   },
 };
-

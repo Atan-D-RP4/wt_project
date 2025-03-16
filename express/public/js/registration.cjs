@@ -1,4 +1,4 @@
-// File: registration.cjs
+// File: public/js/registration.cjs
 /**
  * Gets an input element by ID.
  * @param {string} id - The ID of the element.

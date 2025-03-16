@@ -1,4 +1,4 @@
-// File: auth.ts
+// File: middleware/auth.ts
 import { NextFunction, Request, Response } from "express";
 
 export const authMiddleware = (
@@ -9,8 +9,8 @@ export const authMiddleware = (
   console.log("Authenticating user...");
   // Check if user is logged in
   if (!req.session?.user) {
-    console.log("User not logged in")
-    return res.status(401).json({ error: "Unauthorized" });
+    // Send a message to the user and then redirect to login page
+    return res.status(300).redirect("/login");
   }
 
   // Pass the user object to the next middleware

@@ -25,22 +25,24 @@ await client.execute(`CREATE TABLE IF NOT EXISTS accounts (
   id VARCHAR(36) PRIMARY KEY,
   userId VARCHAR(36),
   type ENUM('checking', 'savings', 'both'),
-  accountNumber VARCHAR(36),
   balance DECIMAL(10, 2),
   createdAt DATETIME,
   FOREIGN KEY (userId) REFERENCES users(id)
 )`);
 
-await client.execute(`CREATE TABLE IF NOT EXISTS transactions (
+await client.execute(`
+  CREATE TABLE IF NOT EXISTS transactions (
   id VARCHAR(36) PRIMARY KEY,
-  accountId VARCHAR(36),
-  to_accountId VARCHAR(36),
+  fromId VARCHAR(36),
+  toId VARCHAR(36),
   type ENUM('deposit', 'withdrawal', 'transfer'),
   amount DECIMAL(10, 2),
   description TEXT,
+  balance DECIMAL(10, 2),
   createdAt DATETIME,
-  FOREIGN KEY (accountId) REFERENCES accounts(id)
+  FOREIGN KEY (fromId) REFERENCES accounts(id),
+  FOREIGN KEY (toId) REFERENCES accounts(id)
 )`);
 
 console.log("Database initialized");
-
+client.close();

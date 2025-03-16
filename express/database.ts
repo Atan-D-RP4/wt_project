@@ -33,4 +33,3 @@ class Database {
 }
 
 export default await Database.getInstance();
-

@@ -1,4 +1,4 @@
-<!-- File: dashboard.ejs -->
+<!--// File: views/dashboard.ejs-->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,6 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/dashboard.css" id='dashboard.css'>
+    <link rel="stylesheet" href="/css/styles.css" id='dashboard.css'>
 </head>
 
 <body>
@@ -23,7 +24,7 @@
                 <a class="nav-link active" href="#"><i class="fas fa-home"></i> Dashboard</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fas fa-exchange-alt"></i> Transfers</a>
+                <a class="nav-link" href="/transfer"><i class="fas fa-exchange-alt"></i> Transfers</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#"><i class="fas fa-credit-card"></i> Cards</a>
@@ -35,9 +36,7 @@
                 <a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a>
             </li>
             <li class="nav-item mt-5">
-                <a class="nav-link text-danger" id="logoutButton">
-                    <i class="fas fa-sign-out-alt" onclick="logout()"> </i> Logout
-                </a>
+                <a class="nav-link text-danger" id="logoutButton"> <i class="fas fa-sign-out-alt" onclick="logout()"></i> Logout</a>
             </li>
         </ul>
     </div>
@@ -47,7 +46,7 @@
         <!-- Header with user greeting -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="user-greeting">
-                Welcome back, <span class="user-name" id="userName">User</span>!
+                    Welcome back, <span class="user-name" id="userName"><%- user %></span>!
             </div>
             <div class="profile-button" id="profileInitials">U</div>
         </div>
@@ -184,33 +183,32 @@
 
     <!-- Dashboard Script -->
     <script src="/js/dashboard.cjs"></script>
-  <script>
-  // Logout functionality
-    async function logout() {
-      console.log("Logging out...");
-      try {
-        const response = await fetch("/auth/logout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        console.log("Logout response:", response);
+    <script>
+        // Logout functionality
+        async function logout() {
+            console.log("Logging out...");
+            try {
+                const response = await fetch("/auth/logout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                console.log("Logout response:", response);
 
-        if (response.ok) {
-          // Redirect to the login page after successful logout
-          globalThis.window.location.href = "/login";
-        } else {
-          console.error("Logout failed");
+                if (response.ok) {
+                    // Redirect to the login page after successful logout
+                    globalThis.window.location.href = "/login";
+                } else {
+                    console.error("Logout failed");
+                }
+            } catch (error) {
+                console.error("Error during logout:", error);
+                globalThis.window.location.href = "/login";
+            }
         }
-      } catch (error) {
-        console.error("Error during logout:", error);
-        globalThis.window.location.href = "/login";
-      }
-    }
-</script>
+    </script>
 
 </body>
 
 </html>
-

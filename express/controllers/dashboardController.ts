@@ -1,5 +1,4 @@
-// File: dashboardController.ts
-// controllers/dashboardController.ts
+// File: controllers/dashboardController.ts
 
 import { Request, Response } from "express";
 import { AccountModel } from "../models/account.ts";

@@ -1,7 +1,6 @@
-// File: dashboard.cjs
+// File: public/js/dashboard.cjs
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("Dashboard loading...");
-
   // Logout functionality
   const logoutButton = document.getElementById("logoutButton");
   if (logoutButton) {
@@ -37,7 +36,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("Response:", response);
 
     if (!response.ok) {
-      throw new Error("Failed to fetch dashboard data");
+      globalThis.window.location.href = "/login";
+      console.error("Failed to fetch dashboard data");
     }
 
     const data = await response.json();
@@ -47,6 +47,48 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!accountsContainer) throw new Error("No accounts container found");
     accountsContainer.innerHTML = ""; // Clear any existing content
 
+    if (data.accounts.length === 0) {
+      // Create a card to create an account
+      console.log("No Accounts");
+      const accountCard = document.createElement("div");
+      accountCard.classList.add("col-md-6", "col-lg-4", "mb-4");
+      accountCard.innerHTML = `
+        <div class="account-card">
+          <div class="card-body">
+            <h5 class="card-title
+            ">Create an Account</h5>
+            <p class="card-text text-muted mb-3">Get started by creating a new account</p>
+            <button class="btn btn-primary">Create Account</button>
+          </div>
+        </div>
+      `;
+      // @ts-ignore <!-- button is guaranteed to exist by above -->
+      accountCard.querySelector("button").addEventListener(
+        "click",
+        async () => {
+          try {
+            const response = await fetch("/api/accounts/create", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ type: "checking" }),
+            });
+
+            if (response.ok) {
+              // Refresh the page after successful account creation
+              globalThis.window.location.reload();
+            } else {
+              console.error("Failed to create account");
+            }
+          } catch (error) {
+            console.error("Error during account creation:", error);
+          }
+        },
+      );
+
+      accountsContainer.appendChild(accountCard);
+    }
     /**
      * @typedef {Object} Account
      * @property {string} id
@@ -74,7 +116,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               </span>
             </div>
             <p class="card-text text-muted mb-1">Account: ••••${
-        account.accountNumber.slice(-4)
+        account.id.slice(-4)
       }</p>
             <div class="account-balance mb-3">$${account.balance}</div>
             <div class="d-flex gap-2">
@@ -96,4 +138,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Error fetching dashboard data:", error);
   }
 });
-

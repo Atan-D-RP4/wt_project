@@ -1,12 +1,14 @@
 // File: main.ts
 // @ts-types="npm:@types/express"
-import express from "npm:express";
-import session from "npm:express-session";
+import express from "express";
+import session from "express-session";
+import endpoints from "npm:express-list-endpoints@7.1.1";
 
 // Routes
 import accountRoutes from "./routes/accounts.ts";
 import authRoutes from "./routes/auth.ts";
 import dashboardRoutes from "./routes/dashboard.ts";
+//import transactionRoutes from "./routes/transactions.ts";
 
 // Auth
 import { authMiddleware } from "./middleware/auth.ts";
@@ -31,12 +33,13 @@ if (import.meta.main) {
 
   // Route setup
   app.use("/auth", authRoutes);
-  app.use("/accounts", accountRoutes);
+  // app.use("/api/transactions", transactionRoutes);
+  app.use("/api/accounts", accountRoutes);
   app.use("/api/dashboard", dashboardRoutes);
 
   // Index page
-  app.get("/", (_req: express.Request, res: express.Response) => {
-    res.redirect("/login");
+  app.get("/", (req: express.Request, res: express.Response) => {
+    res.redirect("/dashboard");
   });
 
   // Login page
@@ -49,14 +52,17 @@ if (import.meta.main) {
   });
 
   // Create a dashboard route protected by auth middleware
-  app.get(
-    "/dashboard",
-    async (req: express.Request, res: express.Response) => {
-      await authMiddleware(req, res, () => {
-        res.render('dashboard');
-      });
-    },
-  );
+  app.get("/dashboard", (req: express.Request, res: express.Response) => {
+    authMiddleware(req, res, () => {
+      res.render("dashboard", { user: (req as any).user.username });
+    });
+  });
+
+  app.get("/transfer", (req: express.Request, res: express.Response) => {
+    authMiddleware(req, res, () => {
+      res.render("transfer");
+    });
+  });
 
   app.get("/users", (_req: express.Request, res: express.Response) => {
     res.send();
@@ -64,5 +70,6 @@ if (import.meta.main) {
 
   app.listen(PORT, () => {
     console.log("Server is running on http://localhost:3000");
+    console.log(endpoints(app));
   });
 }

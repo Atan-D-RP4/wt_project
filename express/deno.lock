@@ -6,6 +6,8 @@
     "npm:@types/express@5": "5.0.0",
     "npm:@types/node@^22.13.8": "22.13.10",
     "npm:ejs@^3.1.10": "3.1.10",
+    "npm:express-list-endpoints@7.1.1": "7.1.1",
+    "npm:express-list-endpoints@^7.1.1": "7.1.1",
     "npm:express-session@*": "1.18.1",
     "npm:express-session@^1.17.2": "1.18.1",
     "npm:express@*": "5.0.1",
@@ -295,6 +297,9 @@
     },
     "etag@1.8.1": {
       "integrity": "sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg=="
+    },
+    "express-list-endpoints@7.1.1": {
+      "integrity": "sha512-SA6YHH1r6DrioJ4fFJNqiwu1FweGFqJZO9KBApMzwPosoSGPOX2AW0wiMepOXjojjEXDuP9whIvckomheErbJA=="
     },
     "express-session@1.18.1": {
       "integrity": "sha512-a5mtTqEaZvBCL9A9aqkrtfz+3SMDhOVUnjafjo+s7A9Txkq+SVX2DLvSp1Zrv4uCXa3lMSK3viWnh9Gg07PBUA==",
@@ -865,6 +870,7 @@
       "npm:@types/express@5",
       "npm:@types/node@^22.13.8",
       "npm:ejs@^3.1.10",
+      "npm:express-list-endpoints@^7.1.1",
       "npm:express-session@^1.17.2",
       "npm:express@5"
     ]
