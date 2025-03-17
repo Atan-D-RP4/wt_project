@@ -2,13 +2,12 @@
 // @ts-types="npm:@types/express"
 import express from "express";
 import session from "express-session";
-import endpoints from "npm:express-list-endpoints@7.1.1";
 
 // Routes
 import accountRoutes from "./routes/accounts.ts";
 import authRoutes from "./routes/auth.ts";
 import dashboardRoutes from "./routes/dashboard.ts";
-//import transactionRoutes from "./routes/transactions.ts";
+import transactionRoutes from "./routes/transactions.ts";
 
 // Auth
 import { authMiddleware } from "./middleware/auth.ts";
@@ -33,7 +32,7 @@ if (import.meta.main) {
 
   // Route setup
   app.use("/auth", authRoutes);
-  // app.use("/api/transactions", transactionRoutes);
+  app.use("/api/transactions", transactionRoutes);
   app.use("/api/accounts", accountRoutes);
   app.use("/api/dashboard", dashboardRoutes);
 
@@ -70,6 +69,5 @@ if (import.meta.main) {
 
   app.listen(PORT, () => {
     console.log("Server is running on http://localhost:3000");
-    console.log(endpoints(app));
   });
 }

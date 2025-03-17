@@ -6,6 +6,7 @@ import { authMiddleware } from "../middleware/auth.ts";
 const router = express.Router();
 
 router.use((req, res, next) => {
+  console.log("Authenticating dashboard");
   authMiddleware(req, res, next);
 });
 

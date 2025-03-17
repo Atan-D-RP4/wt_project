@@ -39,31 +39,32 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       const fromAccountId = getInputElement("fromAccount").value;
       const toAccountId = getInputElement("toAccount").value;
-      const amount = parseFloat(getInputElement().value);
+      const amount = parseFloat(getInputElement("amount").value);
       const description = getInputElement("note").value || "Transfer";
 
-      if (fromAccountId === toAccountId) {
-        alert("Cannot transfer to the same account");
-        return;
-      }
+      //if (fromAccountId === toAccountId) {
+      //  alert("Cannot transfer to the same account");
+      //  return;
+      //}
+      console.log(fromAccountId, toAccountId, amount, description);
 
       try {
         const response = await fetch(
-          `/api/accounts/${fromAccountId}/transfer`,
+          `/api/transactions`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
+              fromAccountId,
               toAccountId,
               amount,
               description,
             }),
           },
         );
-
-        const result = await response.json();
+        console.log(response);
 
         if (response.ok) {
           alert("Transfer completed successfully!");
@@ -73,7 +74,8 @@ document.addEventListener("DOMContentLoaded", async function () {
           // Refresh transfer history
           loadTransferHistory();
         } else {
-          alert(result.error || "Transfer failed. Please try again.");
+          alert("Transfer failed. Please try again.");
+          console.error(response);
         }
       } catch (error) {
         console.error("Transfer error:", error);
@@ -108,7 +110,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       accounts.forEach((account) => {
         const accountLabel = `${
           account.type.charAt(0).toUpperCase() + account.type.slice(1)
-        } (****${account.accountNumber.slice(-4)}) - $${account.balance}`;
+        } (****${account.id.slice(-4)}) - $${account.balance}`;
 
         // @ts-ignore <-- We know this to be an HTMLSelectElement -->
         fromAccountSelect.add(new Option(accountLabel, account.id));

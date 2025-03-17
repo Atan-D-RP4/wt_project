@@ -1,7 +1,7 @@
 // File: routes/accounts.ts
 import express from "express";
-import { accountController } from "../controllers/accountController.ts";
 import { authMiddleware } from "../middleware/auth.ts";
+import { accountController } from "../controllers/accountController.ts";
 
 const router = express.Router();
 

@@ -5,7 +5,7 @@ import { AccountModel } from "../models/account.ts";
 import { TransactionModel } from "../models/transaction.ts";
 import db from "../database.ts";
 
-export const accountController = {
+export const transactionController = {
   getTransactions: async (req: Request, res: Response) => {
     try {
       const { accountId } = req.params;
@@ -55,18 +55,24 @@ export const accountController = {
   createTransaction: async (req: Request, res: Response) => {
     const client = db.getClient();
     try {
-      const { accountId } = req.params; // Sender account
-      const { toAccountId, amount, description } = req.body;
+      const { fromAccountId, toAccountId, amount, description } = req.body;
       // deno-lint-ignore no-explicit-any
       const userId = (req as any).user.id; // From auth middleware
+      const amountCopy = amount;
 
       // Validate input
       if (!toAccountId || !amount || amount <= 0) {
         return res.status(400).json({ error: "Invalid transfer details" });
       }
+      console.log("Creating transaction...");
+      console.log("From Account ID:", fromAccountId);
+      console.log("To Account ID:", toAccountId);
+      console.log("Amount:", amount);
+      console.log("Description:", description);
+      console.log("User ID:", userId);
 
       // Get sender account and check ownership
-      const senderAccount = await AccountModel.findById(accountId);
+      const senderAccount = await AccountModel.findById(fromAccountId);
       if (!senderAccount || senderAccount.userId !== userId) {
         return res.status(404).json({ error: "Sender account not found" });
       }
@@ -85,23 +91,27 @@ export const accountController = {
       }
 
       client.execute("START TRANSACTION");
+      const newReceiverBalance = receiverAccount.balance as number + amount as number;
+      const newSenderBalance = senderAccount.balance as number - amountCopy as number;
+      console.log(newSenderBalance);
+      console.log(newReceiverBalance);
+
       // Update sender balance
-      const newSenderBalance = senderAccount.balance - amount;
-      await AccountModel.updateBalance(accountId, newSenderBalance);
+      await AccountModel.updateBalance(fromAccountId, newSenderBalance);
 
       // Update receiver balance
-      const newReceiverBalance = receiverAccount.balance + amount;
       await AccountModel.updateBalance(toAccountId, newReceiverBalance);
 
       // Create a new transaction
       const Transaction = await TransactionModel.create({
-        fromId: accountId,
+        fromId: fromAccountId,
         toId: toAccountId,
         type: "transfer",
         amount,
         description,
         balance: newSenderBalance,
       });
+      client.execute("COMMIT");
 
       res.status(201).json({
         message: "Transfer completed successfully",
