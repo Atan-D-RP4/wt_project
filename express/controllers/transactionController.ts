@@ -58,19 +58,12 @@ export const transactionController = {
       const { fromAccountId, toAccountId, amount, description } = req.body;
       // deno-lint-ignore no-explicit-any
       const userId = (req as any).user.id; // From auth middleware
-      const amountCopy = amount;
+      const amountNum = Number(amount);
 
       // Validate input
       if (!toAccountId || !amount || amount <= 0) {
         return res.status(400).json({ error: "Invalid transfer details" });
       }
-      console.log("Creating transaction...");
-      console.log("From Account ID:", fromAccountId);
-      console.log("To Account ID:", toAccountId);
-      console.log("Amount:", amount);
-      console.log("Description:", description);
-      console.log("User ID:", userId);
-
       // Get sender account and check ownership
       const senderAccount = await AccountModel.findById(fromAccountId);
       if (!senderAccount || senderAccount.userId !== userId) {
@@ -90,9 +83,16 @@ export const transactionController = {
         });
       }
 
+      console.log("Creating transaction...");
+      console.log("From Account ID:", fromAccountId);
+      console.log("To Account ID:", toAccountId);
+      console.log("Amount:", amountNum);
+      console.log("Description:", description);
+      console.log("User ID:", userId);
+
       client.execute("START TRANSACTION");
-      const newReceiverBalance = receiverAccount.balance as number + amount as number;
-      const newSenderBalance = senderAccount.balance as number - amountCopy as number;
+      const newReceiverBalance = Number(receiverAccount.balance) + amountNum;
+      const newSenderBalance = Number(senderAccount.balance) - amountNum;
       console.log(newSenderBalance);
       console.log(newReceiverBalance);
 

@@ -37,7 +37,7 @@ if (import.meta.main) {
   app.use("/api/dashboard", dashboardRoutes);
 
   // Index page
-  app.get("/", (req: express.Request, res: express.Response) => {
+  app.get("/", (_req: express.Request, res: express.Response) => {
     res.redirect("/dashboard");
   });
 
@@ -61,10 +61,6 @@ if (import.meta.main) {
     authMiddleware(req, res, () => {
       res.render("transfer");
     });
-  });
-
-  app.get("/users", (_req: express.Request, res: express.Response) => {
-    res.send();
   });
 
   app.listen(PORT, () => {

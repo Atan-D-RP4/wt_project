@@ -125,6 +125,7 @@ export const AccountModel = {
     id: string,
     newBalance: number,
   ): Promise<Account | undefined> => {
+    console.log("UPDATE accounts SET balance = " +  newBalance + " WHERE id = " + id);
     await client.execute(
       "UPDATE accounts SET balance = ? WHERE id = ?",
       [newBalance, id],
