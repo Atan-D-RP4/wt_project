@@ -1,0 +1,192 @@
+// File: public/css/dashboard.css
+:root {
+  --primary-color: #0d6efd;
+  --secondary-color: #6c757d;
+  --light-gray: #f8f9fa;
+  --dark-blue: #0a4db1;
+}
+
+body {
+  background-color: #f5f7fb;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.sidebar {
+  background-color: #ffffff;
+  height: 100vh;
+  position: fixed;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar .nav-link {
+  color: var(--secondary-color);
+  padding: 12px 20px;
+  margin: 4px 0;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: var(--primary-color);
+}
+
+.sidebar .nav-link i {
+  width: 24px;
+  text-align: center;
+  margin-right: 8px;
+}
+
+.bank-logo {
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1.8rem;
+  padding: 20px;
+}
+
+.main-content {
+  margin-left: 250px;
+  padding: 30px;
+}
+
+.account-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+  transition: transform 0.3s;
+}
+
+.account-card:hover {
+  transform: translateY(-5px);
+}
+
+.account-card .card-body {
+  padding: 25px;
+}
+
+.account-balance {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--dark-blue);
+}
+
+.transaction-list {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.transaction-item {
+  border-left: 4px solid transparent;
+  padding: 15px 20px;
+  transition: background-color 0.3s;
+}
+
+.transaction-item:hover {
+  background-color: var(--light-gray);
+}
+
+.transaction-item.deposit {
+  border-left-color: #198754;
+}
+
+.transaction-item.withdrawal {
+  border-left-color: #dc3545;
+}
+
+.transaction-amount.deposit {
+  color: #198754;
+}
+
+.transaction-amount.withdrawal {
+  color: #dc3545;
+}
+
+.quick-actions {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+}
+
+.quick-action-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+}
+
+.quick-action-btn:hover {
+  transform: scale(1.1);
+  background-color: var(--dark-blue);
+}
+
+.stats-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--dark-blue);
+}
+
+.stat-label {
+  color: var(--secondary-color);
+  font-size: 0.9rem;
+}
+
+/* Progress bar styles */
+.savings-progress {
+  height: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.user-greeting {
+  font-size: 1.8rem;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+
+.user-name {
+  font-weight: 600;
+}
+
+/* Profile button styling */
+.profile-button {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  background-color: var(--light-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+@media (max-width: 992px) {
+  .main-content {
+    margin-left: 0;
+  }
+
+  .sidebar {
+    display: none;
+  }
+}
+
