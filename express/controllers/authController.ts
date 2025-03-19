@@ -70,9 +70,13 @@ export const authController = {
       const { username, password } = req.body;
 
       // Find user
-      const user = await UserModel.findByUsername(username);
+      let user = await UserModel.findByUsername(username);
       if (!user) {
-        return res.status(401).json({ error: "Invalid credentials" });
+        user = await UserModel.findByEmail(username);
+        if (!user) {
+          console.log("User not found");
+          return res.status(401).json({ error: "Invalid credentials" });
+        }
       }
 
       // Verify password (should use proper comparison in real implementation)
@@ -80,7 +84,7 @@ export const authController = {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
-      req.session.user = {
+      (req as any).session.user = {
         id: user.id,
         username: user.username,
         email: user.email,
@@ -110,7 +114,7 @@ export const authController = {
       res.clearCookie("connect.sid");
       res.status(200).json({ message: "Logged out successfully" });
     });
-    console.log('Session destroyed');
+    console.log("Session destroyed");
   },
 };
 
@@ -118,4 +122,3 @@ export const authController = {
 function generateAccountNumber(): string {
   return Math.floor(10000000 + Math.random() * 90000000).toString();
 }
-

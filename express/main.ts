@@ -2,6 +2,7 @@
 // @ts-types="npm:@types/express"
 import express from "express";
 import session from "express-session";
+import cors from "cors";
 
 // Routes
 import accountRoutes from "./routes/accounts.ts";
@@ -25,6 +26,11 @@ if (import.meta.main) {
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false }, // Set to true in production with HTTPS
+  }));
+  app.use(cors({
+    origin: "http://localhost:3000", // specific origin or '*' for all
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
   }));
 
   app.use(express.static("public"));

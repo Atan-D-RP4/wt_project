@@ -60,10 +60,16 @@ export const transactionController = {
       const userId = (req as any).user.id; // From auth middleware
       const amountNum = Number(amount);
 
+
       // Validate input
-      if (!toAccountId || !amount || amount <= 0) {
+      if (!fromAccountId || !toAccountId || !amount || amount <= 0) {
         return res.status(400).json({ error: "Invalid transfer details" });
       }
+
+      if (fromAccountId === toAccountId) {
+        return res.status(400).json({ error: "Same Sender and Receiver accounts" });
+      }
+
       // Get sender account and check ownership
       const senderAccount = await AccountModel.findById(fromAccountId);
       if (!senderAccount || senderAccount.userId !== userId) {
