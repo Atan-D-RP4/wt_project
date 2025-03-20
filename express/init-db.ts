@@ -6,7 +6,8 @@ const client = db.getClient();
 await client.execute(`CREATE DATABASE IF NOT EXISTS project`);
 await client.execute(`USE project`);
 
-await client.execute(`CREATE TABLE IF NOT EXISTS users (
+await client.execute(
+  `CREATE TABLE IF NOT EXISTS users (
   id VARCHAR(36) PRIMARY KEY,
   fullName VARCHAR(100),
   email VARCHAR(100),
@@ -19,19 +20,22 @@ await client.execute(`CREATE TABLE IF NOT EXISTS users (
   password VARCHAR(100),
   createdAt DATETIME,
   accountType ENUM('checking', 'savings', 'both')
-)`);
+  )`,
+);
 
-await client.execute(`CREATE TABLE IF NOT EXISTS accounts (
+await client.execute(
+  `CREATE TABLE IF NOT EXISTS accounts (
   id VARCHAR(36) PRIMARY KEY,
   userId VARCHAR(36),
   type ENUM('checking', 'savings', 'both'),
   balance DECIMAL(10, 2),
   createdAt DATETIME,
   FOREIGN KEY (userId) REFERENCES users(id)
-)`);
+  )`,
+);
 
-await client.execute(`
-  CREATE TABLE IF NOT EXISTS transactions (
+await client.execute(
+  `CREATE TABLE IF NOT EXISTS transactions (
   id VARCHAR(36) PRIMARY KEY,
   fromId VARCHAR(36),
   toId VARCHAR(36),
@@ -42,7 +46,9 @@ await client.execute(`
   createdAt DATETIME,
   FOREIGN KEY (fromId) REFERENCES accounts(id),
   FOREIGN KEY (toId) REFERENCES accounts(id)
-)`);
+  )`,
+);
 
 console.log("Database initialized");
 client.close();
+

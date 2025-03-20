@@ -33,13 +33,14 @@ if (import.meta.main) {
     credentials: true,
   }));
 
+  // Static files and view engine
   app.use(express.static("public"));
   app.set("view engine", "ejs");
 
   // Route setup
   app.use("/auth", authRoutes);
-  app.use("/api/transactions", transactionRoutes);
   app.use("/api/accounts", accountRoutes);
+  app.use("/api/transactions", transactionRoutes);
   app.use("/api/dashboard", dashboardRoutes);
 
   // Index page
@@ -56,17 +57,14 @@ if (import.meta.main) {
     res.render("register");
   });
 
-  // Create a dashboard route protected by auth middleware
+  // Protected routes
+  app.use(authMiddleware);
   app.get("/dashboard", (req: express.Request, res: express.Response) => {
-    authMiddleware(req, res, () => {
-      res.render("dashboard", { user: (req as any).user.username });
-    });
+    res.render("dashboard", { user: (req as any).user.username });
   });
 
   app.get("/transfer", (req: express.Request, res: express.Response) => {
-    authMiddleware(req, res, () => {
-      res.render("transfer");
-    });
+    res.render("transfer");
   });
 
   app.listen(PORT, () => {

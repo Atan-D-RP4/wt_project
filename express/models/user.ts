@@ -24,10 +24,17 @@ const client = db.getClient();
 
 export const UserModel = {
   create: async (userData: Omit<User, "id" | "createdAt">): Promise<User> => {
+    let id = 0;
+    const count = await client.query(
+      "SELECT COUNT(*) FROM users",
+    );
+    if (count.rows !== undefined) {
+      id = count.rows[0]["COUNT(*)"] + 1;
+    }
     const newUser: User = {
       ...userData,
       accountType: userData.accountType as AccountType,
-      id: crypto.randomUUID(),
+      id: String(id),
       createdAt: new Date(),
     };
 
@@ -42,7 +49,7 @@ export const UserModel = {
 
     if (users.rows == undefined) {
       console.log("SQL Query Error");
-      return newUser;
+      throw new Error("SQL Query Error");
     }
     if (users.rows.length > 0) {
       console.log("User already exists");
@@ -83,7 +90,7 @@ export const UserModel = {
       email,
     ]);
     if (users.rows == undefined) {
-      throw new Error("Account not found");
+      return undefined;
     }
 
     return users.rows.length > 0 ? users.rows[0] : undefined;

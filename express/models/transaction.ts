@@ -2,6 +2,12 @@
 
 import db from "../database.ts";
 
+export enum TransactionType {
+  Deposit = "deposit",
+  Withdrawal = "withdrawal",
+  Transfer = "transfer",
+}
+
 export interface Transaction {
   id: string;
   fromId: string;
@@ -18,20 +24,20 @@ const client = db.getClient();
 
 export const TransactionModel = {
   create: async (
-    transactionData: Omit<Transaction, "id"|"createdAt">,
+    transactionData: Omit<Transaction, "id" | "createdAt">,
   ): Promise<Transaction> => {
-    const count = await client.execute(
+    let id = 0;
+    const count = await client.query(
       "SELECT COUNT(*) FROM transactions",
     );
-    if (count.rows == undefined) {
-      throw new Error("SQL Query Error");
+    if (count.rows !== undefined) {
+      id = count.rows[0]["COUNT(*)"] + 1;
     }
-    const id = count.rows[0]["COUNT(*)"] + 1;
 
     const newTransaction: Transaction = {
       ...transactionData,
       createdAt: new Date(),
-      id,
+      id: String(id),
     };
 
     await client.execute(

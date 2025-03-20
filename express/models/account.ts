@@ -24,17 +24,17 @@ export const AccountModel = {
     accountData: Omit<Account, "id" | "createdAt">,
   ): Promise<Account | undefined> => {
     try {
-      const count = await client.execute(
+      let id = 0;
+      const count = await client.query(
         "SELECT COUNT(*) FROM accounts",
       );
-      if (count.rows == undefined) {
-        throw new Error("SQL Query Error");
+      if (count.rows !== undefined) {
+        id = count.rows[0]["COUNT(*)"] + 1;
       }
-      const id = count.rows[0]["COUNT(*)"] + 1;
 
       const newAccount: Account = {
         ...accountData,
-        id,
+        id: String(id),
         createdAt: new Date(),
       };
 
@@ -67,7 +67,7 @@ export const AccountModel = {
 
       return newAccount;
     } catch (error) {
-      console.error("Create account error:", error);
+      console.error("Account Creation Error: ", (error as Error).message);
       throw new Error("Server error creating account");
     }
   },
@@ -125,7 +125,9 @@ export const AccountModel = {
     id: string,
     newBalance: number,
   ): Promise<Account | undefined> => {
-    console.log("UPDATE accounts SET balance = " +  newBalance + " WHERE id = " + id);
+    console.log(
+      "UPDATE accounts SET balance = " + newBalance + " WHERE id = " + id,
+    );
     await client.execute(
       "UPDATE accounts SET balance = ? WHERE id = ?",
       [newBalance, id],

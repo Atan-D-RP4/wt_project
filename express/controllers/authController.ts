@@ -105,7 +105,7 @@ export const authController = {
   logout: (req: Request, res: Response) => {
     // Destroy the session
     console.log(req.session);
-    req.session.destroy((err: any) => {
+    req.session.destroy((err: Error) => {
       if (err) {
         console.error("Logout error:", err);
         return res.status(500).json({ error: "Server error during logout" });
@@ -117,8 +117,3 @@ export const authController = {
     console.log("Session destroyed");
   },
 };
-
-// Helper function to generate account numbers
-function generateAccountNumber(): string {
-  return Math.floor(10000000 + Math.random() * 90000000).toString();
-}
