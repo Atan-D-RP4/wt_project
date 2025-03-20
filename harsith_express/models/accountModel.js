@@ -16,20 +16,20 @@ const AccountType = {
 //};
 // Define the above TS Account class in pure JavaScript with JSDoc
 
-const client = db
+const client = db;
 
 const AccountModel = {
 	create: async (
 		accountData,
 	) => {
 		try {
-			const count = await client.execute(
+			const id = 0;
+			const count = await client.query(
 				"SELECT COUNT(*) FROM accounts",
 			);
-			if (count.rows == undefined) {
-				throw new Error("SQL Query Error");
+			if (count.rows !== undefined) {
+				id = count.rows[0]["COUNT(*)"] + 1;
 			}
-			const id = count.rows[0]["COUNT(*)"] + 1;
 
 			const newAccount = {
 				...accountData,
@@ -38,7 +38,7 @@ const AccountModel = {
 			};
 
 			// Check if user already exists
-			const accounts = await client.execute(
+			const accounts = await client.query(
 				"SELECT * FROM accounts WHERE id = ?",
 				[newAccount.id],
 			);
@@ -52,7 +52,7 @@ const AccountModel = {
 				return accounts.rows[0];
 			}
 
-			await client.execute(
+			await client.query(
 				"INSERT INTO accounts (id, userId, type, balance, createdAt) VALUES (?, ?, ?, ?, ?)",
 				[
 					newAccount.id,
@@ -66,13 +66,13 @@ const AccountModel = {
 
 			return newAccount;
 		} catch (error) {
-			console.error("Create account error:", error);
+			console.error("Account Creation error:", error);
 			throw new Error("Server error creating account");
 		}
 	},
 
 	listAll: async () => {
-		const accounts = await client.execute("SELECT * FROM accounts");
+		const accounts = await client.query("SELECT * FROM accounts");
 
 		if (accounts.rows == undefined) {
 			return [];
@@ -82,7 +82,7 @@ const AccountModel = {
 	},
 
 	findById: async (id) => {
-		const accounts = await client.execute(
+		const accounts = await client.query(
 			"SELECT * FROM accounts WHERE id = ?",
 			[id],
 		);
@@ -95,7 +95,7 @@ const AccountModel = {
 	},
 
 	findByUserId: async (userId) => {
-		const accounts = await client.execute(
+		const accounts = await client.query(
 			"SELECT * FROM accounts WHERE userId = ?",
 			[userId],
 		);
@@ -108,7 +108,7 @@ const AccountModel = {
 	},
 
 	findTransactions: async (id) => {
-		const transactions = await client.execute(
+		const transactions = await client.query(
 			"SELECT * FROM transactions WHERE fromId = ?",
 			[id],
 		);
@@ -127,7 +127,7 @@ const AccountModel = {
 		console.log(
 			"UPDATE accounts SET balance = " + newBalance + " WHERE id = " + id,
 		);
-		await client.execute(
+		await client.query(
 			"UPDATE accounts SET balance = ? WHERE id = ?",
 			[newBalance, id],
 		);

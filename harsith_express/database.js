@@ -1,15 +1,13 @@
-const mysql = require("mysql");
+const mysql = require("mysql2/promise");
 
-class Database {
-	constructor() {
-		this.client = mysql.createConnection({
-		  host: "localhost",
-		  username: "root",
-		  password: "password",
-		  database: "project",
-		});
-	}
-}
+const pool = mysql.createPool({
+	host: "localhost",
+	user: "root",
+	password: "password",
+	database: "project2",
+	waitForConnections: true,
+	connectionLimit: 10,
+	queueLimit: 0,
+});
 
-//export default new Database().client;
-module.exports = new Database().client;
+module.exports = pool;

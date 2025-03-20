@@ -1,11 +1,11 @@
-
 function authMiddleware(req, res, next) {
-	if (req.session.user) {
-		next();
-	} else {
-		res.redirect("/login");
+	if (!req.session?.user) {
+		console.log("Redirect");
+		return res.status(300).redirect("/login");
 	}
-	console.log("Request is authenticated");
+
+	req.user = req.session.user;
+	console.log("Passed Authentication");
 	next();
 }
 
