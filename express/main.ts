@@ -25,7 +25,11 @@ if (import.meta.main) {
     secret: "yourSecretKey", // Replace with a strong secret key
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Set to true in production with HTTPS
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 4, // 4 hours
+    }, // Set to true in production with HTTPS
   }));
   app.use(cors({
     origin: "http://localhost:3000", // specific origin or '*' for all
@@ -60,10 +64,10 @@ if (import.meta.main) {
   // Protected routes
   app.use(authMiddleware);
   app.get("/dashboard", (req: express.Request, res: express.Response) => {
-    res.render("dashboard", { user: (req as any).user.username });
+    res.render("dashboard", { user: req.user?.username });
   });
 
-  app.get("/transfer", (req: express.Request, res: express.Response) => {
+  app.get("/transfer", (_req: express.Request, res: express.Response) => {
     res.render("transfer");
   });
 

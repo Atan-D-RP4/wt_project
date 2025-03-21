@@ -22,6 +22,9 @@
 
     "@types/cors": "npm:@types/cors@^2.8.17",
     "cors": "npm:cors@^2.8.5",
+
+    "@types/bcryptjs": "npm:@types/bcryptjs@^3.0.0",
+    "bcryptjs": "npm:bcryptjs@^3.0.2",
   }
 }
 
