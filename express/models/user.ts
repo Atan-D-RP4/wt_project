@@ -24,6 +24,24 @@ const client = db.getClient();
 
 export const UserModel = {
   create: async (userData: Omit<User, "id" | "createdAt">): Promise<User> => {
+    // Check if user already exists
+    const users = await client.execute(
+      "SELECT * FROM users WHERE email = ? or username = ?",
+      [
+        userData.email,
+        userData.username,
+      ],
+    );
+
+    if (users.rows == undefined) {
+      console.log("SQL Query Error");
+      throw new Error("SQL Query Error");
+    }
+    if (users.rows.length > 0) {
+      console.log("User already exists");
+      return users.rows[0] as User;
+    }
+
     let id = 0;
     const count = await client.query(
       "SELECT COUNT(*) FROM users",
@@ -37,24 +55,6 @@ export const UserModel = {
       id: String(id),
       createdAt: new Date(),
     };
-
-    // Check if user already exists
-    const users = await client.execute(
-      "SELECT * FROM users WHERE id = ? or username = ?",
-      [
-        newUser.id,
-        newUser.username,
-      ],
-    );
-
-    if (users.rows == undefined) {
-      console.log("SQL Query Error");
-      throw new Error("SQL Query Error");
-    }
-    if (users.rows.length > 0) {
-      console.log("User already exists");
-      return users.rows[0] as User;
-    }
 
     await client.execute(
       "INSERT INTO users (id, fullName, email, phone, address, city, state, zipCode, username, password, createdAt, accountType) \

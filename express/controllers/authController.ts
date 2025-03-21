@@ -1,8 +1,11 @@
 // File: controllers/authController.ts
+// @ts-types="npm:@types/bcryptjs"
+// @ts-types="npm:@types/express"
 import { Request, Response } from "express";
 
 import { UserModel } from "../models/user.ts";
 import { AccountModel } from "../models/account.ts";
+import * as bcrypt from "bcryptjs";
 
 export const authController = {
   register: async (req: Request, res: Response) => {
@@ -31,6 +34,8 @@ export const authController = {
       if (existingUser) {
         return res.status(400).json({ error: "User already exists" });
       }
+      const salt = bcrypt.genSaltSync(10);
+      const hashedPassword = bcrypt.hashSync(password, salt);
 
       // Create user
       const user = await UserModel.create({
@@ -42,7 +47,7 @@ export const authController = {
         state,
         zipCode,
         username,
-        password,
+        password: hashedPassword,
         accountType,
       });
 
@@ -80,11 +85,12 @@ export const authController = {
       }
 
       // Verify password (should use proper comparison in real implementation)
-      if (user.password !== password) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch === false) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
-      (req as any).session.user = {
+      req.session.user = {
         id: user.id,
         username: user.username,
         email: user.email,
