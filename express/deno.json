@@ -25,6 +25,9 @@
 
     "@types/bcryptjs": "npm:@types/bcryptjs@^3.0.0",
     "bcryptjs": "npm:bcryptjs@^3.0.2",
+
+    "@types/jsonwebtoken": "npm:@types/jsonwebtoken@^8.5.0",
+    "jsonwebtoken": "npm:jsonwebtoken@^8.5.1",
   }
 }
 

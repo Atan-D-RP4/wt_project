@@ -2,6 +2,7 @@
 // @ts-types="npm:@types/express-session"
 // @ts-types="npm:@types/express"
 import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
 
 // In your auth.ts middleware file
 declare global {
@@ -19,11 +20,7 @@ declare global {
 // Extend express-session
 declare module "express-session" {
   interface SessionData {
-    user?: {
-      id: string;
-      username: string;
-      email: string;
-    };
+    token?: string;
   }
 }
 
@@ -33,14 +30,27 @@ export const authMiddleware = (
   next: NextFunction,
 ) => {
   // Check if user is logged in
-  if (!req.session?.user) {
+  if (!req.session?.token) {
     // Send a message to the user and then redirect to login page
     console.log("Redirect");
     return res.status(300).redirect("/login");
   }
 
-  // Pass the user object to the next middleware
-  req.user = req.session.user; // No need for casting now
+  try {
+    const { id, username, email } = jwt.verify(
+      req.session.token,
+      "yourSecretKey",
+    ) as {
+      id: string;
+      username: string;
+      email: string;
+    };
+    // Pass the user object to the next middleware
+    req.user = { id, username, email };
+  } catch (error) {
+    console.error(error);
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 
   console.log("Passed Authentication");
   res.setHeader("X-Content-Type-Options", "nosniff");

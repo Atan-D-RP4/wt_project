@@ -1,11 +1,13 @@
 // File: controllers/authController.ts
-// @ts-types="npm:@types/bcryptjs"
-// @ts-types="npm:@types/express"
+// @ts-types="@types/express"
 import { Request, Response } from "express";
+// @ts-types="@types/jsonwebtoken"
+import * as jwt from "jsonwebtoken";
+// @ts-types="@types/bcryptjs"
+import * as bcrypt from "bcryptjs";
 
 import { UserModel } from "../models/user.ts";
 import { AccountModel } from "../models/account.ts";
-import * as bcrypt from "bcryptjs";
 
 export const authController = {
   register: async (req: Request, res: Response) => {
@@ -90,11 +92,19 @@ export const authController = {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
-      req.session.user = {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      };
+      const token = jwt.sign(
+        {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+        },
+        'YOUR_SECRET_KEY',
+        {
+          expiresIn: "1h",
+        },
+      );
+
+      req.session.token = token;
 
       console.log("Session ID:", req.session.id, "\nUser ID:", user.id);
 

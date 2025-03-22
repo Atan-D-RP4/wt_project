@@ -26,10 +26,10 @@ if (import.meta.main) {
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: false,
+      secure: false, // Set to true in production with HTTPS
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 4, // 4 hours
-    }, // Set to true in production with HTTPS
+    },
   }));
   app.use(cors({
     origin: "http://localhost:3000", // specific origin or '*' for all

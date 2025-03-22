@@ -18,7 +18,7 @@ Session(app)
 
 # Configure CS50 Library to use SQLite database
 try:
-    db = SQL("sqlite:///finances.db")
+    db = SQL("sqlite:///finance.db")
 except Exception as e:
     print("Failed to connect to database")
     print(e)
