@@ -14,7 +14,9 @@ app.jinja_env.filters["usd"] = usd
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
+_  = Session(app)
+
+head = list(range(9999999))
 
 # Configure CS50 Library to use SQLite database
 try:
@@ -74,7 +76,7 @@ def index():
             total += quote["price"] * stock["shares"]
 
         return render_template(
-            "index.html", stocks=stocks, total=usd(total), cash=usd(cash)
+            "index.html", stocks=stocks, total=usd(total), cash=usd(cash),
         )
     return apology("TODO")
 
@@ -93,7 +95,7 @@ def buy():
         quote = lookup(symbol.upper())
         if not quote:
             return apology("invalid symbol", 400)
-        elif not shares or not shares.isdigit() or int(shares) < 1:
+        if not shares or not shares.isdigit() or int(shares) < 1:
             return apology("invalid shares", 400)
         shares = int(shares)
 
@@ -105,24 +107,22 @@ def buy():
 
         if cash < total:
             return apology("insufficient funds", 400)
-        else:
-            db.execute(
-                "UPDATE users SET cash = cash - ? WHERE id = ?",
-                total,
-                session["user_id"],
-            )
-            db.execute(
-                "INSERT INTO transactions (user_id, symbol, shares, price) VALUES (?, ?, ?, ?)",
-                session["user_id"],
-                quote["symbol"],
-                shares,
-                quote["price"],
-            )
+        db.execute(
+            "UPDATE users SET cash = cash - ? WHERE id = ?",
+            total,
+            session["user_id"],
+        )
+        db.execute(
+            "INSERT INTO transactions (user_id, symbol, shares, price) VALUES (?, ?, ?, ?)",
+            session["user_id"],
+            quote["symbol"],
+            shares,
+            quote["price"],
+        )
 
         flash(f"Bought {shares} shares of {symbol} for USD {usd(total)}!")
         return redirect("/")
-    else:
-        return render_template("buy.html")
+    return render_template("buy.html")
 
 
 @app.route("/history")
@@ -130,7 +130,7 @@ def buy():
 def history():
     """Show history of transactions"""
     stocks = db.execute(
-        "SELECT * FROM transactions WHERE user_id = ?", session["user_id"]
+        "SELECT * FROM transactions WHERE user_id = ?", session["user_id"],
     )
     if request.method == "GET":
         for stock in stocks:
@@ -143,7 +143,6 @@ def history():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Log user in"""
-
     # Forget any user_id
     session.clear()
 
@@ -154,17 +153,17 @@ def login():
             return apology("must provide username", 403)
 
         # Ensure password was submitted
-        elif not request.form.get("password"):
+        if not request.form.get("password"):
             return apology("must provide password", 403)
 
         # Query database for username
         rows = db.execute(
-            "SELECT * FROM users WHERE username = ?", request.form.get("username")
+            "SELECT * FROM users WHERE username = ?", request.form.get("username"),
         )
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(
-            rows[0]["hash"], request.form.get("password")
+            rows[0]["hash"], request.form.get("password"),
         ):
             return apology("invalid username and/or password", 403)
 
@@ -175,14 +174,12 @@ def login():
         return redirect("/")
 
     # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render_template("login.html")
+    return render_template("login.html")
 
 
 @app.route("/logout")
 def logout():
     """Log user out"""
-
     # Forget any user_id
     session.clear()
 
@@ -194,7 +191,6 @@ def logout():
 @login_required
 def quote():
     """Get stock quote."""
-
     if request.method == "POST":
         quote = lookup(request.form.get("symbol"))
 
@@ -203,31 +199,29 @@ def quote():
         quote["price"] = usd(quote["price"])
 
         return render_template("quote.html", quote=quote)
-    else:
-        return render_template("quote.html")
+    return render_template("quote.html")
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user"""
-
     session.clear()
 
     if request.method == "POST":
         if not request.form.get("username"):
             return apology("must provide username", 400)
 
-        elif not request.form.get("password"):
+        if not request.form.get("password"):
             return apology("must provide password", 400)
 
-        elif not request.form.get("confirmation"):
+        if not request.form.get("confirmation"):
             return apology("must provide password confirmation", 400)
 
-        elif request.form.get("password") != request.form.get("confirmation"):
+        if request.form.get("password") != request.form.get("confirmation"):
             return apology("passwords must match", 400)
 
         duplicate = db.execute(
-            "SELECT * FROM users WHERE username = ?", request.form.get("username")
+            "SELECT * FROM users WHERE username = ?", request.form.get("username"),
         )
 
         if duplicate:
@@ -247,8 +241,7 @@ def register():
         session["user_id"] = result
 
         return redirect("/")
-    else:
-        return render_template("register.html")
+    return render_template("register.html")
 
 
 @app.route("/sell", methods=["GET", "POST"])
@@ -274,7 +267,7 @@ def sell():
 
         if not symbol:
             return apology("invalid symbol", 400)
-        elif not shares or not shares.isdigit() or int(shares) < 1:
+        if not shares or not shares.isdigit() or int(shares) < 1:
             return apology("invalid shares", 400)
         shares = int(shares)
 
@@ -286,8 +279,7 @@ def sell():
                 if stock["shares"] < shares:
                     return apology("insufficient shares", 400)
                 break
-            else:
-                continue
+            continue
 
         quote = lookup(symbol)
         if not quote:

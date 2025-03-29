@@ -1,20 +1,19 @@
 import csv
 import datetime
-import pytz
-import requests
 import urllib
 import uuid
-
-from flask import redirect, render_template, request, session
 from functools import wraps
+
+import pytz
+import requests
+from flask import redirect, render_template, request, session
 
 
 def apology(message, code=400):
     """Render message as an apology to user."""
 
     def escape(s):
-        """
-        Escape special characters.
+        """Escape special characters.
 
         https://github.com/jacebrowning/memegen#special-characters
         """
@@ -35,8 +34,7 @@ def apology(message, code=400):
 
 
 def login_required(f):
-    """
-    Decorate routes to require login.
+    """Decorate routes to require login.
 
     https://flask.palletsprojects.com/en/latest/patterns/viewdecorators/
     """
@@ -52,7 +50,6 @@ def login_required(f):
 
 def lookup(symbol):
     """Look up quote for symbol."""
-
     # Prepare API request
     symbol = symbol.upper()
     end = datetime.datetime.now(pytz.timezone("US/Eastern"))
