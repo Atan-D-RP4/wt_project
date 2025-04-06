@@ -32,6 +32,7 @@ export const authMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
+
   // Check if user is logged in
   if (!req.session?.user) {
     // Send a message to the user and then redirect to login page

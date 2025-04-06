@@ -14,7 +14,7 @@ app.jinja_env.filters["usd"] = usd
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-_  = Session(app)
+_ = Session(app)
 
 head = list(range(9999999))
 
@@ -76,7 +76,10 @@ def index():
             total += quote["price"] * stock["shares"]
 
         return render_template(
-            "index.html", stocks=stocks, total=usd(total), cash=usd(cash),
+            "index.html",
+            stocks=stocks,
+            total=usd(total),
+            cash=usd(cash),
         )
     return apology("TODO")
 
@@ -130,11 +133,15 @@ def buy():
 def history():
     """Show history of transactions"""
     stocks = db.execute(
-        "SELECT * FROM transactions WHERE user_id = ?", session["user_id"],
+        "SELECT * FROM transactions WHERE user_id = ?",
+        session["user_id"],
     )
     if request.method == "GET":
         for stock in stocks:
-            stock["name"] = lookup(stock["symbol"])["name"]
+            symbol_lookup = lookup(stock["symbol"])
+            if symbol_lookup is None:
+                raise Exception("Error performing lookup")
+            stock["name"] = symbol_lookup["name"]
             stock["price"] = usd(stock["price"])
         return render_template("history.html", stocks=stocks)
     return apology("TODO")
@@ -158,12 +165,14 @@ def login():
 
         # Query database for username
         rows = db.execute(
-            "SELECT * FROM users WHERE username = ?", request.form.get("username"),
+            "SELECT * FROM users WHERE username = ?",
+            request.form.get("username"),
         )
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(
-            rows[0]["hash"], request.form.get("password"),
+            rows[0]["hash"],
+            request.form.get("password"),
         ):
             return apology("invalid username and/or password", 403)
 
@@ -221,7 +230,8 @@ def register():
             return apology("passwords must match", 400)
 
         duplicate = db.execute(
-            "SELECT * FROM users WHERE username = ?", request.form.get("username"),
+            "SELECT * FROM users WHERE username = ?",
+            request.form.get("username"),
         )
 
         if duplicate:
@@ -253,7 +263,8 @@ def sell():
             "SELECT symbol, SUM(shares) as shares FROM transactions WHERE user_id = ? GROUP BY symbol HAVING shares > 0",
             session["user_id"],
         )
-    except:
+    except Exception as e:
+        print(f"Failed to execute database operation: {e}")
         return apology("Failed to retrieve user portfolio data", 400)
 
     if request.method == "GET":
@@ -281,11 +292,11 @@ def sell():
                 break
             continue
 
-        quote = lookup(symbol)
-        if not quote:
+        cur_quote = lookup(symbol)
+        if not cur_quote:
             return apology("invalid symbol", 400)
 
-        sale = quote["price"] * shares
+        sale = cur_quote["price"] * shares
 
         try:
             db.execute(
@@ -298,10 +309,11 @@ def sell():
                 session["user_id"],
                 symbol,
                 -shares,
-                quote["price"],
+                cur_quote["price"],
             )
-        except:
+        except Exception as e:
+            print(f"Failed to execute database operation: {e}")
             return apology("Transaction Failed", 400)
 
         flash(f"Sold {shares} shares of {symbol} for USD {usd(sale)}!")
-        return redirect("/")
+    return redirect("/")

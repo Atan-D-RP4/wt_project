@@ -6,6 +6,7 @@ import { Request, Response } from "express";
 import { UserModel } from "../models/user.ts";
 import { AccountModel } from "../models/account.ts";
 import * as bcrypt from "bcryptjs";
+import { Request } from "../../../../../.cache/deno/npm/registry.npmjs.org/undici-types/6.20.0/fetch.d.ts";
 
 export const authController = {
   register: async (req: Request, res: Response) => {
@@ -26,7 +27,7 @@ export const authController = {
 
       // Validate input
       if (!fullName || !email || !password || !username) {
-        return res.status(400).json({ error: "Missing required fields" });
+        return res.status().json({ error: "Missing required fields" });
       }
 
       // Check if user already exists
