@@ -161,6 +161,9 @@ def add_account():
 	"""Add account"""
 	if request.method == 'POST':
 		account_type = request.form.get('account_type')
+		if not account_type:
+			flash('must provide account type')
+			return redirect('/add_account')
 
 		db_manager.create_account(session['user_id'], account_type)
 		return redirect('/')
@@ -174,7 +177,17 @@ def transfer():
 	if request.method == 'POST':
 		from_account_id = request.form.get('from_account')
 		to_account_id = request.form.get('to_account')
-		amount = float(request.form.get('amount'))
+		if not from_account_id or not to_account_id:
+			flash('must provide from and to account')
+			return redirect(url_for('transfer'))
+		from_account_id = int(from_account_id)
+		to_account_id = int(to_account_id)
+
+		amount = request.form.get('amount')
+		if not amount:
+			flash('must provide amount')
+			return redirect(url_for('transfer'))
+		amount = float(amount)
 
 		if from_account_id == to_account_id:
 			flash('Cannot transfer to the same account')

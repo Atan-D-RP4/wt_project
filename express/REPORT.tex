@@ -1,0 +1,326 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{color}
+\usepackage{xcolor}
+
+% Define custom border style
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+% Define border for pages
+\newcommand{\pageborder}{
+\begin{tikzpicture}[remember picture, overlay]
+\draw [line width=1pt]
+    ($(current page.north west) + (0.75cm,-0.75cm)$) rectangle
+    ($(current page.south east) + (-0.75cm,0.75cm)$);
+\end{tikzpicture}
+}
+
+% Set up headers and footers
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Title formatting
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\centering}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{50pt}{40pt}
+
+\begin{document}
+
+% Remove page numbering for title page
+\thispagestyle{empty}
+
+% Title Page
+\begin{center}
+\pageborder
+\vspace*{1cm}
+{\Large \textbf{WT PROJECT REPORT}}\\
+\vspace{0.5cm}
+{\Large on}\\
+\vspace{0.5cm}
+{\Huge \textbf{ONLINE BANKING SYSTEM}}\\
+\vspace{1.5cm}
+{\Large Bachelor of Technology}\\
+\vspace{0.5cm}
+{\Large In}\\
+\vspace{0.5cm}
+{\Large Computer Science and Engineering}\\
+\vspace{1.5cm}
+{\Large Under esteemed Guidance of}\\
+\vspace{0.5cm}
+{\Large \textbf{Mrs. Venkata Ratnam}}\\
+\vspace{0.3cm}
+{\Large Asst. Professor, Dept. of CSE}\\
+\vspace{1.5cm}
+{\Large \textbf{DEPARTMENT OF COMPUTER SCIENCE\\AND ENGINEERING}}\\
+\vspace{1cm}
+{\Large \textbf{ANIL NEERUKONDA INSTITUTE OF\\TECHNOLOGY AND SCIENCES}}\\
+\vspace{0.5cm}
+{\Large \textbf{SANGIVALASA, VISAKHAPATNAM}}\\
+\end{center}
+
+\clearpage
+
+% Project Title Page
+\thispagestyle{empty}
+\begin{center}
+
+\pageborder
+\vspace*{1cm}
+{\Large \textbf{PROJECT TITLE: ONLINE BANKING SYSTEM}}\\
+
+\vspace{2cm}
+
+{\Large
+  \begin{tabular}{|p{7cm}|p{5cm}|}
+  \hline
+  \textbf{Name of the Student} & \textbf{Roll No} \\
+  \hline
+  D. Chaitanya & A22126510144 \\
+  \hline
+  Nikitha & A22126510161 \\
+  \hline
+  P. Meghana & A22126510167 \\
+  \hline
+  Deepak & A22126510168 \\
+  \hline
+  Lokesh & A22126510169 \\
+  \hline
+  \end{tabular}
+}
+
+\end{center}
+
+\clearpage
+
+% Bonafide Certificate
+\thispagestyle{empty}
+\begin{center}
+\pageborder
+\vspace*{2cm}
+{\Large \textbf{Bonafide Certificate}}\\
+\end{center}
+
+\vspace{1cm}
+
+\noindent
+This is to certify that this project report ``Online Banking System'' is the
+Bonafede work of K Akhila A21126510095, R Sai Ashish A21126510115, B Pujitha
+A21126510073, B Govinda Rao A21126510071 and S Raju A21126510209. This project
+is carried out and is submitted in the partial fulfillment of the requirements
+for the award of BACHELOR OF TECHNOLOGY in Computer Science and Engineering,
+under Anil Neerukonda Institute of Technology and Sciences during the academic
+year 2023- 2024.
+
+\vspace{3cm}
+
+\noindent
+\begin{tabular}{p{7cm}p{7cm}}
+\textbf{Head of the Department} & \textbf{Project Guide} \\
+\textbf{Prof.M.Ramakrishna Murty} & \textbf{Mrs. K.Venkataratnam} \\
+\textbf{(Professor \& HOD)} & \textbf{(Asst.Professor)} \\
+\textbf{Department of CSE} & \textbf{Department of CSE} \\
+\textbf{ANITS} & \textbf{ANITS}
+\end{tabular}
+
+\clearpage
+
+% Declaration
+\thispagestyle{empty}
+\begin{center}
+\pageborder
+\vspace*{1cm}
+{\Large \textbf{Declaration}}
+\end{center}
+\vspace{1cm}
+
+\noindent
+This is to certify that the project work entitled ``Online Banking System'' is
+a Bonafide work carried out by as a part of BTech 3\textsuperscript{rd} year
+2\textsuperscript{nd} semester of Computer Science and Engineering of Anil
+Neerukonda Institute of Technology and Sciences, Visakhapatnam during the
+academic year 2023-2024.
+
+\vspace{1cm}
+\noindent
+We are K Akhila, R Sai Ashish, B Pujitha, B Govinda Rao and S Raju of 3rd year
+B.Tech, Department of Computer Science and Engineering from ANITS,
+Visakhapatnam, hereby declare that the project work entitled ``Online Banking
+System'' is carried out by us and is submitted in the fulfillment of the
+requirement for the award of Bachelor of Technology in Computer Science and
+Engineering, under Anil Neerukonda Institute of Technology and Sciences during
+the academic year 2023-2024 has not been submitted to any other university for
+the award of any kind of degree.
+
+\vspace{2cm}
+\begin{center}
+{\Large
+  \begin{tabular}{|p{5cm}|p{5cm}|}
+  \hline
+  \textbf{Name} & \textbf{Reg.No} \\
+  \hline
+  D. Chaitanya & A22126510144 \\
+  \hline
+  Nikitha & A22126510161 \\
+  \hline
+  P. Meghana & A22126510167 \\
+  \hline
+  Deepak & A22126510168 \\
+  \hline
+  Lokesh & A22126510169 \\
+  \hline
+  \end{tabular}
+}
+\end{center}
+
+\clearpage
+
+% Acknowledgement
+\thispagestyle{empty}
+\begin{center}
+\pageborder
+\vspace*{1cm}
+{\Large \textbf{Acknowledgement}}
+\end{center}
+\vspace{1cm}
+
+\noindent
+The satisfaction that accompanies the successful completion of any task would
+be incomplete without mentioning the people who made it possible, and whose
+constant guidance and encouragement always upheld the morale. We take a great
+pleasure in presenting a project, which is the result of a studied blend of
+both research and knowledge.
+
+\vspace{1cm}
+\noindent
+We first take the privilege to thank our Head of the department Prof M.
+RAMAKRISHNA MURTHY, for permitting us in laying the first stone of success. We
+feel grateful to thank MRS. K. VENKATA RATNAM Madam, who is our project guide
+and who shared her valuable knowledge with us and made us understand the real
+essence of the topic and created interest in us to put our continuous efforts
+in the project.
+
+\vspace{2cm}
+\begin{center}
+{\Large
+  \begin{tabular}{|p{5cm}|p{5cm}|}
+  \hline
+  \textbf{Name} & \textbf{Reg.No} \\
+  \hline
+  D. Chaitanya & A22126510144 \\
+  \hline
+  Nikitha & A22126510161 \\
+  \hline
+  P. Meghana & A22126510167 \\
+  \hline
+  Deepak & A22126510168 \\
+  \hline
+  Lokesh & A22126510169 \\
+  \hline
+  \end{tabular}
+}
+\end{center}
+
+\clearpage
+
+% Table of Contents
+\thispagestyle{empty}
+\begin{center}
+\pageborder
+\vspace*{1cm}
+{\Large \textbf{TABLE OF CONTENTS}}
+\end{center}
+
+\vspace{1cm}
+
+{\Large
+  \noindent
+  \begin{tabular}{|p{2cm}|p{13cm}|}
+  \hline
+  \textbf{S.No} & \textbf{Title} \\
+  \hline
+  1 & Title Page \\
+  \hline
+  2 & Project Title Page \\
+  \hline
+  3 & Bonafide Certificate \\
+  \hline
+  4 & Declaration \\
+  \hline
+  5 & Acknowledgement \\
+  \hline
+  6 & Table of Contents \\
+  \hline
+  7 & Project Abstract \\
+  \hline
+  8 & Introduction \\
+  \hline
+  9 & Existing System \\
+  \hline
+  10 & Proposed System \\
+  \hline
+  \end{tabular}
+}
+
+\clearpage
+
+% Project Abstract
+\thispagestyle{empty}
+\begin{center}
+\pageborder
+\vspace*{1cm}
+{\Large \textbf{Project Abstract}}
+\end{center}
+\vspace{1cm}
+
+\noindent
+The proliferation of online banking has revolutionized the way
+financial transactions are conducted, offering unparalleled convenience and
+accessibility. However, with this convenience comes the challenge of ensuring
+robust security measures to protect sensitive financial data and prevent
+unauthorized access.
+
+\vspace{0.5cm}
+\noindent
+This project aims to address these challenges by proposing innovative solutions
+to enhance both security and user experience in online banking systems.
+
+\vspace{0.5cm}
+\noindent
+The project will begin with a comprehensive analysis of existing security
+protocols and user interface designs in online banking systems. This analysis
+will identify potential vulnerabilities and areas for improvement.
+Subsequently, the project will focus on the development and implementation of
+advanced security measures such as multi-factor authentication, encryption
+techniques, and real-time fraud detection algorithms.
+
+\vspace{0.5cm}
+\noindent
+Additionally, user-centric design principles will be employed to create
+intuitive and user-friendly interfaces that enhance the overall banking
+experience.
+
+\vspace{0.5cm}
+\noindent
+The effectiveness of the proposed solutions will be evaluated through rigorous
+testing procedures, including simulated cyber-attacks and user feedback
+surveys. Furthermore, the project will explore the integration of emerging
+technologies such as biometrics and blockchain to further enhance security and
+streamline transactions.
+
+\vspace{0.5cm}
+\noindent
+By the conclusion of this project, we anticipate significant advancements in
+the security and usability of online banking systems. These advancements will
+not only bolster consumer trust and confidence but also contribute to the
+continued growth and evolution of digital banking services in an increasingly
+interconnected world.
+
+\end{document}
