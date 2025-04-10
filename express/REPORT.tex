@@ -1,326 +1,519 @@
 \documentclass[12pt,a4paper]{report}
-\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
 \usepackage{titlesec}
 \usepackage{fancyhdr}
-\usepackage{graphicx}
-\usepackage{array}
-\usepackage{tabularx}
-\usepackage{color}
-\usepackage{xcolor}
+\usepackage{atbegshi}
 
 % Define custom border style
 \usepackage{tikz}
 \usetikzlibrary{calc}
 
-% Define border for pages
-\newcommand{\pageborder}{
-\begin{tikzpicture}[remember picture, overlay]
-\draw [line width=1pt]
-    ($(current page.north west) + (0.75cm,-0.75cm)$) rectangle
-    ($(current page.south east) + (-0.75cm,0.75cm)$);
-\end{tikzpicture}
+% Add this line to apply the page border to every page
+\geometry{margin=1in}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    commentstyle=\color{green!50!black},
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=5pt,
+    frame=single,
+    framexleftmargin=15pt,
+    framexrightmargin=0pt,
+    framexbottommargin=5pt,
+    framextopmargin=5pt,
+    backgroundcolor=\color{gray!10},
+    showstringspaces=false
 }
 
-% Set up headers and footers
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/}{/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
 \pagestyle{fancy}
 \fancyhf{}
-\renewcommand{\headrulewidth}{0pt}
-\renewcommand{\footrulewidth}{0pt}
-
-% Title formatting
-\titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries\centering}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
-\titlespacing*{\chapter}{0pt}{50pt}{40pt}
+\fancyhead[R]{Online Banking System}
+\fancyfoot[C]{\thepage}
 
 \begin{document}
 
-% Remove page numbering for title page
-\thispagestyle{empty}
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    {\huge\bfseries WT PROJECT REPORT\par}
+    \vspace{1cm}
+    {\Large\bfseries on\par}
+    \vspace{1cm}
+    {\huge\bfseries ONLINE BANKING SYSTEM\par}
+    \vspace{2cm}
+    {\Large\bfseries Bachelor of Technology\par}
+    \vspace{0.5cm}
+    {\Large\bfseries In\par}
+    \vspace{0.5cm}
+    {\Large\bfseries Computer Science and Engineering\par}
+    \vspace{2cm}
+    {\Large\bfseries Under esteemed Guidance of\par}
+    \vspace{0.5cm}
+    {\Large\bfseries Mrs. Venkata Ratnam\par}
+    \vspace{0.5cm}
+    {\Large\bfseries Asst. Professor, Dept. of CSE\par}
+    \vspace{2cm}
+    {\Large\bfseries DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING\par}
+    \vspace{0.5cm}
+    {\Large\bfseries ANIL NEERUKONDA INSTITUTE OF TECHNOLOGY AND SCIENCES\par}
+    \vspace{0.5cm}
+    {\Large\bfseries SANGIVALASA, VISAKHAPATNAM\par}
+\end{titlepage}
 
-% Title Page
+\thispagestyle{empty}
 \begin{center}
-\pageborder
-\vspace*{1cm}
-{\Large \textbf{WT PROJECT REPORT}}\\
-\vspace{0.5cm}
-{\Large on}\\
-\vspace{0.5cm}
-{\Huge \textbf{ONLINE BANKING SYSTEM}}\\
-\vspace{1.5cm}
-{\Large Bachelor of Technology}\\
-\vspace{0.5cm}
-{\Large In}\\
-\vspace{0.5cm}
-{\Large Computer Science and Engineering}\\
-\vspace{1.5cm}
-{\Large Under esteemed Guidance of}\\
-\vspace{0.5cm}
-{\Large \textbf{Mrs. Venkata Ratnam}}\\
-\vspace{0.3cm}
-{\Large Asst. Professor, Dept. of CSE}\\
-\vspace{1.5cm}
-{\Large \textbf{DEPARTMENT OF COMPUTER SCIENCE\\AND ENGINEERING}}\\
-\vspace{1cm}
-{\Large \textbf{ANIL NEERUKONDA INSTITUTE OF\\TECHNOLOGY AND SCIENCES}}\\
-\vspace{0.5cm}
-{\Large \textbf{SANGIVALASA, VISAKHAPATNAM}}\\
+    \LARGE\textbf{PROJECT TITLE: ONLINE BANKING SYSTEM}\\
+    \vspace{2cm}
+
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Name of the Student} & \textbf{Roll No} \\
+        \hline
+        D. Chaitanya & A22126510144 \\
+        \hline
+        P. Meghana & A22126510167 \\
+        \hline
+        P. Deepak & A22126510168 \\
+        \hline
+        Lokesh & A22126510169 \\
+        \hline
+        Nikitha & A22126510161 \\
+        \hline
+    \end{tabular}
 \end{center}
+\newpage
 
-\clearpage
-
-% Project Title Page
 \thispagestyle{empty}
 \begin{center}
+    \Large\textbf{Bonafide Certificate}
+\end{center}
+\vspace{1cm}
 
-\pageborder
-\vspace*{1cm}
-{\Large \textbf{PROJECT TITLE: ONLINE BANKING SYSTEM}}\\
+This is to certify that this project report "Online Banking System" is the Bonafede
+work of K Akhila A21126510095, R Sai Ashish A21126510115, B Pujitha
+A21126510073, B Govinda Rao A21126510071 and S Raju A21126510209. This
+project is carried out and is submitted in the partial fulfillment of the requirements for
+the award of BACHELOR OF TECHNOLOGY in Computer Science and
+Engineering, under Anil Neerukonda Institute of Technology and Sciences during the
+academic year 2023- 2024.
 
 \vspace{2cm}
-
-{\Large
-  \begin{tabular}{|p{7cm}|p{5cm}|}
-  \hline
-  \textbf{Name of the Student} & \textbf{Roll No} \\
-  \hline
-  D. Chaitanya & A22126510144 \\
-  \hline
-  Nikitha & A22126510161 \\
-  \hline
-  P. Meghana & A22126510167 \\
-  \hline
-  Deepak & A22126510168 \\
-  \hline
-  Lokesh & A22126510169 \\
-  \hline
-  \end{tabular}
-}
-
-\end{center}
-
-\clearpage
-
-% Bonafide Certificate
-\thispagestyle{empty}
-\begin{center}
-\pageborder
-\vspace*{2cm}
-{\Large \textbf{Bonafide Certificate}}\\
-\end{center}
-
-\vspace{1cm}
-
-\noindent
-This is to certify that this project report ``Online Banking System'' is the
-Bonafede work of K Akhila A21126510095, R Sai Ashish A21126510115, B Pujitha
-A21126510073, B Govinda Rao A21126510071 and S Raju A21126510209. This project
-is carried out and is submitted in the partial fulfillment of the requirements
-for the award of BACHELOR OF TECHNOLOGY in Computer Science and Engineering,
-under Anil Neerukonda Institute of Technology and Sciences during the academic
-year 2023- 2024.
-
-\vspace{3cm}
-
-\noindent
-\begin{tabular}{p{7cm}p{7cm}}
-\textbf{Head of the Department} & \textbf{Project Guide} \\
-\textbf{Prof.M.Ramakrishna Murty} & \textbf{Mrs. K.Venkataratnam} \\
-\textbf{(Professor \& HOD)} & \textbf{(Asst.Professor)} \\
-\textbf{Department of CSE} & \textbf{Department of CSE} \\
-\textbf{ANITS} & \textbf{ANITS}
+\begin{tabular}{ll}
+Head of the Department & Project Guide \\
+Prof.M.Ramakrishna Murty & Mrs. K.Venkataratnam \\
+(Professor \& HOD) & (Asst.Professor) \\
+Department of CSE & Department of CSE \\
+ANITS & ANITS
 \end{tabular}
+\newpage
 
-\clearpage
-
-% Declaration
 \thispagestyle{empty}
 \begin{center}
-\pageborder
-\vspace*{1cm}
-{\Large \textbf{Declaration}}
+    \Large\textbf{Declaration}
 \end{center}
 \vspace{1cm}
 
-\noindent
-This is to certify that the project work entitled ``Online Banking System'' is
-a Bonafide work carried out by as a part of BTech 3\textsuperscript{rd} year
-2\textsuperscript{nd} semester of Computer Science and Engineering of Anil
-Neerukonda Institute of Technology and Sciences, Visakhapatnam during the
-academic year 2023-2024.
+This is to certify that the project work entitled "Online Banking System" is a
+Bonafide work carried out by as a part of BTech 3\textsuperscript{rd} year 2\textsuperscript{nd} semester of Computer
+Science and Engineering of Anil Neerukonda Institute of Technology and Sciences,
+Visakhapatnam during the academic year 2023-2024.
 
-\vspace{1cm}
-\noindent
 We are K Akhila, R Sai Ashish, B Pujitha, B Govinda Rao and S Raju of 3rd year
 B.Tech, Department of Computer Science and Engineering from ANITS,
-Visakhapatnam, hereby declare that the project work entitled ``Online Banking
-System'' is carried out by us and is submitted in the fulfillment of the
-requirement for the award of Bachelor of Technology in Computer Science and
-Engineering, under Anil Neerukonda Institute of Technology and Sciences during
-the academic year 2023-2024 has not been submitted to any other university for
-the award of any kind of degree.
+Visakhapatnam, hereby declare that the project work entitled "Online Banking
+System" is carried out by us and is submitted in the fulfillment of the requirement for
+the award of Bachelor of Technology in Computer Science and Engineering, under
+Anil Neerukonda Institute of Technology and Sciences during the academic year
+2023-2024 has not been submitted to any other university for the award of any kind of
+degree.
 
 \vspace{2cm}
-\begin{center}
-{\Large
-  \begin{tabular}{|p{5cm}|p{5cm}|}
-  \hline
-  \textbf{Name} & \textbf{Reg.No} \\
-  \hline
-  D. Chaitanya & A22126510144 \\
-  \hline
-  Nikitha & A22126510161 \\
-  \hline
-  P. Meghana & A22126510167 \\
-  \hline
-  Deepak & A22126510168 \\
-  \hline
-  Lokesh & A22126510169 \\
-  \hline
-  \end{tabular}
-}
-\end{center}
+\begin{tabular}{ll}
+\textbf{Name} & \textbf{Reg.No} \\
+D. Chaitanya & A22126510144 \\
+P. Meghana & A22126510167 \\
+P. Deepak & A22126510168 \\
+Lokesh & A22126510169 \\
+Nikitha & A22126510161 \\
+\end{tabular}
+\newpage
 
-\clearpage
-
-% Acknowledgement
 \thispagestyle{empty}
 \begin{center}
-\pageborder
-\vspace*{1cm}
-{\Large \textbf{Acknowledgement}}
+    \Large\textbf{Acknowledgement}
 \end{center}
 \vspace{1cm}
 
-\noindent
-The satisfaction that accompanies the successful completion of any task would
-be incomplete without mentioning the people who made it possible, and whose
-constant guidance and encouragement always upheld the morale. We take a great
-pleasure in presenting a project, which is the result of a studied blend of
-both research and knowledge.
+The satisfaction that accompanies the successful completion of any task would be
+incomplete without mentioning the people who made it possible, and whose constant
+guidance and encouragement always upheld the morale. We take a great pleasure in
+presenting a project, which is the result of a studied blend of both research and
+knowledge.
 
-\vspace{1cm}
-\noindent
 We first take the privilege to thank our Head of the department Prof M.
-RAMAKRISHNA MURTHY, for permitting us in laying the first stone of success. We
-feel grateful to thank MRS. K. VENKATA RATNAM Madam, who is our project guide
-and who shared her valuable knowledge with us and made us understand the real
-essence of the topic and created interest in us to put our continuous efforts
-in the project.
+RAMAKRISHNA MURTHY, for permitting us in laying the first stone of success.
+We feel grateful to thank MRS. K. VENKATA RATNAM Madam, who is our project
+guide and who shared her valuable knowledge with us and made us understand the
+real essence of the topic and created interest in us to put our continuous efforts in the
+project.
 
 \vspace{2cm}
-\begin{center}
-{\Large
-  \begin{tabular}{|p{5cm}|p{5cm}|}
-  \hline
-  \textbf{Name} & \textbf{Reg.No} \\
-  \hline
-  D. Chaitanya & A22126510144 \\
-  \hline
-  Nikitha & A22126510161 \\
-  \hline
-  P. Meghana & A22126510167 \\
-  \hline
-  Deepak & A22126510168 \\
-  \hline
-  Lokesh & A22126510169 \\
-  \hline
-  \end{tabular}
-}
-\end{center}
+\begin{tabular}{ll}
+\textbf{Name} & \textbf{Reg.No} \\
+D. Chaitanya & A22126510144 \\
+P. Meghana & A22126510167 \\
+P. Deepak & A22126510168 \\
+Lokesh & A22126510169 \\
+Nikitha & A22126510161 \\
+\end{tabular}
+\newpage
 
-\clearpage
+\tableofcontents
+\newpage
 
-% Table of Contents
-\thispagestyle{empty}
-\begin{center}
-\pageborder
-\vspace*{1cm}
-{\Large \textbf{TABLE OF CONTENTS}}
-\end{center}
+\chapter{Project Abstract}
 
-\vspace{1cm}
+The proliferation of online banking has revolutionized the way financial transactions are
+conducted, offering unparalleled convenience and accessibility. However, with this
+convenience comes the challenge of ensuring robust security measures to protect sensitive
+financial data and prevent unauthorized access.
 
-{\Large
-  \noindent
-  \begin{tabular}{|p{2cm}|p{13cm}|}
-  \hline
-  \textbf{S.No} & \textbf{Title} \\
-  \hline
-  1 & Title Page \\
-  \hline
-  2 & Project Title Page \\
-  \hline
-  3 & Bonafide Certificate \\
-  \hline
-  4 & Declaration \\
-  \hline
-  5 & Acknowledgement \\
-  \hline
-  6 & Table of Contents \\
-  \hline
-  7 & Project Abstract \\
-  \hline
-  8 & Introduction \\
-  \hline
-  9 & Existing System \\
-  \hline
-  10 & Proposed System \\
-  \hline
-  \end{tabular}
-}
+This project aims to address these challenges by proposing innovative solutions to enhance
+both security and user experience in online banking systems.
 
-\clearpage
+The project will begin with a comprehensive analysis of existing security protocols and user
+interface designs in online banking systems. This analysis will identify potential
+vulnerabilities and areas for improvement. Subsequently, the project will focus on the
+development and implementation of advanced security measures such as multi-factor
+authentication, encryption techniques, and real-time fraud detection algorithms.
 
-% Project Abstract
-\thispagestyle{empty}
-\begin{center}
-\pageborder
-\vspace*{1cm}
-{\Large \textbf{Project Abstract}}
-\end{center}
-\vspace{1cm}
+Additionally, user-centric design principles will be employed to create intuitive and user-
+friendly interfaces that enhance the overall banking experience.
 
-\noindent
-The proliferation of online banking has revolutionized the way
-financial transactions are conducted, offering unparalleled convenience and
-accessibility. However, with this convenience comes the challenge of ensuring
-robust security measures to protect sensitive financial data and prevent
-unauthorized access.
+The effectiveness of the proposed solutions will be evaluated through rigorous testing
+procedures, including simulated cyber-attacks and user feedback surveys. Furthermore, the
+project will explore the integration of emerging technologies such as biometrics and
+blockchain to further enhance security and streamline transactions.
 
-\vspace{0.5cm}
-\noindent
-This project aims to address these challenges by proposing innovative solutions
-to enhance both security and user experience in online banking systems.
+By the conclusion of this project, we anticipate significant advancements in the security and
+usability of online banking systems. These advancements will not only bolster consumer
+trust and confidence but also contribute to the continued growth and evolution of digital
+banking services in an increasingly interconnected world.
 
-\vspace{0.5cm}
-\noindent
-The project will begin with a comprehensive analysis of existing security
-protocols and user interface designs in online banking systems. This analysis
-will identify potential vulnerabilities and areas for improvement.
-Subsequently, the project will focus on the development and implementation of
-advanced security measures such as multi-factor authentication, encryption
-techniques, and real-time fraud detection algorithms.
+\chapter{Objectives}
 
-\vspace{0.5cm}
-\noindent
-Additionally, user-centric design principles will be employed to create
-intuitive and user-friendly interfaces that enhance the overall banking
-experience.
+Here are a few objectives for your Online Banking System project:
 
-\vspace{0.5cm}
-\noindent
-The effectiveness of the proposed solutions will be evaluated through rigorous
-testing procedures, including simulated cyber-attacks and user feedback
-surveys. Furthermore, the project will explore the integration of emerging
-technologies such as biometrics and blockchain to further enhance security and
-streamline transactions.
+\begin{enumerate}
+    \item \textbf{Security Analysis:} Conduct a comprehensive review of online banking security
+    protocols and user interface designs, identifying vulnerabilities and proposing
+    enhancements for robust protection of sensitive financial data.
 
-\vspace{0.5cm}
-\noindent
-By the conclusion of this project, we anticipate significant advancements in
-the security and usability of online banking systems. These advancements will
-not only bolster consumer trust and confidence but also contribute to the
-continued growth and evolution of digital banking services in an increasingly
-interconnected world.
+    \item \textbf{Advanced Security Measures:} Implement state-of-the-art security technologies,
+    including multi-factor authentication and encryption algorithms, to fortify online
+    banking systems against cyber threats and ensure the integrity of financial
+    transactions.
+
+    \item \textbf{User-Centric Design:} Employ user-centric design principles to create intuitive
+    and accessible interfaces for online banking, enhancing the user experience and
+    facilitating seamless navigation for customers of diverse demographics.
+
+    \item \textbf{Solution Evaluation:} Rigorously test implemented security measures through
+    simulated cyber-attacks and user feedback surveys to assess effectiveness in
+    safeguarding online banking systems and building consumer trust.
+
+    \item \textbf{Integration of Emerging Technologies:} Explore the integration of emerging
+    technologies like biometrics and blockchain to further enhance security and
+    streamline transactions in online banking, anticipating future challenges and
+    advancements in the digital finance landscape.
+
+    \item \textbf{Trust and Confidence Measurement:} Measure the impact of security solutions
+    on consumer trust and confidence in online banking services, utilizing perception
+    studies and trust metrics to ensure transparency and reliability in financial
+    transactions.
+
+    \item \textbf{Contribution to Digital Banking Evolution:} Drive innovation and set new
+    standards for security and user experience in online banking, contributing to the
+    continued growth and evolution of digital banking services in an increasingly
+    interconnected world.
+\end{enumerate}
+
+\chapter{Software \& Modules Used}
+
+\begin{enumerate}
+    \item \textbf{Node.js and npm:}
+    Ensure Node.js is installed on your system, which includes npm.
+
+    \item \textbf{Express.js:}
+    Install Express.js using npm to create a web application framework.
+
+    \item \textbf{EJS (Embedded JavaScript):}
+    Install EJS using npm for embedding JavaScript code within HTML pages.
+
+    \item \textbf{PHPMyAdmin:}
+    \begin{itemize}
+        \item Set up a server environment with PHP and MySQL installed.
+        \item Access PHPMyAdmin through a web browser for database management.
+    \end{itemize}
+
+    \item \textbf{Connecting to MySQL Database:}
+    Install the MySQL module for Node.js using npm for connecting Express.js
+    with MySQL databases.
+
+    \item \textbf{Setting Up Routes and Views:}
+    \begin{itemize}
+        \item Create routes in Express.js to handle HTTP requests and responses.
+        \item Configure EJS views for rendering dynamic HTML content.
+    \end{itemize}
+
+    \item \textbf{Code Editor (Visual Studio Code):}
+    \begin{itemize}
+        \item Utilize Visual Studio Code as the code editor for project development
+        and editing.
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Installation Steps:}
+\begin{enumerate}
+    \item \textbf{Install Node.js and npm:}
+    \begin{itemize}
+        \item Download and install Node.js from the official website.
+        \item npm will be installed along with Node.js.
+    \end{itemize}
+
+    \item \textbf{Install Express.js:}
+    \begin{itemize}
+        \item Open a terminal/command prompt and
+        run: npm install express
+    \end{itemize}
+
+    \item \textbf{Install EJS:}
+    \begin{itemize}
+        \item Run the following command in the terminal/command prompt:
+        npm install ejs
+    \end{itemize}
+
+    \item \textbf{Set Up PHPMyAdmin:}
+    \begin{itemize}
+        \item Install a server environment like XAMPP or WAMP, which
+        includes PHPMyAdmin, or install PHPMyAdmin separately.
+        \item Create necessary databases and tables for the project in PHPMyAdmin.
+    \end{itemize}
+
+    \item \textbf{Connecting to MySQL Database:}
+    \begin{itemize}
+        \item Install the MySQL module for Node.js:
+        npm install mysql
+    \end{itemize}
+\end{enumerate}
+
+\chapter{Structure of the Project}
+
+\begin{figure}[h]
+    \centering
+    % Placeholder for project structure diagram
+    \caption{Project Structure}
+\end{figure}
+
+\chapter{Interface and Implementation}
+
+\section{app.js}
+\begin{lstlisting}[language=JavaScript]
+// Code placeholder for app.js
+// Contains server setup, database connection, and route handlers
+\end{lstlisting}
+
+\section{Account.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for Account.ejs
+// Contains HTML/EJS template for account creation page
+\end{lstlisting}
+
+\section{success.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for success.ejs
+// Contains HTML/EJS template for success page
+\end{lstlisting}
+
+\section{login.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for login.ejs
+// Contains HTML/EJS template for login page
+\end{lstlisting}
+
+\section{login\_success.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for login_success.ejs
+// Contains HTML/EJS template for login success page
+\end{lstlisting}
+
+\section{Transaction.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for Transaction.ejs
+// Contains HTML/EJS template for transaction page
+\end{lstlisting}
+
+\section{Transaction\_details.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for Transaction_details.ejs
+// Contains HTML/EJS template for transaction details page
+\end{lstlisting}
+
+\section{Transaction\_success.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for Transaction_success.ejs
+// Contains HTML/EJS template for transaction success page
+\end{lstlisting}
+
+\section{admin.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for admin.ejs
+// Contains HTML/EJS template for admin login page
+\end{lstlisting}
+
+\section{admin\_success.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for admin_success.ejs
+// Contains HTML/EJS template for admin success page
+\end{lstlisting}
+
+\section{customer\_details.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for customer_details.ejs
+// Contains HTML/EJS template for customer details page
+\end{lstlisting}
+
+\section{transaction\_details.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for transaction_details.ejs
+// Contains HTML/EJS template for transaction details page
+\end{lstlisting}
+
+\section{Header.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for Header.ejs
+// Contains HTML/EJS template for header component
+\end{lstlisting}
+
+\section{Footer.ejs}
+\begin{lstlisting}[language=HTML]
+// Code placeholder for Footer.ejs
+// Contains HTML/EJS template for footer component
+\end{lstlisting}
+
+\chapter{Outputs}
+
+\section{Home Page}
+\begin{figure}[h]
+    \centering
+    % Placeholder for home page screenshot
+    \caption{Home Page Interface}
+\end{figure}
+
+\section{User Sign up}
+\begin{figure}[h]
+    \centering
+    % Placeholder for user signup screenshot
+    \caption{User Sign Up Interface}
+\end{figure}
+
+\section{User Account Login}
+\begin{figure}[h]
+    \centering
+    % Placeholder for user account login screenshot
+    \caption{User Account Login Interface}
+\end{figure}
+
+\section{Transaction}
+\begin{figure}[h]
+    \centering
+    % Placeholder for transaction screenshot
+    \caption{Transaction Interface}
+\end{figure}
+
+\section{Transaction with insufficient money}
+\begin{figure}[h]
+    \centering
+    % Placeholder for transaction with insufficient money screenshot
+    \caption{Transaction with Insufficient Money Interface}
+\end{figure}
+
+\section{Admin login}
+\begin{figure}[h]
+    \centering
+    % Placeholder for admin login screenshot
+    \caption{Admin Login Interface}
+\end{figure}
+
+\section{Admin Monitoring Customer Details}
+\begin{figure}[h]
+    \centering
+    % Placeholder for admin monitoring customer details screenshot
+    \caption{Admin Monitoring Customer Details Interface}
+\end{figure}
+
+\section{Admin Monitoring Customer Transactions}
+\begin{figure}[h]
+    \centering
+    % Placeholder for admin monitoring customer transactions screenshot
+    \caption{Admin Monitoring Customer Transactions Interface}
+\end{figure}
+
+\chapter{References}
+
+\begin{enumerate}
+    \item \raggedright \url{https://stackoverflow.com/questions/5132923/how-to-add-a-primary-key-to-a-mysql-table}
+    \item \raggedright \url{https://stackoverflow.com/questions/9070764/insert-auto-increment-primary-key-to-existing-table}
+    \item \raggedright \url{https://stackoverflow.com/questions/5813771/in-ejs-template-engine-how-do-i-include-a-footer}
+    \item \raggedright \url{https://stackoverflow.com/questions/22212440/using-math-class-to-convert-cosine-into-degrees}
+    \item \raggedright \url{https://www.geeksforgeeks.org/how-to-connect-node-js-application-to-mysql/}
+    \item \raggedright \url{https://stackoverflow.com/questions/13396119/how-to-add-a-value-to-existing-value-using-sql-query}
+\end{enumerate}
+
+\end{document}
+\begin{thebibliography}{9}
+    \bibitem{nodejs}
+    Node.js. \textit{https://nodejs.org/en/}
+
+    \bibitem{express}
+    Express.js. \textit{https://expressjs.com/}
+
+    \bibitem{ejs}
+    EJS. \textit{https://ejs.co/}
+
+    \bibitem{phpmyadmin}
+    PHPMyAdmin. \textit{https://www.phpmyadmin.net/}
+
+    \bibitem{mysql}
+    MySQL. \textit{https://www.mysql.com/}
+    \bibitem{visualstudio}
+    Visual Studio Code. \textit{https://code.visualstudio.com/}
+\end{thebibliography}
 
 \end{document}
