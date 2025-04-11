@@ -116,24 +116,24 @@ def login():
 		# Ensure username was submitted
 		if not username:
 			flash('must provide username')
-			return redirect('login.html', 403)
+			return redirect('/', 403)
 
 		# Ensure password was submitted
 		if not password:
 			flash('must provide password')
-			return redirect('login.html', 403)
+			return redirect('/', 403)
 
 		# Query database for username
 		user: User = db_manager.get_user_by_name(username)
 		password = request.form.get('password')
 		if not user or password is None:
 			flash('invalid username and/or password')
-			return redirect('login.html', 403)
+			return redirect('/', 403)
 
 		# Ensure username exists and password is correct
 		if not check_password_hash(user.password_hash, password):
 			flash('invalid username and/or password')
-			return redirect('login.html', 403)
+			return redirect('/', 403)
 
 		# Remember which user has logged in
 		session['user_id'] = user.id
@@ -142,7 +142,7 @@ def login():
 		return redirect('/')
 
 	# User reached route via GET (as by clicking a link or via redirect)
-	return render_template('login.html')
+	return render_template('/')
 
 
 @app.route('/logout')
@@ -207,6 +207,6 @@ def transfer():
 
 
 if __name__ == '__main__':
-	app.run(debug=True)
-	# print('Starting WSGI server on localhost:5000')
-	# serve(app, host='127.0.0.1', port=5000)
+	# app.run(debug=True)
+	print('Starting WSGI server on localhost:5000')
+	serve(app, host='127.0.0.1', port=5000)
