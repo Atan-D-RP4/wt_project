@@ -12,6 +12,7 @@ import transactionRoutes from "./routes/transactions.ts";
 
 // Auth
 import { authMiddleware } from "./middleware/auth.ts";
+import { UserModel } from "./models/user.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -65,6 +66,18 @@ if (import.meta.main) {
   app.use(authMiddleware);
   app.get("/dashboard", (req: express.Request, res: express.Response) => {
     res.render("dashboard", { user: req.user?.username });
+  });
+
+  app.get("/details", async (req: express.Request, res: express.Response) => {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).send("Unauthorized");
+    }
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.render("details", { user: user });
   });
 
   app.get("/transfer", (_req: express.Request, res: express.Response) => {
