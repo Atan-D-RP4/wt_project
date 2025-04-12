@@ -8,8 +8,9 @@
 \usepackage{fancyhdr}
 \usepackage{atbegshi}
 \usepackage{background}
-\usetikzlibrary{calc}
 \usepackage{tikz}
+\usetikzlibrary{shapes,arrows,calc,positioning,fit}
+\usepackage{forest}
 
 % Define custom border style
 \backgroundsetup{
@@ -65,7 +66,22 @@
   commentstyle=\color{purple}\ttfamily,
   stringstyle=\color{red}\ttfamily,
   morestring=[b]',
-  morestring=[b]"
+  morestring=[b]'
+}
+
+\lstdefinelanguage{TypeScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/}{/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]'
 }
 
 \renewcommand{\headrulewidth}{0.4pt}
@@ -81,7 +97,7 @@
 \begin{titlepage}
     \centering
     \vspace*{1cm}
-    {\huge\bfseries WT PROJECT REPORT\par}
+    {\huge\bfseries WEB-TECHNOLOGIES PROJECT REPORT\par}
     \vspace{1cm}
     {\Large\bfseries on\par}
     \vspace{1cm}
@@ -146,7 +162,8 @@ year 2024-2025.
 \vspace{2cm}
 \begin{tabular}{ll}
 Head of the Department & Project Guide \\
-Prof.M.Ramakrishna Murty & Mrs. K.Venkataratnam \\
+% TODO: Change HOD name
+Prof. M. Ramakrishna Murty & Mrs. K.Venkataratnam \\
 (Professor \& HOD) & (Asst.Professor) \\
 Department of CSE & Department of CSE \\
 ANITS & ANITS
@@ -198,6 +215,7 @@ pleasure in presenting a project, which is the result of a studied blend of
 both research and knowledge.
 
 We first take the privilege to thank our Head of the department Prof M.
+% TODO: Change HOD name
 RAMAKRISHNA MURTHY, for permitting us in laying the first stone of success. We
 feel grateful to thank MRS. K. VENKATA RATNAM Madam, who is our project guide
 and who shared her valuable knowledge with us and made us understand the real
@@ -348,11 +366,11 @@ Here are a few objectives for your E-Banking System project:
     \item \textbf{Project Setup:}
     Clone the project repository from GitHub using the following command:
     \begin{lstlisting}[language=bash]
-        git clone <repository-url>
+        git clone https://github.com/Atan-D-RP4/wt_project
     \end{lstlisting}
     Navigate to the project directory:
     \begin{lstlisting}[language=bash]
-        cd <project-directory>
+        cd wt_project/express
     \end{lstlisting}
     Now, simply run the following command to start the server:
     \begin{lstlisting}[language=bash]
@@ -362,155 +380,648 @@ Here are a few objectives for your E-Banking System project:
 \end{enumerate}
 
 \chapter{Structure of the Project}
+\section{Overview}
+The project structure is organized into several directories and files, each serving a
+specific purpose. Below is a brief overview of the project structure:
+\begin{itemize}
+    \item \textbf{main.ts:} The main entry point of the application, where the server is
+    initialized and configured.
+    \item \textbf{init-db.ts:} A script to initialize the database and create necessary
+    tables.
+    \item \textbf{database.ts:} Contains the database connection logic and configuration
+    settings.
+    \item \textbf{public/:} Contains static files such as CSS and JavaScript files for the
+    frontend.
+    \item \textbf{models/:} Contains TypeScript files defining the data models for the
+    application, such as user, account, and transaction models.
+    \item \textbf{controllers/:} Contains TypeScript files that handle the business logic
+    and interact with the models.
+    \item \textbf{middlewares/:} Contains middleware functions for authentication and
+    logging.
+    \item \textbf{routes/:} Contains route definitions for handling HTTP requests.
+    \item \textbf{views/:} Contains HTML templates for rendering dynamic content using EJS.
+    \item \textbf{deno.json:} Configuration file for Deno, specifying dependencies and
+    runtime options.
+    \item \textbf{deno.lock:} Lock file for Deno, ensuring consistent dependency versions.
+\end{itemize}
 
-\begin{figure}[h]
+\section{Project File Structure}
+\begin{figure}[ht]
     \centering
     % Placeholder for project structure diagram
-    \caption{Project Structure}
+    \caption{Project File Structure}
+\begin{forest}
+    for tree={
+        font=\ttfamily,
+        grow'=0,
+        child anchor=west,
+        parent anchor=south,
+        anchor=west,
+        calign=first,
+        edge path={
+            \noexpand\path [draw, \forestoption{edge}]
+            (!u.south west) ++(5pt,0) |- (.child anchor)\forestoption{edge label};
+        },
+        before typesetting nodes={
+            if n=1
+            {insert before={[,phantom]}}
+            {}
+        },
+        fit=band,
+        before computing xy={l=15pt},
+    }
+[project-root
+    [main.ts]
+    [database.ts]
+    [init-db.ts]
+    [public
+        [css]
+        [js]
+    ]
+    [models
+        [transaction.ts]
+        [account.ts]
+        [user.ts]
+    ]
+    [controllers
+        [transactionController.ts]
+        [accountController.ts]
+        [userController.ts]
+        [databaseController.ts]
+    ]
+    [middlewares
+        [authMiddleware.ts]
+        [loggerMiddleware.ts]
+    ]
+    [routes
+        [transactions.ts]
+        [accounts.ts]
+        [auth.ts]
+    ]
+    [views
+        [dashboard.html]
+        [login.html]
+        [register.html]
+        [transfer.html]
+    ]
+    [deno.json]
+    [deno.lock]
+]
+\end{forest}
 \end{figure}
 
-\chapter{Interface and Implementation}
+\chapter{Code Listings}
 
-\section{app.js}
-\begin{lstlisting}[language=JavaScript]
-// Code placeholder for app.js
-// Contains server setup, database connection, and route handlers
+% Code Listings
+\section{Entry Point: main.ts}
+\begin{lstlisting}[language=TypeScript]
+// File: main.ts
+// @ts-types="npm:@types/express"
+import express from "express";
+import session from "express-session";
+import cors from "cors";
+// Routes
+import accountRoutes from "./routes/accounts.ts";
+import authRoutes from "./routes/auth.ts";
+import dashboardRoutes from "./routes/dashboard.ts";
+import transactionRoutes from "./routes/transactions.ts";
+// Auth
+import { authMiddleware } from "./middleware/auth.ts";
+
+// Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
+if (import.meta.main) {
+  const app = express();
+  const PORT = 3000;
+
+  // Middleware
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(session({
+    secret: "yourSecretKey", // Replace with a strong secret key
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 4, // 4 hours
+    }, // Set to true in production with HTTPS
+  }));
+  app.use(cors({
+    origin: "http://localhost:3000", // specific origin or '*' for all
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  }));
+
+  // Static files and view engine
+  app.use(express.static("public"));
+  app.set("view engine", "ejs");
+
+  // Route setup
+  app.use("/auth", authRoutes);
+  app.use("/api/accounts", accountRoutes);
+  app.use("/api/transactions", transactionRoutes);
+  app.use("/api/dashboard", dashboardRoutes);
+
+  // Index page
+  app.get("/", (_req: express.Request, res: express.Response) => {
+    res.redirect("/dashboard");
+  });
+
+  // Login page
+  app.get("/login", (_req: express.Request, res: express.Response) => {
+    res.render("login");
+  });
+
+  app.get("/register", (_req: express.Request, res: express.Response) => {
+    res.render("register");
+  });
+
+  // Protected routes
+  app.use(authMiddleware);
+  app.get("/dashboard", (req: express.Request, res: express.Response) => {
+    res.render("dashboard", { user: req.user?.username });
+  });
+
+  app.get("/transfer", (_req: express.Request, res: express.Response) => {
+    res.render("transfer");
+  });
+
+  app.listen(PORT, () => {
+    console.log("Server is running on http://localhost:3000");
+  });
+}
 \end{lstlisting}
 
-\section{Account.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for Account.ejs
-// Contains HTML/EJS template for account creation page
+\section{Database Connection: database.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: database.ts
+import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
+
+class Database {
+  private static instance: Database;
+  private client: Client;
+
+  private constructor() {
+    this.client = new Client();
+  }
+
+  public static async getInstance(): Promise<Database> {
+    if (!Database.instance) {
+      Database.instance = new Database();
+      await Database.instance.connect();
+    }
+    return Database.instance;
+  }
+
+  private async connect() {
+    await this.client.connect({
+      hostname: "127.0.0.1",
+      username: "root",
+      password: "password",
+      db: "project",
+      poolSize: 3,
+    });
+  }
+
+  public getClient(): Client {
+    return this.client;
+  }
+}
+
+export default await Database.getInstance();
 \end{lstlisting}
 
-\section{success.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for success.ejs
-// Contains HTML/EJS template for success page
+\section{Database Init-Schema: init-db.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: init-db.ts
+import db from "./database.ts";
+
+const client = db.getClient();
+await client.execute(`CREATE DATABASE IF NOT EXISTS project`);
+await client.execute(`USE project`);
+
+await client.execute(
+  `CREATE TABLE IF NOT EXISTS users (
+  id VARCHAR(36) PRIMARY KEY,
+  fullName VARCHAR(100),
+  email VARCHAR(100),
+  phone VARCHAR(20),
+  address VARCHAR(100),
+  city VARCHAR(50),
+  state VARCHAR(50),
+  zipCode VARCHAR(10),
+  username VARCHAR(50),
+  password VARCHAR(100),
+  createdAt DATETIME,
+  accountType ENUM('checking', 'savings', 'both')
+  )`,
+);
+
+await client.execute(
+  `CREATE TABLE IF NOT EXISTS accounts (
+  id VARCHAR(36) PRIMARY KEY,
+  userId VARCHAR(36),
+  type ENUM('checking', 'savings', 'both'),
+  balance DECIMAL(10, 2),
+  createdAt DATETIME,
+  FOREIGN KEY (userId) REFERENCES users(id)
+  )`,
+);
+
+await client.execute(
+  `CREATE TABLE IF NOT EXISTS transactions (
+  id VARCHAR(36) PRIMARY KEY,
+  fromId VARCHAR(36),
+  toId VARCHAR(36),
+  type ENUM('deposit', 'withdrawal', 'transfer'),
+  amount DECIMAL(10, 2),
+  description TEXT,
+  balance DECIMAL(10, 2),
+  createdAt DATETIME,
+  FOREIGN KEY (fromId) REFERENCES accounts(id),
+  FOREIGN KEY (toId) REFERENCES accounts(id)
+  )`,
+);
+
+console.log("Database initialized");
+client.close();
+
 \end{lstlisting}
 
-\section{login.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for login.ejs
-// Contains HTML/EJS template for login page
+\section{Auth Middleware: auth.ts}
+\begin{lstlisting}[language=TypeScript]
+// File: middleware/auth.ts
+// @ts-types="npm:@types/express-session"
+// @ts-types="npm:@types/express"
+import { NextFunction, Request, Response } from "express";
+
+// In your auth.ts middleware file
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        username: string;
+        email: string;
+      };
+    }
+  }
+}
+
+// Extend express-session
+declare module "express-session" {
+  interface SessionData {
+    user?: {
+      id: string;
+      username: string;
+      email: string;
+    };
+  }
+}
+
+export const authMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+
+  // Check if user is logged in
+  if (!req.session?.user) {
+    // Send a message to the user and then redirect to login page
+    console.log("Redirect");
+    return res.status(300).redirect("/login");
+  }
+
+  // Pass the user object to the next middleware
+  req.user = req.session.user; // No need for casting now
+
+  console.log("Passed Authentication");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  res.setHeader("X-Frame-Options", "DENY");
+  next();
+};
 \end{lstlisting}
 
-\section{login\_success.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for login_success.ejs
-// Contains HTML/EJS template for login success page
+\section{User Model: user.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: models/user.ts
+// This is a simple in-memory model for demonstration
+// In a real application, you'd use a database
+
+import { AccountModel, AccountType } from "./account.ts";
+import db from "../database.ts";
+
+interface User {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  username: string;
+  password: string;
+  createdAt: Date;
+  accountType: AccountType;
+}
+
+const client = db.getClient();
+
+export const UserModel = {
+  create: async (userData: Omit<User, "id" | "createdAt">): Promise<User> => {
+    // Check if user already exists
+    const users = await client.execute(
+      "SELECT * FROM users WHERE email = ? or username = ?",
+      [
+        userData.email,
+        userData.username,
+      ],
+    );
+
+    if (users.rows == undefined) {
+      console.log("SQL Query Error");
+      throw new Error("SQL Query Error");
+    }
+    if (users.rows.length > 0) {
+      console.log("User already exists");
+      return users.rows[0] as User;
+    }
+
+    let id = 0;
+    const count = await client.query(
+      "SELECT COUNT(*) FROM users",
+    );
+    if (count.rows !== undefined) {
+      id = count.rows[0]["COUNT(*)"] + 1;
+    }
+    const newUser: User = {
+      ...userData,
+      accountType: userData.accountType as AccountType,
+      id: String(id),
+      createdAt: new Date(),
+    };
+
+    await client.execute(
+      "INSERT INTO users (id, fullName, email, phone, address, city, state, zipCode, username, password, createdAt, accountType) \
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        newUser.id,
+        newUser.fullName,
+        newUser.email,
+        newUser.phone,
+        newUser.address,
+        newUser.city,
+        newUser.state,
+        newUser.zipCode,
+        newUser.username,
+        newUser.password,
+        newUser.createdAt,
+        newUser.accountType,
+      ],
+    );
+
+    // Add an account for the user
+    await AccountModel.create({
+      userId: newUser.id,
+      type: newUser.accountType,
+      balance: 1000.0,
+    });
+
+    return newUser;
+  },
+
+  findByEmail: async (email: string): Promise<User | undefined> => {
+    const users = await client.execute("SELECT * FROM users WHERE email = ?", [
+      email,
+    ]);
+    if (users.rows == undefined) {
+      return undefined;
+    }
+
+    return users.rows.length > 0 ? users.rows[0] : undefined;
+  },
+
+  findByUsername: async (username: string): Promise<User | undefined> => {
+    const users = await client.execute(
+      "SELECT * FROM users WHERE username = ?",
+      [
+        username,
+      ],
+    );
+    if (users.rows == undefined) {
+      return undefined;
+    }
+    return users.rows[0] as User;
+  },
+
+  findById: async (id: string): Promise<User | undefined> => {
+    const users = await client.execute("SELECT * FROM users WHERE id = ?", [
+      id,
+    ]);
+    if (users.rows == undefined) {
+      return undefined;
+    }
+    return users.rows[0] as User;
+  },
+};
 \end{lstlisting}
 
-\section{Transaction.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for Transaction.ejs
-// Contains HTML/EJS template for transaction page
+\section{Auth Controller: authController.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: controllers/authController.ts
+// @ts-types="npm:@types/bcryptjs"
+// @ts-types="npm:@types/express"
+import { Request, Response } from "express";
+
+import { UserModel } from "../models/user.ts";
+import { AccountModel } from "../models/account.ts";
+import * as bcrypt from "bcryptjs";
+
+export const authController = {
+  register: async (req: Request, res: Response) => {
+    console.log("Registering user...");
+    try {
+      const {
+        fullName,
+        email,
+        phone,
+        address,
+        city,
+        state,
+        zipCode,
+        username,
+        password,
+        accountType,
+      } = req.body;
+
+      // Validate input
+      if (!fullName || !email || !password || !username) {
+        return res.status().json({ error: "Missing required fields" });
+      }
+
+      // Check if user already exists
+      const existingUser = await UserModel.findByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ error: "User already exists" });
+      }
+      const salt = bcrypt.genSaltSync(10);
+      const hashedPassword = bcrypt.hashSync(password, salt);
+
+      // Create user
+      const user = await UserModel.create({
+        fullName,
+        email,
+        phone,
+        address,
+        city,
+        state,
+        zipCode,
+        username,
+        password: hashedPassword,
+        accountType,
+      });
+
+      // Create accounts based on accountType
+      await AccountModel.create({
+        userId: user.id,
+        type: accountType,
+        balance: 0,
+      });
+
+      // Return success response
+      res.status(201).json({
+        message: "Account created successfully",
+        user: { id: user.id, username: user.username, email: user.email },
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ error: "Server error during registration" });
+    }
+  },
+
+  login: async (req: Request, res: Response) => {
+    try {
+      console.log("Logging in user...");
+      const { username, password } = req.body;
+
+      // Find user
+      let user = await UserModel.findByUsername(username);
+      if (!user) {
+        user = await UserModel.findByEmail(username);
+        if (!user) {
+          console.log("User not found");
+          return res.status(401).json({ error: "Invalid credentials" });
+        }
+      }
+
+      // Verify password (should use proper comparison in real implementation)
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch === false) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      req.session.user = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      };
+
+      console.log("Session ID:", req.session.id, "\nUser ID:", user.id);
+
+      res.status(200).json({
+        message: "Login successful",
+        user: { id: user.id, username: user.username, email: user.email },
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Server error during login" });
+    }
+  },
+
+  logout: (req: Request, res: Response) => {
+    // Destroy the session
+    console.log(req.session);
+    req.session.destroy((err: Error) => {
+      if (err) {
+        console.error("Logout error:", err);
+        return res.status(500).json({ error: "Server error during logout" });
+      }
+      // Clear the session cookie (using the default name "connect.sid")
+      res.clearCookie("connect.sid");
+      res.status(200).json({ message: "Logged out successfully" });
+    });
+    console.log("Session destroyed");
+  },
+};
 \end{lstlisting}
 
-\section{Transaction\_details.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for Transaction_details.ejs
-// Contains HTML/EJS template for transaction details page
+\section{Auth Routes: auth.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: routes/auth.ts
+// @ts-types="npm:@types/express"
+
+import express from "express";
+import { authController } from "../controllers/authController.ts";
+
+const router = express.Router();
+
+// Registration endpoint
+router.post("/register", async (req: express.Request, res: express.Response) => {
+    await authController.register(req, res);
+});
+
+// Login endpoint
+router.post("/login", async (req: express.Request, res: express.Response) => {
+  await authController.login(req, res);
+});
+
+// Logout endpoint
+router.post("/logout", authController.logout);
+
+export default router;
 \end{lstlisting}
 
-\section{Transaction\_success.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for Transaction_success.ejs
-// Contains HTML/EJS template for transaction success page
-\end{lstlisting}
+\chapter{Data Flow Diagram}
 
-\section{admin.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for admin.ejs
-// Contains HTML/EJS template for admin login page
-\end{lstlisting}
-
-\section{admin\_success.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for admin_success.ejs
-// Contains HTML/EJS template for admin success page
-\end{lstlisting}
-
-\section{customer\_details.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for customer_details.ejs
-// Contains HTML/EJS template for customer details page
-\end{lstlisting}
-
-\section{transaction\_details.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for transaction_details.ejs
-// Contains HTML/EJS template for transaction details page
-\end{lstlisting}
-
-\section{Header.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for Header.ejs
-// Contains HTML/EJS template for header component
-\end{lstlisting}
-
-\section{Footer.ejs}
-\begin{lstlisting}[language=HTML]
-// Code placeholder for Footer.ejs
-// Contains HTML/EJS template for footer component
-\end{lstlisting}
+\includegraphics[width=0.8\textwidth, height=0.7\textheight, angle=90]{dataflow.png}
 
 \chapter{Outputs}
 
-\section{Home Page}
 \begin{figure}[h]
     \centering
-    % Placeholder for home page screenshot
-    \caption{Home Page Interface}
+    \includegraphics[width=0.8\textwidth]{dashboard.png}
+    \caption{Dashboard Interface}
 \end{figure}
 
-\section{User Sign up}
 \begin{figure}[h]
     \centering
-    % Placeholder for user signup screenshot
+    \includegraphics[width=0.8\textwidth]{register.png}
     \caption{User Sign Up Interface}
 \end{figure}
 
-\section{User Account Login}
 \begin{figure}[h]
     \centering
-    % Placeholder for user account login screenshot
+    \includegraphics[width=0.8\textwidth]{login.png}
     \caption{User Account Login Interface}
 \end{figure}
 
-\section{Transaction}
 \begin{figure}[h]
     \centering
-    % Placeholder for transaction screenshot
+    \includegraphics[width=0.8\textwidth]{transfers.png}
     \caption{Transaction Interface}
 \end{figure}
 
-\section{Transaction with insufficient money}
 \begin{figure}[h]
     \centering
-    % Placeholder for transaction with insufficient money screenshot
-    \caption{Transaction with Insufficient Money Interface}
-\end{figure}
-
-\section{Admin login}
-\begin{figure}[h]
-    \centering
-    % Placeholder for admin login screenshot
-    \caption{Admin Login Interface}
-\end{figure}
-
-\section{Admin Monitoring Customer Details}
-\begin{figure}[h]
-    \centering
-    % Placeholder for admin monitoring customer details screenshot
-    \caption{Admin Monitoring Customer Details Interface}
-\end{figure}
-
-\section{Admin Monitoring Customer Transactions}
-\begin{figure}[h]
-    \centering
-    % Placeholder for admin monitoring customer transactions screenshot
-    \caption{Admin Monitoring Customer Transactions Interface}
+    \includegraphics[width=0.8\textwidth]{error.png}
+    \caption{Error Messages}
 \end{figure}
 
 \chapter{References}
@@ -522,21 +1033,37 @@ Here are a few objectives for your E-Banking System project:
     \item \raggedright \url{https://stackoverflow.com/questions/22212440/using-math-class-to-convert-cosine-into-degrees}
     \item \raggedright \url{https://www.geeksforgeeks.org/how-to-connect-node-js-application-to-mysql/}
     \item \raggedright \url{https://stackoverflow.com/questions/13396119/how-to-add-a-value-to-existing-value-using-sql-query}
+    \item \raggedright \url{https://stackoverflow.blog/css/}
 \end{enumerate}
 
-\end{document}
 \begin{thebibliography}{9}
+    \bibitem{Project}
+    Full Project Source Code: \textit{https://github/Atan-D-RP4/wt\_project}
+
+    \bibitem{Git}
+    Git: \textit{https://git-scm.com/}
+
+    \bibitem{GitHub}
+    GitHub: \textit{htps://github.com/}
+
+    \bibitem{Deno}
+    Deno: \textit{https://deno.com/}
+
     \bibitem{nodejs}
-    Node.js. \textit{https://nodejs.org/en/}
+    Node.js: \textit{https://nodejs.org/en/}
+
+    \bibitem{bootstrap}
+    Bootstrap: \textit{https://getbootstrap.com/}
 
     \bibitem{express}
-    Express.js. \textit{https://expressjs.com/}
+    Express.js: \textit{https://expressjs.com/}
 
     \bibitem{ejs}
-    EJS. \textit{https://ejs.co/}
+    EJS; \textit{https://ejs.co/}
 
     \bibitem{mysql}
-    MySQL. \textit{https://www.mysql.com/}
+    MySQL: \textit{https://www.mysql.com/}
+
     \bibitem{visualstudio}
     Visual Studio Code. \textit{https://code.visualstudio.com/}
 \end{thebibliography}
