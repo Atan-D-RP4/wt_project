@@ -1,0 +1,1741 @@
+\chapter{Code Listings}
+
+% Code Listings
+\section{Entry Point: main.ts}
+\begin{lstlisting}[language=TypeScript]
+// File: main.ts
+// @ts-types="npm:@types/express"
+import express from "express";
+import session from "express-session";
+import cors from "cors";
+// Routes
+import accountRoutes from "./routes/accounts.ts";
+import authRoutes from "./routes/auth.ts";
+import dashboardRoutes from "./routes/dashboard.ts";
+import transactionRoutes from "./routes/transactions.ts";
+// Auth
+import { authMiddleware } from "./middleware/auth.ts";
+
+// Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
+if (import.meta.main) {
+  const app = express();
+  const PORT = 3000;
+
+  // Middleware
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(session({
+    secret: "yourSecretKey", // Replace with a strong secret key
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 4, // 4 hours
+    }, // Set to true in production with HTTPS
+  }));
+  app.use(cors({
+    origin: "http://localhost:3000", // specific origin or '*' for all
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  }));
+
+  // Static files and view engine
+  app.use(express.static("public"));
+  app.set("view engine", "ejs");
+
+  // Route setup
+  app.use("/auth", authRoutes);
+  app.use("/api/accounts", accountRoutes);
+  app.use("/api/transactions", transactionRoutes);
+  app.use("/api/dashboard", dashboardRoutes);
+
+  // Index page
+  app.get("/", (_req: express.Request, res: express.Response) => {
+    res.redirect("/dashboard");
+  });
+
+  // Login page
+  app.get("/login", (_req: express.Request, res: express.Response) => {
+    res.render("login");
+  });
+
+  app.get("/register", (_req: express.Request, res: express.Response) => {
+    res.render("register");
+  });
+
+  // Protected routes
+  app.use(authMiddleware);
+  app.get("/dashboard", (req: express.Request, res: express.Response) => {
+    res.render("dashboard", { user: req.user?.username });
+  });
+
+  app.get("/transfer", (_req: express.Request, res: express.Response) => {
+    res.render("transfer");
+  });
+
+  app.listen(PORT, () => {
+    console.log("Server is running on http://localhost:3000");
+  });
+}
+\end{lstlisting}
+
+\section{Database Connection: database.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: database.ts
+import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
+
+class Database {
+  private static instance: Database;
+  private client: Client;
+
+  private constructor() {
+    this.client = new Client();
+  }
+
+  public static async getInstance(): Promise<Database> {
+    if (!Database.instance) {
+      Database.instance = new Database();
+      await Database.instance.connect();
+    }
+    return Database.instance;
+  }
+
+  private async connect() {
+    await this.client.connect({
+      hostname: "127.0.0.1",
+      username: "root",
+      password: "password",
+      db: "project",
+      poolSize: 3,
+    });
+  }
+
+  public getClient(): Client {
+    return this.client;
+  }
+}
+
+export default await Database.getInstance();
+\end{lstlisting}
+
+\section{Database Init-Schema: init-db.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: init-db.ts
+import db from "./database.ts";
+
+const client = db.getClient();
+await client.execute(`CREATE DATABASE IF NOT EXISTS project`);
+await client.execute(`USE project`);
+
+await client.execute(
+  `CREATE TABLE IF NOT EXISTS users (
+  id VARCHAR(36) PRIMARY KEY,
+  fullName VARCHAR(100),
+  email VARCHAR(100),
+  phone VARCHAR(20),
+  address VARCHAR(100),
+  city VARCHAR(50),
+  state VARCHAR(50),
+  zipCode VARCHAR(10),
+  username VARCHAR(50),
+  password VARCHAR(100),
+  createdAt DATETIME,
+  accountType ENUM('checking', 'savings', 'both')
+  )`,
+);
+
+await client.execute(
+  `CREATE TABLE IF NOT EXISTS accounts (
+  id VARCHAR(36) PRIMARY KEY,
+  userId VARCHAR(36),
+  type ENUM('checking', 'savings', 'both'),
+  balance DECIMAL(10, 2),
+  createdAt DATETIME,
+  FOREIGN KEY (userId) REFERENCES users(id)
+  )`,
+);
+
+await client.execute(
+  `CREATE TABLE IF NOT EXISTS transactions (
+  id VARCHAR(36) PRIMARY KEY,
+  fromId VARCHAR(36),
+  toId VARCHAR(36),
+  type ENUM('deposit', 'withdrawal', 'transfer'),
+  amount DECIMAL(10, 2),
+  description TEXT,
+  balance DECIMAL(10, 2),
+  createdAt DATETIME,
+  FOREIGN KEY (fromId) REFERENCES accounts(id),
+  FOREIGN KEY (toId) REFERENCES accounts(id)
+  )`,
+);
+
+console.log("Database initialized");
+client.close();
+
+\end{lstlisting}
+
+\section{Auth Middleware: auth.ts}
+\begin{lstlisting}[language=TypeScript]
+// File: middleware/auth.ts
+// @ts-types="npm:@types/express-session"
+// @ts-types="npm:@types/express"
+import { NextFunction, Request, Response } from "express";
+
+// In your auth.ts middleware file
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        username: string;
+        email: string;
+      };
+    }
+  }
+}
+
+// Extend express-session
+declare module "express-session" {
+  interface SessionData {
+    user?: {
+      id: string;
+      username: string;
+      email: string;
+    };
+  }
+}
+
+export const authMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+
+  // Check if user is logged in
+  if (!req.session?.user) {
+    // Send a message to the user and then redirect to login page
+    console.log("Redirect");
+    return res.status(300).redirect("/login");
+  }
+
+  // Pass the user object to the next middleware
+  req.user = req.session.user; // No need for casting now
+
+  console.log("Passed Authentication");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  res.setHeader("X-Frame-Options", "DENY");
+  next();
+};
+\end{lstlisting}
+
+\section{Auth Controller: authController.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: controllers/authController.ts
+// @ts-types="npm:@types/bcryptjs"
+// @ts-types="npm:@types/express"
+import { Request, Response } from "express";
+
+import { UserModel } from "../models/user.ts";
+import { AccountModel } from "../models/account.ts";
+import * as bcrypt from "bcryptjs";
+
+export const authController = {
+  register: async (req: Request, res: Response) => {
+    console.log("Registering user...");
+    try {
+      const {
+        fullName,
+        email,
+        phone,
+        address,
+        city,
+        state,
+        zipCode,
+        username,
+        password,
+        accountType,
+      } = req.body;
+
+      // Validate input
+      if (!fullName || !email || !password || !username) {
+        return res.status().json({ error: "Missing required fields" });
+      }
+
+      // Check if user already exists
+      const existingUser = await UserModel.findByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ error: "User already exists" });
+      }
+      const salt = bcrypt.genSaltSync(10);
+      const hashedPassword = bcrypt.hashSync(password, salt);
+
+      // Create user
+      const user = await UserModel.create({
+        fullName,
+        email,
+        phone,
+        address,
+        city,
+        state,
+        zipCode,
+        username,
+        password: hashedPassword,
+        accountType,
+      });
+
+      // Create accounts based on accountType
+      await AccountModel.create({
+        userId: user.id,
+        type: accountType,
+        balance: 0,
+      });
+
+      // Return success response
+      res.status(201).json({
+        message: "Account created successfully",
+        user: { id: user.id, username: user.username, email: user.email },
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ error: "Server error during registration" });
+    }
+  },
+
+  login: async (req: Request, res: Response) => {
+    try {
+      console.log("Logging in user...");
+      const { username, password } = req.body;
+
+      // Find user
+      let user = await UserModel.findByUsername(username);
+      if (!user) {
+        user = await UserModel.findByEmail(username);
+        if (!user) {
+          console.log("User not found");
+          return res.status(401).json({ error: "Invalid credentials" });
+        }
+      }
+
+      // Verify password (should use proper comparison in real implementation)
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch === false) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      req.session.user = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      };
+
+      console.log("Session ID:", req.session.id, "\nUser ID:", user.id);
+
+      res.status(200).json({
+        message: "Login successful",
+        user: { id: user.id, username: user.username, email: user.email },
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Server error during login" });
+    }
+  },
+
+  logout: (req: Request, res: Response) => {
+    // Destroy the session
+    console.log(req.session);
+    req.session.destroy((err: Error) => {
+      if (err) {
+        console.error("Logout error:", err);
+        return res.status(500).json({ error: "Server error during logout" });
+      }
+      // Clear the session cookie (using the default name "connect.sid")
+      res.clearCookie("connect.sid");
+      res.status(200).json({ message: "Logged out successfully" });
+    });
+    console.log("Session destroyed");
+  },
+};
+\end{lstlisting}
+
+\section{Account Controller: accountController.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: controllers/accountController.ts
+// @ts-tpes="npm:@types/node"
+import { Request, Response } from "npm:express@^4.21.2";
+import { AccountModel } from "../models/account.ts";
+
+export const accountController = {
+  createAccount: async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.id; // From auth middleware
+      const { type } = req.body;
+
+      console.log("Creating an account");
+      if (!type) {
+        console.log("Type are required");
+        return res.status(400).json({ error: "Name and type are required" });
+      }
+
+      const account = await AccountModel.create({
+        userId,
+        type,
+        balance: 1000.0,
+      });
+      console.log("Account created:", account);
+
+      res.status(201).json({ account });
+    } catch (error) {
+      console.error("Create account error:", error);
+      res.status(500).json({
+        error: "Server error creating account",
+        details: (error as Error).message,
+      });
+    }
+  },
+
+  getAllAccounts: async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.id; // From auth middleware
+      const accounts = await AccountModel.findByUserId(userId);
+
+      if (!accounts || accounts.length === 0) {
+        return res.status(200).json({ accounts: [] });
+      }
+
+      res.status(200).json({ accounts });
+    } catch (error) {
+      console.error("Get accounts error:", error);
+      res.status(500).json({
+        error: "Server error retrieving accounts",
+        details: (error as Error).message,
+      });
+    }
+  },
+
+  getAccount: async (req: Request, res: Response) => {
+    try {
+      const { accountId } = req.params;
+      const userId = (req as any).user.id; // From auth middleware
+
+      if (!accountId) {
+        return res.status(400).json({ error: "Account ID is required" });
+      }
+
+      const account = await AccountModel.findById(accountId);
+
+      // Check if account exists and belongs to user
+      if (!account || account.userId !== userId) {
+        return res.status(404).json({ error: "Account not found" });
+      }
+
+      res.status(200).json({ account });
+    } catch (error) {
+      console.error("Get account error:", error);
+      res.status(500).json({
+        error: "Server error retrieving account",
+        details: (error as Error).message,
+      });
+    }
+  },
+
+  getTransactions: async (req: Request, res: Response) => {
+    try {
+      const { accountId } = req.params;
+      const userId = (req as any).user.id; // From auth middleware
+
+      if (!accountId) {
+        return res.status(400).json({ error: "Account ID is required" });
+      }
+
+      const account = await AccountModel.findById(accountId);
+
+      // Check if account exists and belongs to user
+      if (!account || account.userId !== userId) {
+        return res.status(404).json({ error: "Account not found" });
+      }
+
+      const transactions = await AccountModel.findTransactions(accountId);
+
+      res.status(200).json({ transactions });
+    } catch (error) {
+      console.error("Get account transactions error:", error);
+      res.status(500).json({
+        error: "Server error retrieving account transactions",
+        details: (error as Error).message,
+      });
+    }
+  },
+};
+\end{lstlisting}
+
+\section{Dashboard Controller: dashboardController.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: controllers/dashboardController.ts
+
+import { Request, Response } from "express";
+import { AccountModel } from "../models/account.ts";
+import { TransactionModel } from "../models/transaction.ts";
+
+export const dashboardController = {
+  getDashboardData: async (req: Request, res: Response) => {
+    console.log("Getting dashboard data...");
+    try {
+      // deno-lint-ignore no-explicit-any
+      const userId = (req as any).user.id; // from auth middleware
+
+      // Get all accounts for the user
+      const accounts = await AccountModel.findByUserId(userId);
+
+      // For each account, get recent transactions (limit to 5 for demonstration)
+      const accountsWithTransactions = await Promise.all(
+        accounts.map(async (account) => {
+          const transactions = await TransactionModel.findByAccountId(
+            account.id,
+          );
+          return {
+            ...account,
+            transactions: transactions.slice(0, 5), // recent 5 transactions
+          };
+        }),
+      );
+
+      // Calculate a simple financial summary (this can be made more detailed)
+      let totalBalance = 0;
+      accounts.forEach((account) => {
+        totalBalance += account.balance;
+      });
+
+      res.status(200).json({
+        accounts: accountsWithTransactions,
+        summary: {
+          totalBalance,
+          monthlySpending: 1245.62, // Dummy values; compute as needed
+          monthlyIncome: 3850.0,
+          savingsGoal: 10000.0,
+          savingsProgress: Math.round((totalBalance / 10000.0) * 100),
+          creditScore: 760,
+        },
+      });
+    } catch (error) {
+      console.error("Dashboard data error:", error);
+      res.status(500).json({ error: "Server error retrieving dashboard data" });
+    }
+  },
+};
+
+\end{lstlisting}
+
+\section{Dashboard Routes: dashboard.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: routes/dashboard.ts
+import express from "express";
+import { dashboardController } from "../controllers/dashboardController.ts";
+import { authMiddleware } from "../middleware/auth.ts";
+
+const router = express.Router();
+
+router.use((req, res, next) => {
+  console.log("Authenticating dashboard");
+  authMiddleware(req, res, next);
+});
+
+// Dashboard data endpoint (dynamic data for UI)
+router.get("/", async (req, res) => {
+  await dashboardController.getDashboardData(req, res);
+  if (res.statusCode === 500) {
+    res.redirect("/login");
+  }
+});
+
+export default router;
+\end{lstlisting}
+
+\section{Auth Routes: auth.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: routes/auth.ts
+// @ts-types="npm:@types/express"
+
+import express from "express";
+import { authController } from "../controllers/authController.ts";
+
+const router = express.Router();
+
+// Registration endpoint
+router.post("/register", async (req: express.Request, res: express.Response) => {
+    await authController.register(req, res);
+});
+
+// Login endpoint
+router.post("/login", async (req: express.Request, res: express.Response) => {
+  await authController.login(req, res);
+});
+
+// Logout endpoint
+router.post("/logout", authController.logout);
+
+export default router;
+\end{lstlisting}
+
+\section{Transaction Controller: transactionController.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: controllers/transactionController.ts
+// @ts-tpes="npm:@types/node"
+import { Request, Response } from "npm:express@^4.21.2";
+import { AccountModel } from "../models/account.ts";
+import { TransactionModel } from "../models/transaction.ts";
+import db from "../database.ts";
+
+export const transactionController = {
+  getTransactions: async (req: Request, res: Response) => {
+    try {
+      const { accountId } = req.params;
+      // deno-lint-ignore no-explicit-any
+      const userId = (req as any).user.id; // From auth middleware
+
+      if (!accountId) {
+        return res.status(400).json({ error: "Account ID is required" });
+      }
+
+      const account = await AccountModel.findById(accountId);
+
+      // Check if account exists and belongs to user
+      if (!account || account.userId !== userId) {
+        return res.status(404).json({ error: "Account not found" });
+      }
+
+      const transactions = await TransactionModel.findByAccountId(accountId);
+
+      res.status(200).json({ transactions });
+    } catch (error) {
+      console.error("Get transactions error:", error);
+      res.status(500).json({
+        error: "Server error retrieving transactions",
+        details: (error as Error).message,
+      });
+    }
+  },
+
+  getTransactionHistory: async (req: Request, res: Response) => {
+    const client = db.getClient();
+    try {
+      const userId = (req as any).user.id;
+      const transactions = await client.execute(
+        `SELECT * FROM transactions
+       WHERE accountId IN (SELECT id FROM accounts WHERE userId = ?)
+       AND type = 'transfer'`,
+        [userId],
+      );
+      res.json({ transactions });
+    } catch (error) {
+      // Handle error
+      console.error("Transaction history error:", error);
+    }
+  },
+
+  createTransaction: async (req: Request, res: Response) => {
+    const client = db.getClient();
+    try {
+      const { fromAccountId, toAccountId, amount, description } = req.body;
+      // deno-lint-ignore no-explicit-any
+      const userId = (req as any).user.id; // From auth middleware
+      const amountNum = Number(amount);
+
+
+      // Validate input
+      if (!fromAccountId || !toAccountId || !amount || amount <= 0) {
+        return res.status(400).json({ error: "Invalid transfer details" });
+      }
+
+      if (fromAccountId === toAccountId) {
+        return res.status(400).json({ error: "Same Sender and Receiver accounts" });
+      }
+
+      // Get sender account and check ownership
+      const senderAccount = await AccountModel.findById(fromAccountId);
+      if (!senderAccount || senderAccount.userId !== userId) {
+        return res.status(404).json({ error: "Sender account not found" });
+      }
+
+      // Get receiver account
+      const receiverAccount = await AccountModel.findById(toAccountId);
+      if (!receiverAccount) {
+        return res.status(404).json({ error: "Receiver account not found" });
+      }
+
+      // Check for sufficient funds
+      if (senderAccount.balance < amount) {
+        return res.status(400).json({
+          error: "Insufficient funds for transfer",
+        });
+      }
+
+      console.log("Creating transaction...");
+      console.log("From Account ID:", fromAccountId);
+      console.log("To Account ID:", toAccountId);
+      console.log("Amount:", amountNum);
+      console.log("Description:", description);
+      console.log("User ID:", userId);
+
+      client.execute("START TRANSACTION");
+      const newReceiverBalance = Number(receiverAccount.balance) + amountNum;
+      const newSenderBalance = Number(senderAccount.balance) - amountNum;
+      console.log(newSenderBalance);
+      console.log(newReceiverBalance);
+
+      // Update sender balance
+      await AccountModel.updateBalance(fromAccountId, newSenderBalance);
+
+      // Update receiver balance
+      await AccountModel.updateBalance(toAccountId, newReceiverBalance);
+
+      // Create a new transaction
+      const Transaction = await TransactionModel.create({
+        fromId: fromAccountId,
+        toId: toAccountId,
+        type: "transfer",
+        amount,
+        description,
+        balance: newSenderBalance,
+      });
+      client.execute("COMMIT");
+
+      res.status(201).json({
+        message: "Transfer completed successfully",
+        Transaction,
+        newSenderBalance,
+        newReceiverBalance,
+      });
+    } catch (error) {
+      client.execute("ROLLBACK");
+      console.error("Transfer error:", error);
+      res.status(500).json({ error: "Server error processing transfer" });
+    }
+  },
+};
+\end{lstlisting}
+
+\section{Account Routes: accounts.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: routes/accounts.ts
+import express from "express";
+import { authMiddleware } from "../middleware/auth.ts";
+import { accountController } from "../controllers/accountController.ts";
+
+const router = express.Router();
+
+// Apply auth middleware to all account routes
+router.use((req, res, next) => {
+  authMiddleware(req, res, next);
+});
+
+router.get("/", async (req, res) => {
+  await accountController.getAllAccounts(req, res);
+});
+
+router.get("/create", async (req, res) => {
+  await accountController.createAccount(req, res);
+});
+
+// Get account details
+router.get("/:accountId", async (req, res) => {
+  await accountController.getAccount(req, res);
+});
+
+// Get account transactions
+router.get("/:accountId/transactions", async (req, res) => {
+  await accountController.getTransactions(req, res);
+});
+
+export default router;
+\end{lstlisting}
+
+\section{Transaction Routes: transactions.ts}
+\begin{lstlisting}[language=TypeScript]
+// File: routes/transaction.ts
+import express from "express";
+import { authMiddleware } from "../middleware/auth.ts";
+import { transactionController } from "../controllers/transactionController.ts";
+
+const router = express.Router();
+
+// Apply auth middleware to all transaction routes
+router.use((req, res, next) => {
+  console.log("Authenticating new transaction");
+  authMiddleware(req, res, next);
+});
+
+router.post("/", async (req, res) => {
+  await transactionController.createTransaction(req, res);
+});
+
+router.post("/history", async (req, res) => {
+  await transactionController.getTransactionHistory(req, res);
+});
+
+router.post("/:accountId", async (req, res) => {
+  await transactionController.getTransactions(req, res);
+});
+
+export default router;
+\end{lstlisting}
+
+\section{User Model: user.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: models/user.ts
+// This is a simple in-memory model for demonstration
+// In a real application, you'd use a database
+
+import { AccountModel, AccountType } from "./account.ts";
+import db from "../database.ts";
+
+interface User {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  username: string;
+  password: string;
+  createdAt: Date;
+  accountType: AccountType;
+}
+
+const client = db.getClient();
+
+export const UserModel = {
+  create: async (userData: Omit<User, "id" | "createdAt">): Promise<User> => {
+    // Check if user already exists
+    const users = await client.execute(
+      "SELECT * FROM users WHERE email = ? or username = ?",
+      [
+        userData.email,
+        userData.username,
+      ],
+    );
+
+    if (users.rows == undefined) {
+      console.log("SQL Query Error");
+      throw new Error("SQL Query Error");
+    }
+    if (users.rows.length > 0) {
+      console.log("User already exists");
+      return users.rows[0] as User;
+    }
+
+    let id = 0;
+    const count = await client.query(
+      "SELECT COUNT(*) FROM users",
+    );
+    if (count.rows !== undefined) {
+      id = count.rows[0]["COUNT(*)"] + 1;
+    }
+    const newUser: User = {
+      ...userData,
+      accountType: userData.accountType as AccountType,
+      id: String(id),
+      createdAt: new Date(),
+    };
+
+    await client.execute(
+      "INSERT INTO users (id, fullName, email, phone, address, city, state, zipCode, username, password, createdAt, accountType) \
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        newUser.id,
+        newUser.fullName,
+        newUser.email,
+        newUser.phone,
+        newUser.address,
+        newUser.city,
+        newUser.state,
+        newUser.zipCode,
+        newUser.username,
+        newUser.password,
+        newUser.createdAt,
+        newUser.accountType,
+      ],
+    );
+
+    // Add an account for the user
+    await AccountModel.create({
+      userId: newUser.id,
+      type: newUser.accountType,
+      balance: 1000.0,
+    });
+
+    return newUser;
+  },
+
+  findByEmail: async (email: string): Promise<User | undefined> => {
+    const users = await client.execute("SELECT * FROM users WHERE email = ?", [
+      email,
+    ]);
+    if (users.rows == undefined) {
+      return undefined;
+    }
+
+    return users.rows.length > 0 ? users.rows[0] : undefined;
+  },
+
+  findByUsername: async (username: string): Promise<User | undefined> => {
+    const users = await client.execute(
+      "SELECT * FROM users WHERE username = ?",
+      [
+        username,
+      ],
+    );
+    if (users.rows == undefined) {
+      return undefined;
+    }
+    return users.rows[0] as User;
+  },
+
+  findById: async (id: string): Promise<User | undefined> => {
+    const users = await client.execute("SELECT * FROM users WHERE id = ?", [
+      id,
+    ]);
+    if (users.rows == undefined) {
+      return undefined;
+    }
+    return users.rows[0] as User;
+  },
+};
+\end{lstlisting}
+
+\section{Transaction Model: transaction.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: models/transaction.ts
+
+import db from "../database.ts";
+
+export enum TransactionType {
+  Deposit = "deposit",
+  Withdrawal = "withdrawal",
+  Transfer = "transfer",
+}
+
+export interface Transaction {
+  id: string;
+  fromId: string;
+  toId: string;
+  type: "deposit" | "withdrawal" | "transfer";
+  amount: number;
+  description: string;
+  balance: number;
+  createdAt: Date;
+}
+
+// In-memory storage
+const client = db.getClient();
+
+export const TransactionModel = {
+  create: async (
+    transactionData: Omit<Transaction, "id" | "createdAt">,
+  ): Promise<Transaction> => {
+    let id = 0;
+    const count = await client.execute(
+      "SELECT COUNT(*) FROM transactions",
+    );
+    if (count.rows !== undefined) {
+      id = count.rows[0]["COUNT(*)"] + 1;
+    }
+
+    const newTransaction: Transaction = {
+      ...transactionData,
+      createdAt: new Date(),
+      id: String(id),
+    };
+
+    await client.execute(
+      "INSERT INTO transactions (id, toId, fromId, type, amount, description, balance, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        newTransaction.id,
+        newTransaction.fromId,
+        newTransaction.toId,
+        newTransaction.type,
+        newTransaction.amount,
+        newTransaction.description,
+        newTransaction.balance,
+        newTransaction.createdAt,
+      ],
+    );
+    return newTransaction;
+  },
+
+  findById: async (id: string): Promise<Transaction | undefined> => {
+    const transactions = await client.execute(
+      "SELECT * FROM transactions WHERE id = ?",
+      [id],
+    );
+    if (transactions.rows == undefined) {
+      throw new Error("Account not found");
+    }
+
+    return transactions.rows.length > 0 ? transactions.rows[0] : undefined;
+  },
+
+  findByUserId: async (userId: string): Promise<Transaction[]> => {
+    const transactions = await client.execute(
+      "SELECT * FROM transactions WHERE userId = ?",
+      [userId],
+    );
+
+    if (transactions.rows == undefined) {
+      throw new Error("Account not found");
+    }
+
+    return transactions.rows as Transaction[];
+  },
+
+  findByAccountId: async (accountId: string): Promise<Transaction[]> => {
+    const transactions = await client.execute(
+      "SELECT * FROM transactions WHERE fromId = ?",
+      [accountId],
+    );
+    if (transactions.rows == undefined) {
+      throw new Error("Account not found");
+    }
+
+    return transactions.rows as Transaction[];
+  },
+};
+\end{lstlisting}
+
+\section{Account Model: account.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: models/account.ts
+
+import db from "../database.ts";
+import { Transaction } from "./transaction.ts";
+
+export enum AccountType {
+  Checking = "checking",
+  Savings = "savings",
+  Both = "both",
+}
+
+export interface Account {
+  id: string;
+  userId: string;
+  type: AccountType;
+  balance: number;
+  createdAt: Date;
+}
+
+const client = db.getClient();
+
+export const AccountModel = {
+  create: async (
+    accountData: Omit<Account, "id" | "createdAt">,
+  ): Promise<Account | undefined> => {
+    try {
+      let id = 0;
+      const count = await client.execute(
+        "SELECT COUNT(*) FROM accounts",
+      );
+      if (count.rows !== undefined) {
+        id = count.rows[0]["COUNT(*)"] + 1;
+      }
+
+      const newAccount: Account = {
+        ...accountData,
+        id: String(id),
+        createdAt: new Date(),
+      };
+
+      // Check if user already exists
+      const accounts = await client.execute(
+        "SELECT * FROM accounts WHERE id = ?",
+        [newAccount.id],
+      );
+
+      if (accounts.rows == undefined) {
+        console.log("SQL Query Error");
+        return newAccount;
+      }
+      if (accounts.rows.length > 0) {
+        console.log("Account already exists");
+        return accounts.rows[0] as Account;
+      }
+
+      await client.execute(
+        "INSERT INTO accounts (id, userId, type, balance, createdAt) VALUES (?, ?, ?, ?, ?)",
+        [
+          newAccount.id,
+          newAccount.userId,
+          newAccount.type,
+          newAccount.balance,
+          newAccount.createdAt,
+        ],
+      );
+      console.log("Account created");
+
+      return newAccount;
+    } catch (error) {
+      console.error("Account Creation Error: ", (error as Error).message);
+      throw new Error("Server error creating account");
+    }
+  },
+
+  listAll: async (): Promise<Account[]> => {
+    const accounts = await client.execute("SELECT * FROM accounts");
+
+    if (accounts.rows == undefined) {
+      return [];
+    }
+
+    return accounts.rows as Account[];
+  },
+
+  findById: async (id: string): Promise<Account | undefined> => {
+    const accounts = await client.execute(
+      "SELECT * FROM accounts WHERE id = ?",
+      [id],
+    );
+
+    if (accounts.rows == undefined) {
+      throw new Error("Account not found");
+    }
+
+    return accounts.rows.length > 0 ? accounts.rows[0] : undefined;
+  },
+
+  findByUserId: async (userId: string): Promise<Account[]> => {
+    const accounts = await client.execute(
+      "SELECT * FROM accounts WHERE userId = ?",
+      [userId],
+    );
+
+    if (accounts.rows == undefined) {
+      return [];
+    }
+
+    return accounts.rows as Account[];
+  },
+
+  findTransactions: async (id: string): Promise<Transaction[]> => {
+    const transactions = await client.execute(
+      "SELECT * FROM transactions WHERE fromId = ?",
+      [id],
+    );
+
+    if (transactions.rows == undefined) {
+      return [];
+    }
+
+    return transactions.rows as Transaction[];
+  },
+
+  updateBalance: async (
+    id: string,
+    newBalance: number,
+  ): Promise<Account | undefined> => {
+    console.log(
+      "UPDATE accounts SET balance = " + newBalance + " WHERE id = " + id,
+    );
+    await client.execute(
+      "UPDATE accounts SET balance = ? WHERE id = ?",
+      [newBalance, id],
+    );
+
+    return AccountModel.findById(id);
+  },
+};
+\end{lstlisting}
+
+\section{Dashboard View: dashboard.ejs}
+\begin{lstlisting}[language=HTML]
+
+<!--// File: views/dashboard.ejs-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E(xpress)-Bank Dashboard</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/dashboard.css" id='dashboard.css'>
+    <link rel="stylesheet" href="/css/styles.css" id='dashboard.css'>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar d-none d-lg-block">
+        <div class="bank-logo">E(xpress)-Bank</div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="#"><i class="fas fa-home"></i> Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/transfer"><i class="fas fa-exchange-alt"></i> Transfers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a>
+            </li>
+            <li class="nav-item mt-5">
+                <a class="nav-link text-danger" id="logoutButton"> <i class="fas fa-sign-out-alt" onclick="logout()"></i> Logout</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header with user greeting -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="user-greeting">
+                    Welcome back, <span class="user-name" id="userName"><%- user %></span>!
+            </div>
+            <a href="/details" class="profile-button" id="profileInitials">U</a>
+        </div>
+
+        <!-- Accounts Overview Section -->
+        <h5 class="mb-4">Your Accounts</h5>
+        <div class="row" id="accountsContainer"> </div>
+
+        <!-- Quick Stats Section -->
+    <!--     <h5 class="mb-4 mt-4">Financial Summary</h5> -->
+    <!--     <div class="row"> -->
+            <!-- Monthly Spending -->
+    <!--         <div class="col-md-6 col-lg-3 mb-4"> -->
+    <!--             <div class="stats-card"> -->
+    <!--                 <div class="stat-label">Monthly Spending</div> -->
+    <!--                 <div class="stat-value">$1,245.62</div> -->
+    <!--                 <div class="text-muted small"> -->
+    <!--                     <i class="fas fa-arrow-down text-success"></i> 12% from last month -->
+    <!--                 </div> -->
+    <!--             </div> -->
+    <!--         </div> -->
+    <!---->
+            <!-- Income -->
+    <!--         <div class="col-md-6 col-lg-3 mb-4"> -->
+    <!--             <div class="stats-card"> -->
+    <!--                 <div class="stat-label">Monthly Income</div> -->
+    <!--                 <div class="stat-value">$3,850.00</div> -->
+    <!--                 <div class="text-muted small"> -->
+    <!--                     <i class="fas fa-arrow-up text-success"></i> 5% from last month -->
+    <!--                 </div> -->
+    <!--             </div> -->
+    <!--         </div> -->
+    <!---->
+            <!-- Savings Goal -->
+    <!--         <div class="col-md-6 col-lg-3 mb-4"> -->
+    <!--             <div class="stats-card"> -->
+    <!--                 <div class="stat-label">Savings Goal</div> -->
+    <!--                 <div class="stat-value">$10,000.00</div> -->
+    <!--                 <div class="text-muted small">78% complete</div> -->
+    <!--                 <div class="progress savings-progress"> -->
+    <!--                     <div class="progress-bar bg-success" role="progressbar" style="width: 78%" aria-valuenow="78" -->
+    <!--                         aria-valuemin="0" aria-valuemax="100"></div> -->
+    <!--                 </div> -->
+    <!--             </div> -->
+    <!--         </div> -->
+    <!---->
+            <!-- Credit Score -->
+    <!--         <div class="col-md-6 col-lg-3 mb-4"> -->
+    <!--             <div class="stats-card"> -->
+    <!--                 <div class="stat-label">Credit Score</div> -->
+    <!--                 <div class="stat-value">760</div> -->
+    <!--                 <div class="text-muted small"> -->
+    <!--                     <i class="fas fa-arrow-up text-success"></i> Excellent -->
+    <!--                 </div> -->
+    <!--             </div> -->
+    <!--         </div> -->
+    <!--     </div> -->
+    <!---->
+        <!-- Recent Transactions Section -->
+    <!--     <h5 class="mb-4">Recent Transactions</h5> -->
+    <!--     <div class="transaction-list"> -->
+    <!--         <div class="list-group list-group-flush" id="transactionsList"> -->
+                <!-- Transaction items will be populated dynamically -->
+    <!--             <div class="transaction-item deposit"> -->
+    <!--                 <div class="d-flex justify-content-between align-items-center"> -->
+    <!--                     <div> -->
+    <!--                         <div class="fw-bold">Deposit: Payroll</div> -->
+    <!--                         <div class="text-muted small">Feb 25, 2025</div> -->
+    <!--                     </div> -->
+    <!--                     <div class="transaction-amount deposit">+$1,850.00</div> -->
+    <!--                 </div> -->
+    <!--             </div> -->
+    <!--             <div class="transaction-item withdrawal"> -->
+    <!--                 <div class="d-flex justify-content-between align-items-center"> -->
+    <!--                     <div> -->
+    <!--                         <div class="fw-bold">Walmart</div> -->
+    <!--                         <div class="text-muted small">Feb 23, 2025</div> -->
+    <!--                     </div> -->
+    <!--                     <div class="transaction-amount withdrawal">-$87.45</div> -->
+    <!--                 </div> -->
+    <!--             </div> -->
+    <!--             <div class="transaction-item withdrawal"> -->
+    <!--                 <div class="d-flex justify-content-between align-items-center"> -->
+    <!--                     <div> -->
+    <!--                         <div class="fw-bold">Amazon Prime</div> -->
+    <!--                         <div class="text-muted small">Feb 21, 2025</div> -->
+    <!--                     </div> -->
+    <!--                     <div class="transaction-amount withdrawal">-$14.99</div> -->
+    <!--                 </div> -->
+    <!--             </div> -->
+    <!--             <div class="transaction-item withdrawal"> -->
+    <!--                 <div class="d-flex justify-content-between align-items-center"> -->
+    <!--                     <div> -->
+    <!--                         <div class="fw-bold">Uber Ride</div> -->
+    <!--                         <div class="text-muted small">Feb 20, 2025</div> -->
+    <!--                     </div> -->
+    <!--                     <div class="transaction-amount withdrawal">-$24.50</div> -->
+    <!--                 </div> -->
+    <!--             </div> -->
+    <!--             <div class="transaction-item deposit"> -->
+    <!--                 <div class="d-flex justify-content-between align-items-center"> -->
+    <!--                     <div> -->
+    <!--                         <div class="fw-bold">Transfer from Savings</div> -->
+    <!--                         <div class="text-muted small">Feb 18, 2025</div> -->
+    <!--                     </div> -->
+    <!--                     <div class="transaction-amount deposit">+$500.00</div> -->
+    <!--                 </div> -->
+    <!--             </div> -->
+    <!--         </div> -->
+    <!--         <div class="p-3 text-center"> -->
+    <!--             <button class="btn btn-link text-decoration-none">View All Transactions</button> -->
+    <!--         </div> -->
+    <!--     </div> -->
+    <!-- </div> -->
+
+    <!-- Quick Action Button -->
+    <div class="quick-actions">
+        <div class="dropdown">
+            <button class="quick-action-btn" type="button" id="quickActionsDropdown" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <i class="fas fa-plus"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quickActionsDropdown">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-exchange-alt me-2"></i> New Transfer</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card me-2"></i> Pay Bill</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-mobile-alt me-2"></i> Mobile Deposit</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user-friends me-2"></i> Send to Friend</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Dashboard Script -->
+    <script src="/js/dashboard.cjs"></script>
+    <script>
+        // Logout functionality
+        async function logout() {
+            console.log("Logging out...");
+            try {
+                const response = await fetch("/auth/logout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                console.log("Logout response:", response);
+
+                if (response.ok) {
+                    // Redirect to the login page after successful logout
+                    globalThis.window.location.href = "/login";
+                } else {
+                    console.error("Logout failed");
+                }
+            } catch (error) {
+                console.error("Error during logout:", error);
+                globalThis.window.location.href = "/login";
+            }
+        }
+    </script>
+
+</body>
+
+</html>
+\end{lstlisting}
+
+\section{Login View: login.ejs}
+\begin{lstlisting}[language=HTML]
+
+<!--// File: views/login.ejs-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E(xpress)-Bank Login</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="card shadow form-container">
+            <div class="bank-header">
+                <div class="bank-logo">E(xpress)-Bank</div>
+                <h2 class="mt-2">Log In</h2>
+                <p class="text-muted">Access your secure banking account</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Log In</button>
+
+                <div class="text-center mt-3">
+                    <!-- <p><a href="#" class="text-decoration-none">Forgot password?</a></p> -->
+                    <p>Don't have an account? <a href="/register" class="text-decoration-none">Sign up</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Login Script -->
+    <script lang="javascript">
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({username, password})
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Session cookie is set automatically, so simply redirect to dashboard
+                    window.location.href = '/dashboard';
+                } else {
+                    alert(data.error || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('An error occurred during login');
+            }
+        });
+    </script>
+
+</body>
+
+</html>
+
+\end{lstlisting}
+
+\section{Register View: register.ejs}
+\begin{lstlisting}[language=HTML]
+
+<!--// File: views/register.ejs-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E(xpress)-Bank</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="card shadow form-container">
+            <div class="bank-header text-center">
+                <div class="bank-logo">E(xpress)-Bank</div>
+                <h2 class="mt-2">Create an Account</h2>
+                <p class="text-muted">Join our secure banking platform</p>
+            </div>
+            <form id="registrationForm">
+                <!-- Personal Information -->
+                <fieldset class="mb-4">
+                    <legend>Personal Information</legend>
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="fullName" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="col">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" required>
+                        </div>
+                    </div>
+                </fieldset>
+                <!-- Address Information -->
+                <fieldset class="mb-4">
+                    <legend>Address Information</legend>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" required>
+                        </div>
+                        <div class="col">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="state" required>
+                        </div>
+                        <div class="col">
+                            <label for="zipCode" class="form-label">Zip Code</label>
+                            <input type="text" class="form-control" id="zipCode" required>
+                        </div>
+                    </div>
+                </fieldset>
+                <!-- Account Security -->
+                <fieldset class="mb-4">
+                    <legend>Account Security</legend>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" required>
+                        <div class="password-requirements mt-1">
+                            Password must be at least 8 characters and include uppercase, lowercase, number, and special character.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                </fieldset>
+                <!-- Account Type Selection -->
+                <fieldset class="mb-4">
+                    <legend>Account Type</legend>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="accountType" id="checkingAccount" value="checking" checked>
+                        <label class="form-check-label" for="checkingAccount">Checking Account</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="accountType" id="savingsAccount" value="savings">
+                        <label class="form-check-label" for="savingsAccount">Savings Account</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="accountType" id="bothAccounts" value="both">
+                        <label class="form-check-label" for="bothAccounts">Both Checking & Savings</label>
+                    </div>
+                </fieldset>
+                <!-- Terms and Conditions -->
+                <div class="mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="termsAgreement" required>
+                        <label class="form-check-label" for="termsAgreement">
+                            I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
+                        </label>
+                    </div>
+                </div>
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100">Create Account</button>
+                <div class="text-center mt-3">
+                    <p>Already have an account? <a href="/login">Log in</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="/js/registration.cjs"></script>
+</body>
+
+</html>
+
+\end{lstlisting}
+
+\section{Transfers View: transfers.ejs}
+\begin{lstlisting}[language=HTML]
+
+<!--// File: views/transfer.ejs-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Funds - E-Bank</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar d-none d-lg-block">
+        <div class="bank-logo">E(xpress)-Bank</div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard"><i class="fas fa-home"></i> Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/transfer"><i class="fas fa-exchange-alt"></i> Transfers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-credit-card"></i> Cards</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-chart-pie"></i> Investments</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a>
+            </li>
+            <li class="nav-item mt-5">
+                <a class="nav-link text-danger" id="logoutButton"> <i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header with title -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>Transfer Funds</h4>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">New Transfer</h5>
+                        <form id="transfer-form">
+                            <div class="mb-3">
+                                <label for="fromAccount" class="form-label">From Account</label>
+                                <select class="form-select" id="fromAccount" name="fromAccount" required>
+                                    <option value="">Select account</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="toAccount" class="form-label">To Account</label>
+                                <input type="text" class="form-select" id="toAccount" name="fromAccount" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="amount" name="amount" min="0.01" step="0.01" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="note" class="form-label">Note (optional)</label>
+                                <input type="text" class="form-control" id="note" name="note" placeholder="What's this transfer for?">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Transfer Funds</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Transfer Tips</h5>
+                        <ul class="small text-muted">
+                            <li>Transfers between your accounts are instant</li>
+                            <li>You can transfer up to $10,000 per day</li>
+                            <li>Adding a note helps you track transfers later</li>
+                            <li>Transfers to external accounts may take 1-3 business days</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Recent Transfers</h5>
+                        <div id="transfer-history" class="transaction-list">
+                            <!-- Transfer history will be loaded here -->
+                            <p class="text-center text-muted">Loading transfer history...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Transfer Script -->
+    <script src="/js/transfers.cjs"></script>
+
+    <script>
+        // Logout functionality
+        document.getElementById('logoutButton').addEventListener('click', async function() {
+            try {
+                const response = await fetch("/auth/logout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (response.ok) {
+                    window.location.href = "/login";
+                } else {
+                    console.error("Logout failed");
+                }
+            } catch (error) {
+                console.error("Error during logout:", error);
+                window.location.href = "/login";
+            }
+        });
+    </script>
+</body>
+</html>
+\end{lstlisting}

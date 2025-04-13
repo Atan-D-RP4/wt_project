@@ -51,4 +51,3 @@ await client.execute(
 
 console.log("Database initialized");
 client.close();
-

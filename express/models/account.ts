@@ -25,7 +25,7 @@ export const AccountModel = {
   ): Promise<Account | undefined> => {
     try {
       let id = 0;
-      const count = await client.query(
+      const count = await client.execute(
         "SELECT COUNT(*) FROM accounts",
       );
       if (count.rows !== undefined) {

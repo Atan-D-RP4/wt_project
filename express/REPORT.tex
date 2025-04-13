@@ -96,30 +96,58 @@
 
 \begin{titlepage}
     \centering
-    \vspace*{1cm}
+    \vspace*{0.3cm}
     {\huge\bfseries WEB-TECHNOLOGIES PROJECT REPORT\par}
-    \vspace{1cm}
+    \vspace{0.3cm}
     {\Large\bfseries on\par}
-    \vspace{1cm}
+    \vspace{0.3cm}
     {\huge\bfseries E-BANKING SYSTEM\par}
-    \vspace{2cm}
+    \vspace{1cm}
     {\Large\bfseries Bachelor of Technology\par}
-    \vspace{0.5cm}
+    \vspace{0.2cm}
     {\Large\bfseries In\par}
-    \vspace{0.5cm}
+    \vspace{0.2cm}
     {\Large\bfseries Computer Science and Engineering\par}
-    \vspace{2cm}
-    {\Large\bfseries Under esteemed Guidance of\par}
-    \vspace{0.5cm}
+    \includegraphics[width=0.4\textwidth]{anits_logo.png}\par
+    \vspace{1cm}
+    {\Large\bfseries Under the esteemed guidance of\par}
+    \vspace{0.3cm}
     {\Large\bfseries Mrs. Venkata Ratnam\par}
-    \vspace{0.5cm}
+    \vspace{0.3cm}
     {\Large\bfseries Asst. Professor, Dept. of CSE\par}
-    \vspace{2cm}
+    \vspace{1cm}
     {\Large\bfseries DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING\par}
-    \vspace{0.5cm}
+    \vspace{0.3cm}
     {\Large\bfseries ANIL NEERUKONDA INSTITUTE OF TECHNOLOGY AND SCIENCES\par}
-    \vspace{0.5cm}
+    \vspace{0.3cm}
     {\Large\bfseries SANGIVALASA, VISAKHAPATNAM\par}
+\end{titlepage}
+
+
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+    {\huge\bfseries Bonafide Certificate\par}
+\end{center}
+\vspace*{1cm}
+
+This is to certify that this project report "E-Banking System" is the Bonafide
+work of D. Chaitanya(A22126510144), P. Meghana(A22126510167), P. Sai Deepak
+(A22126510168), N. Lokesh(A22126510166), M. Nikitha(A22126510161). This project
+is carried out and is submitted in the partial fulfillment of the requirements
+for the award of BACHELOR OF TECHNOLOGY in Computer Science and Engineering,
+under Anil Neerukonda Institute of Technology and Sciences during the academic
+year 2024-2025.
+
+\vspace{1cm} % Increased vertical space to move the table closer to the bottom
+\begin{tabular}{lll}
+    Head of the Department & Project Guide & Project Reviewer \\
+    Prof. G. Srinivas & Mrs. K.Venkataratnam & G. Pranitha \\
+    (Professor \& HOD) & (Asst.Professor) & (Asst. Professor) \\
+    Department of CSE & Department of CSE & Department of CSE \\
+    ANITS & ANITS & ANITS \\
+\end{tabular}
+
 \end{titlepage}
 
 \thispagestyle{empty}
@@ -143,31 +171,6 @@
         \hline
     \end{tabular}
 \end{center}
-\newpage
-
-\thispagestyle{empty}
-\begin{center}
-    \Large\textbf{Bonafide Certificate}
-\end{center}
-\vspace{1cm}
-
-This is to certify that this project report "E-Banking System" is the Bonafede
-work of D. Chaitanya(A22126510144), P. Meghana(A22126510167), P. Sai Deepak
-(A22126510168), N. Lokesh(A22126510166), M. Nikitha(A22126510161). This project
-is carried out and is submitted in the partial fulfillment of the requirements
-for the award of BACHELOR OF TECHNOLOGY in Computer Science and Engineering,
-under Anil Neerukonda Institute of Technology and Sciences during the academic
-year 2024-2025.
-
-\vspace{2cm}
-\begin{tabular}{ll}
-Head of the Department & Project Guide \\
-% TODO: Change HOD name
-Prof. M. Ramakrishna Murty & Mrs. K.Venkataratnam \\
-(Professor \& HOD) & (Asst.Professor) \\
-Department of CSE & Department of CSE \\
-ANITS & ANITS
-\end{tabular}
 \newpage
 
 \thispagestyle{empty}
@@ -215,8 +218,7 @@ pleasure in presenting a project, which is the result of a studied blend of
 both research and knowledge.
 
 We first take the privilege to thank our Head of the department Prof M.
-% TODO: Change HOD name
-RAMAKRISHNA MURTHY, for permitting us in laying the first stone of success. We
+G. SRINIVAS, for permitting us in laying the first stone of success. We
 feel grateful to thank MRS. K. VENKATA RATNAM Madam, who is our project guide
 and who shared her valuable knowledge with us and made us understand the real
 essence of the topic and created interest in us to put our continuous efforts
@@ -228,8 +230,8 @@ in the project.
 D. Chaitanya & A22126510144 \\
 P. Meghana & A22126510167 \\
 P. Sai Deepak & A22126510168 \\
-Lokesh & A22126510166 \\
-Nikitha & A22126510161 \\
+N. Lokesh & A22126510166 \\
+M. Nikitha & A22126510161 \\
 \end{tabular}
 \newpage
 
@@ -470,523 +472,7 @@ specific purpose. Below is a brief overview of the project structure:
 \end{forest}
 \end{figure}
 
-\chapter{Code Listings}
-
-% Code Listings
-\section{Entry Point: main.ts}
-\begin{lstlisting}[language=TypeScript]
-// File: main.ts
-// @ts-types="npm:@types/express"
-import express from "express";
-import session from "express-session";
-import cors from "cors";
-// Routes
-import accountRoutes from "./routes/accounts.ts";
-import authRoutes from "./routes/auth.ts";
-import dashboardRoutes from "./routes/dashboard.ts";
-import transactionRoutes from "./routes/transactions.ts";
-// Auth
-import { authMiddleware } from "./middleware/auth.ts";
-
-// Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
-if (import.meta.main) {
-  const app = express();
-  const PORT = 3000;
-
-  // Middleware
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(session({
-    secret: "yourSecretKey", // Replace with a strong secret key
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      secure: false,
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 4, // 4 hours
-    }, // Set to true in production with HTTPS
-  }));
-  app.use(cors({
-    origin: "http://localhost:3000", // specific origin or '*' for all
-    methods: "GET,POST,PUT,DELETE",
-    credentials: true,
-  }));
-
-  // Static files and view engine
-  app.use(express.static("public"));
-  app.set("view engine", "ejs");
-
-  // Route setup
-  app.use("/auth", authRoutes);
-  app.use("/api/accounts", accountRoutes);
-  app.use("/api/transactions", transactionRoutes);
-  app.use("/api/dashboard", dashboardRoutes);
-
-  // Index page
-  app.get("/", (_req: express.Request, res: express.Response) => {
-    res.redirect("/dashboard");
-  });
-
-  // Login page
-  app.get("/login", (_req: express.Request, res: express.Response) => {
-    res.render("login");
-  });
-
-  app.get("/register", (_req: express.Request, res: express.Response) => {
-    res.render("register");
-  });
-
-  // Protected routes
-  app.use(authMiddleware);
-  app.get("/dashboard", (req: express.Request, res: express.Response) => {
-    res.render("dashboard", { user: req.user?.username });
-  });
-
-  app.get("/transfer", (_req: express.Request, res: express.Response) => {
-    res.render("transfer");
-  });
-
-  app.listen(PORT, () => {
-    console.log("Server is running on http://localhost:3000");
-  });
-}
-\end{lstlisting}
-
-\section{Database Connection: database.ts}
-\begin{lstlisting}[language=TypeScript]
-
-// File: database.ts
-import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
-
-class Database {
-  private static instance: Database;
-  private client: Client;
-
-  private constructor() {
-    this.client = new Client();
-  }
-
-  public static async getInstance(): Promise<Database> {
-    if (!Database.instance) {
-      Database.instance = new Database();
-      await Database.instance.connect();
-    }
-    return Database.instance;
-  }
-
-  private async connect() {
-    await this.client.connect({
-      hostname: "127.0.0.1",
-      username: "root",
-      password: "password",
-      db: "project",
-      poolSize: 3,
-    });
-  }
-
-  public getClient(): Client {
-    return this.client;
-  }
-}
-
-export default await Database.getInstance();
-\end{lstlisting}
-
-\section{Database Init-Schema: init-db.ts}
-\begin{lstlisting}[language=TypeScript]
-
-// File: init-db.ts
-import db from "./database.ts";
-
-const client = db.getClient();
-await client.execute(`CREATE DATABASE IF NOT EXISTS project`);
-await client.execute(`USE project`);
-
-await client.execute(
-  `CREATE TABLE IF NOT EXISTS users (
-  id VARCHAR(36) PRIMARY KEY,
-  fullName VARCHAR(100),
-  email VARCHAR(100),
-  phone VARCHAR(20),
-  address VARCHAR(100),
-  city VARCHAR(50),
-  state VARCHAR(50),
-  zipCode VARCHAR(10),
-  username VARCHAR(50),
-  password VARCHAR(100),
-  createdAt DATETIME,
-  accountType ENUM('checking', 'savings', 'both')
-  )`,
-);
-
-await client.execute(
-  `CREATE TABLE IF NOT EXISTS accounts (
-  id VARCHAR(36) PRIMARY KEY,
-  userId VARCHAR(36),
-  type ENUM('checking', 'savings', 'both'),
-  balance DECIMAL(10, 2),
-  createdAt DATETIME,
-  FOREIGN KEY (userId) REFERENCES users(id)
-  )`,
-);
-
-await client.execute(
-  `CREATE TABLE IF NOT EXISTS transactions (
-  id VARCHAR(36) PRIMARY KEY,
-  fromId VARCHAR(36),
-  toId VARCHAR(36),
-  type ENUM('deposit', 'withdrawal', 'transfer'),
-  amount DECIMAL(10, 2),
-  description TEXT,
-  balance DECIMAL(10, 2),
-  createdAt DATETIME,
-  FOREIGN KEY (fromId) REFERENCES accounts(id),
-  FOREIGN KEY (toId) REFERENCES accounts(id)
-  )`,
-);
-
-console.log("Database initialized");
-client.close();
-
-\end{lstlisting}
-
-\section{Auth Middleware: auth.ts}
-\begin{lstlisting}[language=TypeScript]
-// File: middleware/auth.ts
-// @ts-types="npm:@types/express-session"
-// @ts-types="npm:@types/express"
-import { NextFunction, Request, Response } from "express";
-
-// In your auth.ts middleware file
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        username: string;
-        email: string;
-      };
-    }
-  }
-}
-
-// Extend express-session
-declare module "express-session" {
-  interface SessionData {
-    user?: {
-      id: string;
-      username: string;
-      email: string;
-    };
-  }
-}
-
-export const authMiddleware = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-
-  // Check if user is logged in
-  if (!req.session?.user) {
-    // Send a message to the user and then redirect to login page
-    console.log("Redirect");
-    return res.status(300).redirect("/login");
-  }
-
-  // Pass the user object to the next middleware
-  req.user = req.session.user; // No need for casting now
-
-  console.log("Passed Authentication");
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-XSS-Protection", "1; mode=block");
-  res.setHeader("X-Frame-Options", "DENY");
-  next();
-};
-\end{lstlisting}
-
-\section{User Model: user.ts}
-\begin{lstlisting}[language=TypeScript]
-
-// File: models/user.ts
-// This is a simple in-memory model for demonstration
-// In a real application, you'd use a database
-
-import { AccountModel, AccountType } from "./account.ts";
-import db from "../database.ts";
-
-interface User {
-  id: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  username: string;
-  password: string;
-  createdAt: Date;
-  accountType: AccountType;
-}
-
-const client = db.getClient();
-
-export const UserModel = {
-  create: async (userData: Omit<User, "id" | "createdAt">): Promise<User> => {
-    // Check if user already exists
-    const users = await client.execute(
-      "SELECT * FROM users WHERE email = ? or username = ?",
-      [
-        userData.email,
-        userData.username,
-      ],
-    );
-
-    if (users.rows == undefined) {
-      console.log("SQL Query Error");
-      throw new Error("SQL Query Error");
-    }
-    if (users.rows.length > 0) {
-      console.log("User already exists");
-      return users.rows[0] as User;
-    }
-
-    let id = 0;
-    const count = await client.query(
-      "SELECT COUNT(*) FROM users",
-    );
-    if (count.rows !== undefined) {
-      id = count.rows[0]["COUNT(*)"] + 1;
-    }
-    const newUser: User = {
-      ...userData,
-      accountType: userData.accountType as AccountType,
-      id: String(id),
-      createdAt: new Date(),
-    };
-
-    await client.execute(
-      "INSERT INTO users (id, fullName, email, phone, address, city, state, zipCode, username, password, createdAt, accountType) \
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [
-        newUser.id,
-        newUser.fullName,
-        newUser.email,
-        newUser.phone,
-        newUser.address,
-        newUser.city,
-        newUser.state,
-        newUser.zipCode,
-        newUser.username,
-        newUser.password,
-        newUser.createdAt,
-        newUser.accountType,
-      ],
-    );
-
-    // Add an account for the user
-    await AccountModel.create({
-      userId: newUser.id,
-      type: newUser.accountType,
-      balance: 1000.0,
-    });
-
-    return newUser;
-  },
-
-  findByEmail: async (email: string): Promise<User | undefined> => {
-    const users = await client.execute("SELECT * FROM users WHERE email = ?", [
-      email,
-    ]);
-    if (users.rows == undefined) {
-      return undefined;
-    }
-
-    return users.rows.length > 0 ? users.rows[0] : undefined;
-  },
-
-  findByUsername: async (username: string): Promise<User | undefined> => {
-    const users = await client.execute(
-      "SELECT * FROM users WHERE username = ?",
-      [
-        username,
-      ],
-    );
-    if (users.rows == undefined) {
-      return undefined;
-    }
-    return users.rows[0] as User;
-  },
-
-  findById: async (id: string): Promise<User | undefined> => {
-    const users = await client.execute("SELECT * FROM users WHERE id = ?", [
-      id,
-    ]);
-    if (users.rows == undefined) {
-      return undefined;
-    }
-    return users.rows[0] as User;
-  },
-};
-\end{lstlisting}
-
-\section{Auth Controller: authController.ts}
-\begin{lstlisting}[language=TypeScript]
-
-// File: controllers/authController.ts
-// @ts-types="npm:@types/bcryptjs"
-// @ts-types="npm:@types/express"
-import { Request, Response } from "express";
-
-import { UserModel } from "../models/user.ts";
-import { AccountModel } from "../models/account.ts";
-import * as bcrypt from "bcryptjs";
-
-export const authController = {
-  register: async (req: Request, res: Response) => {
-    console.log("Registering user...");
-    try {
-      const {
-        fullName,
-        email,
-        phone,
-        address,
-        city,
-        state,
-        zipCode,
-        username,
-        password,
-        accountType,
-      } = req.body;
-
-      // Validate input
-      if (!fullName || !email || !password || !username) {
-        return res.status().json({ error: "Missing required fields" });
-      }
-
-      // Check if user already exists
-      const existingUser = await UserModel.findByEmail(email);
-      if (existingUser) {
-        return res.status(400).json({ error: "User already exists" });
-      }
-      const salt = bcrypt.genSaltSync(10);
-      const hashedPassword = bcrypt.hashSync(password, salt);
-
-      // Create user
-      const user = await UserModel.create({
-        fullName,
-        email,
-        phone,
-        address,
-        city,
-        state,
-        zipCode,
-        username,
-        password: hashedPassword,
-        accountType,
-      });
-
-      // Create accounts based on accountType
-      await AccountModel.create({
-        userId: user.id,
-        type: accountType,
-        balance: 0,
-      });
-
-      // Return success response
-      res.status(201).json({
-        message: "Account created successfully",
-        user: { id: user.id, username: user.username, email: user.email },
-      });
-    } catch (error) {
-      console.error("Registration error:", error);
-      res.status(500).json({ error: "Server error during registration" });
-    }
-  },
-
-  login: async (req: Request, res: Response) => {
-    try {
-      console.log("Logging in user...");
-      const { username, password } = req.body;
-
-      // Find user
-      let user = await UserModel.findByUsername(username);
-      if (!user) {
-        user = await UserModel.findByEmail(username);
-        if (!user) {
-          console.log("User not found");
-          return res.status(401).json({ error: "Invalid credentials" });
-        }
-      }
-
-      // Verify password (should use proper comparison in real implementation)
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (isMatch === false) {
-        return res.status(401).json({ error: "Invalid credentials" });
-      }
-
-      req.session.user = {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      };
-
-      console.log("Session ID:", req.session.id, "\nUser ID:", user.id);
-
-      res.status(200).json({
-        message: "Login successful",
-        user: { id: user.id, username: user.username, email: user.email },
-      });
-    } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ error: "Server error during login" });
-    }
-  },
-
-  logout: (req: Request, res: Response) => {
-    // Destroy the session
-    console.log(req.session);
-    req.session.destroy((err: Error) => {
-      if (err) {
-        console.error("Logout error:", err);
-        return res.status(500).json({ error: "Server error during logout" });
-      }
-      // Clear the session cookie (using the default name "connect.sid")
-      res.clearCookie("connect.sid");
-      res.status(200).json({ message: "Logged out successfully" });
-    });
-    console.log("Session destroyed");
-  },
-};
-\end{lstlisting}
-
-\section{Auth Routes: auth.ts}
-\begin{lstlisting}[language=TypeScript]
-
-// File: routes/auth.ts
-// @ts-types="npm:@types/express"
-
-import express from "express";
-import { authController } from "../controllers/authController.ts";
-
-const router = express.Router();
-
-// Registration endpoint
-router.post("/register", async (req: express.Request, res: express.Response) => {
-    await authController.register(req, res);
-});
-
-// Login endpoint
-router.post("/login", async (req: express.Request, res: express.Response) => {
-  await authController.login(req, res);
-});
-
-// Logout endpoint
-router.post("/logout", authController.logout);
-
-export default router;
-\end{lstlisting}
+\include{code_listings}
 
 \chapter{Data Flow Diagram}
 

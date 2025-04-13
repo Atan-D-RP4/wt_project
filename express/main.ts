@@ -13,6 +13,7 @@ import transactionRoutes from "./routes/transactions.ts";
 // Auth
 import { authMiddleware } from "./middleware/auth.ts";
 import { UserModel } from "./models/user.ts";
+import { AccountModel } from "./models/account.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -77,7 +78,8 @@ if (import.meta.main) {
     if (!user) {
       return res.status(404).send("User not found");
     }
-    res.render("details", { user: user });
+    const accounts = await AccountModel.findByUserId(userId);
+    res.render("details", { user: user, accounts: accounts });
   });
 
   app.get("/transfer", (_req: express.Request, res: express.Response) => {

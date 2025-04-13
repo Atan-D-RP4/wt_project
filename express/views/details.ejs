@@ -61,6 +61,19 @@
 				<li><strong>Address:</strong> <%- user.address %>, <%- user.city %>, <%- user.state %>, <%- user.zipCode %></li>
 				<li><strong>Account Type:</strong> <%- user.accountType %></li>
 			</ul>
+		<!-- User Accounts -->
+		<div class="user-accounts">
+			<h3>User Accounts</h3>
+			<ul>
+				<% accounts.forEach(function(account) { %>
+					<li>
+						<strong>Account Number:</strong> <%= account.id %><br>
+						<strong>Account Type:</strong> <%= account.type %><br>
+						<strong>Balance:</strong> $<%= account.balance %><br>
+					</li>
+				<% }); %>
+			</ul>
+		</div>
 		</div>
 	</div>
 

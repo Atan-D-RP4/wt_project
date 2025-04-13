@@ -43,7 +43,7 @@ export const UserModel = {
     }
 
     let id = 0;
-    const count = await client.query(
+    const count = await client.execute(
       "SELECT COUNT(*) FROM users",
     );
     if (count.rows !== undefined) {

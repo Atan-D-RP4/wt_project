@@ -27,7 +27,7 @@ export const TransactionModel = {
     transactionData: Omit<Transaction, "id" | "createdAt">,
   ): Promise<Transaction> => {
     let id = 0;
-    const count = await client.query(
+    const count = await client.execute(
       "SELECT COUNT(*) FROM transactions",
     );
     if (count.rows !== undefined) {

@@ -39,7 +39,7 @@ export const transactionController = {
     const client = db.getClient();
     try {
       const userId = (req as any).user.id;
-      const transactions = await client.query(
+      const transactions = await client.execute(
         `SELECT * FROM transactions
        WHERE accountId IN (SELECT id FROM accounts WHERE userId = ?)
        AND type = 'transfer'`,
