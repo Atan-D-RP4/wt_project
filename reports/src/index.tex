@@ -1,128 +1,30 @@
-\documentclass[12pt,a4paper]{report}
-\usepackage{graphicx}
-\usepackage{hyperref}
-\usepackage{listings}
-\usepackage{xcolor}
-\usepackage{geometry}
-\usepackage{titlesec}
-\usepackage{fancyhdr}
-\usepackage{atbegshi}
-\usepackage{background}
-\usepackage{tikz}
-\usetikzlibrary{shapes,arrows,calc,positioning,fit}
-\usepackage{forest}
-
-% Define custom border style
-\backgroundsetup{
-  scale=1,
-  angle=0,
-  opacity=1,
-  contents={
-    \begin{tikzpicture}[remember picture, overlay]
-      \draw [line width=1pt, black]
-        ($(current page.north west) + (1cm,-1cm)$)
-        rectangle
-        ($(current page.south east) + (-1cm,1cm)$);
-    \end{tikzpicture}
-  }
-}
-
-% Add this line to apply the page border to every page
-\geometry{a4paper, margin=1in}
-
-% Title formatting
-\titleformat{\chapter}[display]
-{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
-\titlespacing*{\chapter}{0pt}{50pt}{40pt}
-
-% Code listing style
-\lstset{
-    basicstyle=\ttfamily\small,
-    breaklines=true,
-    commentstyle=\color{green!50!black},
-    keywordstyle=\color{blue},
-    stringstyle=\color{red},
-    numbers=left,
-    numberstyle=\tiny\color{gray},
-    numbersep=5pt,
-    frame=single,
-    framexleftmargin=15pt,
-    framexrightmargin=0pt,
-    framexbottommargin=5pt,
-    framextopmargin=5pt,
-    backgroundcolor=\color{gray!10},
-    showstringspaces=false
-}
-
-\lstdefinelanguage{JavaScript}{
-  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
-  keywordstyle=\color{blue}\bfseries,
-  ndkeywords={class, export, boolean, throw, implements, import, this},
-  ndkeywordstyle=\color{darkgray}\bfseries,
-  identifierstyle=\color{black},
-  sensitive=false,
-  comment=[l]{//},
-  morecomment=[s]{/}{/},
-  commentstyle=\color{purple}\ttfamily,
-  stringstyle=\color{red}\ttfamily,
-  morestring=[b]',
-  morestring=[b]'
-}
-
-\lstdefinelanguage{TypeScript}{
-  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
-  keywordstyle=\color{blue}\bfseries,
-  ndkeywords={class, export, boolean, throw, implements, import, this},
-  ndkeywordstyle=\color{darkgray}\bfseries,
-  identifierstyle=\color{black},
-  sensitive=false,
-  comment=[l]{//},
-  morecomment=[s]{/}{/},
-  commentstyle=\color{purple}\ttfamily,
-  stringstyle=\color{red}\ttfamily,
-  morestring=[b]',
-  morestring=[b]'
-}
-
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\footrulewidth}{0.4pt}
-
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[R]{E-Banking System}
-\fancyfoot[C]{\thepage}
-
-\begin{document}
-
 \begin{titlepage}
     \centering
-    \vspace*{0.3cm}
-    {\huge\bfseries WEB-TECHNOLOGIES PROJECT REPORT\par}
+    {\fontsize{24}{28}\selectfont\bfseries WEB-TECHNOLOGIES PROJECT REPORT\par}
     \vspace{0.3cm}
-    {\Large\bfseries on\par}
+    {\fontsize{18}{22}\selectfont\bfseries on\par}
     \vspace{0.3cm}
-    {\huge\bfseries E-BANKING SYSTEM\par}
+    {\fontsize{24}{28}\selectfont\bfseries E-BANKING SYSTEM\par}
     \vspace{1cm}
-    {\Large\bfseries Bachelor of Technology\par}
-    \vspace{0.2cm}
-    {\Large\bfseries In\par}
-    \vspace{0.2cm}
-    {\Large\bfseries Computer Science and Engineering\par}
+    {\fontsize{18}{22}\selectfont\bfseries Bachelor of Technology\par}
+    \vspace{0.1cm}
+    {\fontsize{18}{22}\selectfont\bfseries In\par}
+    \vspace{0.1cm}
+    {\fontsize{18}{22}\selectfont\bfseries Computer Science and Engineering\par}
     \includegraphics[width=0.4\textwidth]{anits_logo.png}\par
     \vspace{1cm}
-    {\Large\bfseries Under the esteemed guidance of\par}
-    \vspace{0.3cm}
-    {\Large\bfseries Mrs. Venkata Ratnam\par}
-    \vspace{0.3cm}
-    {\Large\bfseries Asst. Professor, Dept. of CSE\par}
+    {\fontsize{18}{22}\selectfont\bfseries Under the esteemed guidance of\par}
+    \vspace{0.2cm}
+    {\fontsize{18}{22}\selectfont\bfseries Mrs. Venkata Ratnam\par}
+    \vspace{0.2cm}
+    {\fontsize{18}{22}\selectfont\bfseries Asst. Professor, Dept. of CSE\par}
     \vspace{1cm}
-    {\Large\bfseries DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING\par}
+    {\fontsize{18}{22}\selectfont\bfseries DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING\par}
     \vspace{0.3cm}
-    {\Large\bfseries ANIL NEERUKONDA INSTITUTE OF TECHNOLOGY AND SCIENCES\par}
+    {\fontsize{18}{22}\selectfont\bfseries ANIL NEERUKONDA INSTITUTE OF TECHNOLOGY AND SCIENCES\par}
     \vspace{0.3cm}
-    {\Large\bfseries SANGIVALASA, VISAKHAPATNAM\par}
+    {\fontsize{18}{22}\selectfont\bfseries SANGIVALASA, VISAKHAPATNAM\par}
 \end{titlepage}
-
 
 \begin{titlepage}
 \thispagestyle{empty}
@@ -175,7 +77,7 @@ year 2024-2025.
 
 \thispagestyle{empty}
 \begin{center}
-    \Large\textbf{Declaration}
+    {\huge\bfseries Declaration\par}
 \end{center}
 \vspace{1cm}
 
@@ -207,7 +109,7 @@ M. Nikitha & A22126510161 \\
 
 \thispagestyle{empty}
 \begin{center}
-    \Large\textbf{Acknowledgement}
+    {\huge\bfseries Acknowledgement\par}
 \end{center}
 \vspace{1cm}
 
@@ -411,7 +313,7 @@ specific purpose. Below is a brief overview of the project structure:
 \begin{figure}[ht]
     \centering
     % Placeholder for project structure diagram
-    \caption{Project File Structure}
+    \caption{Project File Structure - Part 1}
 \begin{forest}
     for tree={
         font=\ttfamily,
@@ -440,6 +342,35 @@ specific purpose. Below is a brief overview of the project structure:
         [css]
         [js]
     ]
+]
+\end{forest}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    % Placeholder for project structure diagram
+    \caption{Project File Structure - Part 2}
+\begin{forest}
+    for tree={
+        font=\ttfamily,
+        grow'=0,
+        child anchor=west,
+        parent anchor=south,
+        anchor=west,
+        calign=first,
+        edge path={
+            \noexpand\path [draw, \forestoption{edge}]
+            (!u.south west) ++(5pt,0) |- (.child anchor)\forestoption{edge label};
+        },
+        before typesetting nodes={
+            if n=1
+            {insert before={[,phantom]}}
+            {}
+        },
+        fit=band,
+        before computing xy={l=15pt},
+    }
+[project-root
     [models
         [transaction.ts]
         [account.ts]
@@ -451,6 +382,35 @@ specific purpose. Below is a brief overview of the project structure:
         [userController.ts]
         [databaseController.ts]
     ]
+]
+\end{forest}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    % Placeholder for project structure diagram
+    \caption{Project File Structure - Part 3}
+\begin{forest}
+    for tree={
+        font=\ttfamily,
+        grow'=0,
+        child anchor=west,
+        parent anchor=south,
+        anchor=west,
+        calign=first,
+        edge path={
+            \noexpand\path [draw, \forestoption{edge}]
+            (!u.south west) ++(5pt,0) |- (.child anchor)\forestoption{edge label};
+        },
+        before typesetting nodes={
+            if n=1
+            {insert before={[,phantom]}}
+            {}
+        },
+        fit=band,
+        before computing xy={l=15pt},
+    }
+[project-root
     [middlewares
         [authMiddleware.ts]
         [loggerMiddleware.ts]
@@ -553,5 +513,3 @@ specific purpose. Below is a brief overview of the project structure:
     \bibitem{visualstudio}
     Visual Studio Code. \textit{https://code.visualstudio.com/}
 \end{thebibliography}
-
-\end{document}
