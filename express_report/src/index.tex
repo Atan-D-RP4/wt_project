@@ -303,12 +303,15 @@ specific purpose. Below is a brief overview of the project structure:
     and interact with the models.
     \item \textbf{middlewares/:} Contains middleware functions for authentication and
     logging.
-    \item \textbf{routes/:} Contains route definitions for handling HTTP requests.
+    \item \textbf{routes/:} Contains route definitions for handling HTTP
+        requests. Each route associated with a specific controller.
     \item \textbf{views/:} Contains HTML templates for rendering dynamic content using EJS.
     \item \textbf{deno.json:} Configuration file for Deno, specifying dependencies and
     runtime options.
     \item \textbf{deno.lock:} Lock file for Deno, ensuring consistent dependency versions.
 \end{itemize}
+
+\vspace{3cm}
 
 \subsection{Project File Structure}
 \begin{figure}[ht]
@@ -437,9 +440,11 @@ specific purpose. Below is a brief overview of the project structure:
 
 \section{Data Flow Diagram}
 
-\includegraphics[width=0.8\textwidth, height=0.7\textheight, angle=90]{express_assets/dataflow.png}
+\includegraphics[width=1.3\textwidth, height=0.7\textheight, angle=90]{dataflow.png}
 
-\section{Outputs}
+\vspace{10cm}
+
+\subsection{Outputs}
 
 \begin{figure}[h]
     \centering
@@ -644,41 +649,47 @@ specific purpose. Below is a brief overview of the project structure:
 \end{forest}
 \end{figure}
 
-\include{python_code_listings.tex}
+\include{flask_code_listings.tex}
 
 \section{Data Flow Diagram}
 
-\includegraphics[width=0.8\textwidth, height=0.7\textheight, angle=90]{flask_assets/dataflow.png}
+\includegraphics[width=1.3\textwidth, height=0.7\textheight, angle=90]{dataflow.png}
 
 \subsection{Outputs}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{flask_assets/dashboard.png}
+    \includegraphics[width=0.8\textwidth]{flask_assets/dashboard.jpg}
     \caption{Dashboard Interface}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{flask_assets/register.png}
+    \includegraphics[width=0.8\textwidth]{flask_assets/register.jpg}
     \caption{User Sign Up Interface}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{flask_assets/login.png}
+    \includegraphics[width=0.8\textwidth]{flask_assets/login.jpg}
     \caption{User Account Login Interface}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{flask_assets/transfers.png}
+    \includegraphics[width=0.8\textwidth]{flask_assets/transfers.jpg}
     \caption{Transaction Interface}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{flask_assets/error.png}
+    \includegraphics[width=0.8\textwidth]{flask_assets/transfer_success.jpg}
+    \caption{Transaction Success}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{flask_assets/error.jpg}
     \caption{Error Messages}
 \end{figure}
 
@@ -692,6 +703,28 @@ specific purpose. Below is a brief overview of the project structure:
     \item \raggedright \url{https://www.geeksforgeeks.org/how-to-connect-node-js-application-to-mysql/}
     \item \raggedright \url{https://stackoverflow.com/questions/13396119/how-to-add-a-value-to-existing-value-using-sql-query}
     \item \raggedright \url{https://stackoverflow.blog/css/}
+
+    \item \raggedright \url{https://flask.palletsprojects.com/en/2.0.x/}
+    \item \raggedright \url{https://www.python.org/doc/}
+    \item \raggedright \url{https://jinja.palletsprojects.com/en/3.0.x/}
+    \item \raggedright \url{https://docs.sqlalchemy.org/en/14/}
+    \item \raggedright \url{https://docs.pipenv.org/}
+    \item \raggedright \url{https://www.fullstackpython.com/flask.html}
+    \item \raggedright \url{https://realpython.com/tutorials/flask/}
+    \item \raggedright \url{https://www.sqlalchemy.org/}
+    \item \raggedright \url{https://www.jetbrains.com/pycharm/}
+    \item \raggedright \url{https://www.postgresql.org/docs/}
+\end{enumerate}
+
+    Flask Documentation: \textit{https://flask.palletsprojects.com/en/2.0.x/}
+    Python Documentation: \textit{https://www.python.org/doc/}
+    Jinja2 Documentation: \textit{https://jinja.palletsprojects.com/en/3.0.x/}
+    SQLAlchemy Documentation: \textit{https://docs.sqlalchemy.org/en/14/}
+    Pipenv Documentation: \textit{https://docs.pipenv.org/}
+    Full Stack Python: \textit{https://www.fullstackpython.com/flask.html}
+    Real Python Flask Tutorials: \textit{https://realpython.com/tutorials/flask/}
+    SQLAlchemy Official Site: \textit{https://www.sqlalchemy.org/}
+\end{thebibliography}
 \end{enumerate}
 
 \begin{thebibliography}{9}

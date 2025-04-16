@@ -17,13 +17,15 @@
     showstringspaces=false
 }
 
+% indent width for code should 2
 \lstdefinelanguage{Python}{
     keywords={def, return, if, else, elif, for, while, in, import, from, as, with, try, except, finally, raise, class},
     sensitive=true,
     comment=[l]{\#},
     morecomment=[s]{"""*}{"""*},
     morestring=[b]',
-    morestring=[b]"
+    morestring=[b]",
+    tabsize=2
 }
 
 \lstdefinelanguage{HTML}{
