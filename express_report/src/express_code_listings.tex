@@ -1,7 +1,7 @@
-\chapter{Code Listings}
+\section{Code Listings}
 
 % Code Listings
-\section{Entry Point: main.ts}
+\subsection{Entry Point: main.ts}
 \begin{lstlisting}[language=TypeScript]
 // File: main.ts
 // @ts-types="npm:@types/express"
@@ -80,7 +80,7 @@ if (import.meta.main) {
 }
 \end{lstlisting}
 
-\section{Database Connection: database.ts}
+\subsection{Database Connection: database.ts}
 \begin{lstlisting}[language=TypeScript]
 
 // File: database.ts
@@ -120,7 +120,7 @@ class Database {
 export default await Database.getInstance();
 \end{lstlisting}
 
-\section{Database Init-Schema: init-db.ts}
+\subsection{Database Init-Schema: init-db.ts}
 \begin{lstlisting}[language=TypeScript]
 
 // File: init-db.ts
@@ -178,7 +178,7 @@ client.close();
 
 \end{lstlisting}
 
-\section{Auth Middleware: auth.ts}
+\subsection{Auth Middleware: auth.ts}
 \begin{lstlisting}[language=TypeScript]
 // File: middleware/auth.ts
 // @ts-types="npm:@types/express-session"
@@ -233,7 +233,7 @@ export const authMiddleware = (
 };
 \end{lstlisting}
 
-\section{Auth Controller: authController.ts}
+\subsection{Auth Controller: authController.ts}
 \begin{lstlisting}[language=TypeScript]
 
 // File: controllers/authController.ts
@@ -363,7 +363,34 @@ export const authController = {
 };
 \end{lstlisting}
 
-\section{Account Controller: accountController.ts}
+\subsection{Auth Routes: auth.ts}
+\begin{lstlisting}[language=TypeScript]
+
+// File: routes/auth.ts
+// @ts-types="npm:@types/express"
+
+import express from "express";
+import { authController } from "../controllers/authController.ts";
+
+const router = express.Router();
+
+// Registration endpoint
+router.post("/register", async (req: express.Request, res: express.Response) => {
+    await authController.register(req, res);
+});
+
+// Login endpoint
+router.post("/login", async (req: express.Request, res: express.Response) => {
+  await authController.login(req, res);
+});
+
+// Logout endpoint
+router.post("/logout", authController.logout);
+
+export default router;
+\end{lstlisting}
+
+\subsection{Account Controller: accountController.ts}
 \begin{lstlisting}[language=TypeScript]
 
 // File: controllers/accountController.ts
@@ -475,7 +502,7 @@ export const accountController = {
 };
 \end{lstlisting}
 
-\section{Dashboard Controller: dashboardController.ts}
+\subsection{Dashboard Controller: dashboardController.ts}
 \begin{lstlisting}[language=TypeScript]
 
 // File: controllers/dashboardController.ts
@@ -533,7 +560,7 @@ export const dashboardController = {
 
 \end{lstlisting}
 
-\section{Dashboard Routes: dashboard.ts}
+\subsection{Dashboard Routes: dashboard.ts}
 \begin{lstlisting}[language=TypeScript]
 
 // File: routes/dashboard.ts
@@ -559,34 +586,7 @@ router.get("/", async (req, res) => {
 export default router;
 \end{lstlisting}
 
-\section{Auth Routes: auth.ts}
-\begin{lstlisting}[language=TypeScript]
-
-// File: routes/auth.ts
-// @ts-types="npm:@types/express"
-
-import express from "express";
-import { authController } from "../controllers/authController.ts";
-
-const router = express.Router();
-
-// Registration endpoint
-router.post("/register", async (req: express.Request, res: express.Response) => {
-    await authController.register(req, res);
-});
-
-// Login endpoint
-router.post("/login", async (req: express.Request, res: express.Response) => {
-  await authController.login(req, res);
-});
-
-// Logout endpoint
-router.post("/logout", authController.logout);
-
-export default router;
-\end{lstlisting}
-
-\section{Transaction Controller: transactionController.ts}
+\subsection{Transaction Controller: transactionController.ts}
 \begin{lstlisting}[language=TypeScript]
 
 // File: controllers/transactionController.ts
@@ -725,7 +725,7 @@ export const transactionController = {
 };
 \end{lstlisting}
 
-\section{Account Routes: accounts.ts}
+\subsection{Account Routes: accounts.ts}
 \begin{lstlisting}[language=TypeScript]
 
 // File: routes/accounts.ts
@@ -761,7 +761,7 @@ router.get("/:accountId/transactions", async (req, res) => {
 export default router;
 \end{lstlisting}
 
-\section{Transaction Routes: transactions.ts}
+\subsection{Transaction Routes: transactions.ts}
 \begin{lstlisting}[language=TypeScript]
 // File: routes/transaction.ts
 import express from "express";
@@ -791,7 +791,7 @@ router.post("/:accountId", async (req, res) => {
 export default router;
 \end{lstlisting}
 
-\section{User Model: user.ts}
+\subsection{User Model: user.ts}
 \begin{lstlisting}[language=TypeScript]
 
 // File: models/user.ts
@@ -917,7 +917,7 @@ export const UserModel = {
 };
 \end{lstlisting}
 
-\section{Transaction Model: transaction.ts}
+\subsection{Transaction Model: transaction.ts}
 \begin{lstlisting}[language=TypeScript]
 
 // File: models/transaction.ts
@@ -1017,150 +1017,7 @@ export const TransactionModel = {
 };
 \end{lstlisting}
 
-\section{Account Model: account.ts}
-\begin{lstlisting}[language=TypeScript]
-
-// File: models/account.ts
-
-import db from "../database.ts";
-import { Transaction } from "./transaction.ts";
-
-export enum AccountType {
-  Checking = "checking",
-  Savings = "savings",
-  Both = "both",
-}
-
-export interface Account {
-  id: string;
-  userId: string;
-  type: AccountType;
-  balance: number;
-  createdAt: Date;
-}
-
-const client = db.getClient();
-
-export const AccountModel = {
-  create: async (
-    accountData: Omit<Account, "id" | "createdAt">,
-  ): Promise<Account | undefined> => {
-    try {
-      let id = 0;
-      const count = await client.execute(
-        "SELECT COUNT(*) FROM accounts",
-      );
-      if (count.rows !== undefined) {
-        id = count.rows[0]["COUNT(*)"] + 1;
-      }
-
-      const newAccount: Account = {
-        ...accountData,
-        id: String(id),
-        createdAt: new Date(),
-      };
-
-      // Check if user already exists
-      const accounts = await client.execute(
-        "SELECT * FROM accounts WHERE id = ?",
-        [newAccount.id],
-      );
-
-      if (accounts.rows == undefined) {
-        console.log("SQL Query Error");
-        return newAccount;
-      }
-      if (accounts.rows.length > 0) {
-        console.log("Account already exists");
-        return accounts.rows[0] as Account;
-      }
-
-      await client.execute(
-        "INSERT INTO accounts (id, userId, type, balance, createdAt) VALUES (?, ?, ?, ?, ?)",
-        [
-          newAccount.id,
-          newAccount.userId,
-          newAccount.type,
-          newAccount.balance,
-          newAccount.createdAt,
-        ],
-      );
-      console.log("Account created");
-
-      return newAccount;
-    } catch (error) {
-      console.error("Account Creation Error: ", (error as Error).message);
-      throw new Error("Server error creating account");
-    }
-  },
-
-  listAll: async (): Promise<Account[]> => {
-    const accounts = await client.execute("SELECT * FROM accounts");
-
-    if (accounts.rows == undefined) {
-      return [];
-    }
-
-    return accounts.rows as Account[];
-  },
-
-  findById: async (id: string): Promise<Account | undefined> => {
-    const accounts = await client.execute(
-      "SELECT * FROM accounts WHERE id = ?",
-      [id],
-    );
-
-    if (accounts.rows == undefined) {
-      throw new Error("Account not found");
-    }
-
-    return accounts.rows.length > 0 ? accounts.rows[0] : undefined;
-  },
-
-  findByUserId: async (userId: string): Promise<Account[]> => {
-    const accounts = await client.execute(
-      "SELECT * FROM accounts WHERE userId = ?",
-      [userId],
-    );
-
-    if (accounts.rows == undefined) {
-      return [];
-    }
-
-    return accounts.rows as Account[];
-  },
-
-  findTransactions: async (id: string): Promise<Transaction[]> => {
-    const transactions = await client.execute(
-      "SELECT * FROM transactions WHERE fromId = ?",
-      [id],
-    );
-
-    if (transactions.rows == undefined) {
-      return [];
-    }
-
-    return transactions.rows as Transaction[];
-  },
-
-  updateBalance: async (
-    id: string,
-    newBalance: number,
-  ): Promise<Account | undefined> => {
-    console.log(
-      "UPDATE accounts SET balance = " + newBalance + " WHERE id = " + id,
-    );
-    await client.execute(
-      "UPDATE accounts SET balance = ? WHERE id = ?",
-      [newBalance, id],
-    );
-
-    return AccountModel.findById(id);
-  },
-};
-\end{lstlisting}
-
-\section{Dashboard View: dashboard.ejs}
+\subsection{Dashboard View: dashboard.ejs}
 \begin{lstlisting}[language=HTML]
 
 <!--// File: views/dashboard.ejs-->
@@ -1370,372 +1227,5 @@ export const AccountModel = {
 
 </body>
 
-</html>
-\end{lstlisting}
-
-\section{Login View: login.ejs}
-\begin{lstlisting}[language=HTML]
-
-<!--// File: views/login.ejs-->
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E(xpress)-Bank Login</title>
-    <!-- Bootstrap CSS from CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/styles.css" rel="stylesheet">
-</head>
-
-<body class="bg-light">
-    <div class="container py-5">
-        <div class="card shadow form-container">
-            <div class="bank-header">
-                <div class="bank-logo">E(xpress)-Bank</div>
-                <h2 class="mt-2">Log In</h2>
-                <p class="text-muted">Access your secure banking account</p>
-            </div>
-
-            <form id="loginForm">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" required>
-                </div>
-
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="rememberMe">
-                    <label class="form-check-label" for="rememberMe">Remember me</label>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100">Log In</button>
-
-                <div class="text-center mt-3">
-                    <!-- <p><a href="#" class="text-decoration-none">Forgot password?</a></p> -->
-                    <p>Don't have an account? <a href="/register" class="text-decoration-none">Sign up</a></p>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Login Script -->
-    <script lang="javascript">
-        document.getElementById('loginForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const response = await fetch('/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({username, password})
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Session cookie is set automatically, so simply redirect to dashboard
-                    window.location.href = '/dashboard';
-                } else {
-                    alert(data.error || 'Login failed');
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                alert('An error occurred during login');
-            }
-        });
-    </script>
-
-</body>
-
-</html>
-
-\end{lstlisting}
-
-\section{Register View: register.ejs}
-\begin{lstlisting}[language=HTML]
-
-<!--// File: views/register.ejs-->
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E(xpress)-Bank</title>
-    <!-- Bootstrap CSS from CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/styles.css" rel="stylesheet">
-</head>
-
-<body class="bg-light">
-    <div class="container py-5">
-        <div class="card shadow form-container">
-            <div class="bank-header text-center">
-                <div class="bank-logo">E(xpress)-Bank</div>
-                <h2 class="mt-2">Create an Account</h2>
-                <p class="text-muted">Join our secure banking platform</p>
-            </div>
-            <form id="registrationForm">
-                <!-- Personal Information -->
-                <fieldset class="mb-4">
-                    <legend>Personal Information</legend>
-                    <div class="mb-3">
-                        <label for="fullName" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="fullName" required>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" required>
-                        </div>
-                        <div class="col">
-                            <label for="phone" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="phone" required>
-                        </div>
-                    </div>
-                </fieldset>
-                <!-- Address Information -->
-                <fieldset class="mb-4">
-                    <legend>Address Information</legend>
-                    <div class="mb-3">
-                        <label for="address" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="address" required>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="city" class="form-label">City</label>
-                            <input type="text" class="form-control" id="city" required>
-                        </div>
-                        <div class="col">
-                            <label for="state" class="form-label">State</label>
-                            <input type="text" class="form-control" id="state" required>
-                        </div>
-                        <div class="col">
-                            <label for="zipCode" class="form-label">Zip Code</label>
-                            <input type="text" class="form-control" id="zipCode" required>
-                        </div>
-                    </div>
-                </fieldset>
-                <!-- Account Security -->
-                <fieldset class="mb-4">
-                    <legend>Account Security</legend>
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" required>
-                        <div class="password-requirements mt-1">
-                            Password must be at least 8 characters and include uppercase, lowercase, number, and special character.
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="confirmPassword" class="form-label">Confirm Password</label>
-                        <input type="password" class="form-control" id="confirmPassword" required>
-                    </div>
-                </fieldset>
-                <!-- Account Type Selection -->
-                <fieldset class="mb-4">
-                    <legend>Account Type</legend>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="accountType" id="checkingAccount" value="checking" checked>
-                        <label class="form-check-label" for="checkingAccount">Checking Account</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="accountType" id="savingsAccount" value="savings">
-                        <label class="form-check-label" for="savingsAccount">Savings Account</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="accountType" id="bothAccounts" value="both">
-                        <label class="form-check-label" for="bothAccounts">Both Checking & Savings</label>
-                    </div>
-                </fieldset>
-                <!-- Terms and Conditions -->
-                <div class="mb-4">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="termsAgreement" required>
-                        <label class="form-check-label" for="termsAgreement">
-                            I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
-                        </label>
-                    </div>
-                </div>
-                <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary w-100">Create Account</button>
-                <div class="text-center mt-3">
-                    <p>Already have an account? <a href="/login">Log in</a></p>
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- Bootstrap JS from CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
-    <script src="/js/registration.cjs"></script>
-</body>
-
-</html>
-
-\end{lstlisting}
-
-\section{Transfers View: transfers.ejs}
-\begin{lstlisting}[language=HTML]
-
-<!--// File: views/transfer.ejs-->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfer Funds - E-Bank</title>
-    <!-- Bootstrap CSS from CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/dashboard.css">
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
-    <!-- Sidebar -->
-    <div class="sidebar d-none d-lg-block">
-        <div class="bank-logo">E(xpress)-Bank</div>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="/dashboard"><i class="fas fa-home"></i> Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="/transfer"><i class="fas fa-exchange-alt"></i> Transfers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fas fa-credit-card"></i> Cards</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fas fa-chart-pie"></i> Investments</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a>
-            </li>
-            <li class="nav-item mt-5">
-                <a class="nav-link text-danger" id="logoutButton"> <i class="fas fa-sign-out-alt"></i> Logout</a>
-            </li>
-        </ul>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header with title -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4>Transfer Funds</h4>
-        </div>
-
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">New Transfer</h5>
-                        <form id="transfer-form">
-                            <div class="mb-3">
-                                <label for="fromAccount" class="form-label">From Account</label>
-                                <select class="form-select" id="fromAccount" name="fromAccount" required>
-                                    <option value="">Select account</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="toAccount" class="form-label">To Account</label>
-                                <input type="text" class="form-select" id="toAccount" name="fromAccount" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="amount" class="form-label">Amount</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" class="form-control" id="amount" name="amount" min="0.01" step="0.01" required>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="note" class="form-label">Note (optional)</label>
-                                <input type="text" class="form-control" id="note" name="note" placeholder="What's this transfer for?">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Transfer Funds</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Transfer Tips</h5>
-                        <ul class="small text-muted">
-                            <li>Transfers between your accounts are instant</li>
-                            <li>You can transfer up to $10,000 per day</li>
-                            <li>Adding a note helps you track transfers later</li>
-                            <li>Transfers to external accounts may take 1-3 business days</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Recent Transfers</h5>
-                        <div id="transfer-history" class="transaction-list">
-                            <!-- Transfer history will be loaded here -->
-                            <p class="text-center text-muted">Loading transfer history...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <!-- Transfer Script -->
-    <script src="/js/transfers.cjs"></script>
-
-    <script>
-        // Logout functionality
-        document.getElementById('logoutButton').addEventListener('click', async function() {
-            try {
-                const response = await fetch("/auth/logout", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (response.ok) {
-                    window.location.href = "/login";
-                } else {
-                    console.error("Logout failed");
-                }
-            } catch (error) {
-                console.error("Error during logout:", error);
-                window.location.href = "/login";
-            }
-        });
-    </script>
-</body>
 </html>
 \end{lstlisting}
