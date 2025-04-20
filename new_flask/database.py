@@ -58,6 +58,7 @@ class Transaction(Base):
 	__tablename__: str = 'transactions'
 
 	id: Column[int] = Column(Integer, primary_key=True)
+	# TODO: CHange the foreign key to account_number
 	to_account_id: Column[int] = Column(Integer, ForeignKey('accounts.id'), nullable=False)
 	from_account_id: Column[int] = Column(Integer, ForeignKey('accounts.id'), nullable=False)
 	amount: Column[float] = Column(Float, nullable=False)
@@ -67,6 +68,7 @@ class Transaction(Base):
 	description: Column[str] = Column(String(255))
 	timestamp: Column[datetime] = Column(DateTime, default=datetime.now)
 
+	# TODO: Change the relationship to account_number
 	to_account: Relationship[Account] = relationship(
 		'Account', foreign_keys=[to_account_id], back_populates='transactions'
 	)
@@ -177,7 +179,7 @@ class DatabaseManager:
 				raise Exception(f'Error retrieving user accounts: {e}') from e
 
 	def get_account_transactions(
-		self, account_id: int, limit: int | None = None
+		self, account_id: Column[int], limit: int | None = None
 	) -> list[Transaction] | None:
 		"""
 		Retrieve transactions for a specific account
@@ -190,6 +192,10 @@ class DatabaseManager:
 				query = (
 					session.query(Transaction)
 					.filter_by(from_account_id=account_id)
+					.union(
+						session.query(Transaction)
+						.filter_by(to_account_id=account_id)
+					)
 					.order_by(Transaction.timestamp.desc())
 				)
 				if limit:

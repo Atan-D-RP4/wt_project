@@ -6,6 +6,7 @@ Transfer
 
 {% block main %}
 <h2>Transfer Funds</h2>
+<link href={{ url_for('static', filename='transfer.css') }} rel="stylesheet">
 <form method="POST" action="{{ url_for('transfer') }}">
     <div class="mb-3">
         <label for="fromAccount" class="form-label">From Account</label>
