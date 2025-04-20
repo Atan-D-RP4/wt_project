@@ -1,0 +1,6 @@
+__pycache__/
+flask_session/
+.venv/
+build/
+dist/
+*.py[cod]

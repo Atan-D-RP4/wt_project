@@ -5,7 +5,7 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from waitress import serve
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from database import DatabaseManager, User
+from database import DatabaseManager, Transaction, User
 from flask_session import Session
 
 app = Flask(__name__)
@@ -34,113 +34,128 @@ def login_required(f):
 @app.route('/')
 @login_required
 def index():
-    user = db_manager.get_user_by_id(session['user_id'])
-    accounts = db_manager.get_user_accounts(session['user_id'])
-    transactions = [db_manager.get_account_transactions(account.id) for account in accounts]
-    return render_template('index.html', user=user, accounts=accounts, transactions=transactions)
+	user = db_manager.get_user_by_id(session['user_id'])
+	accounts = db_manager.get_user_accounts(session['user_id'])
+	transactions: list[Transaction] = []
+	if not accounts:
+		flash('No accounts found')
+		return redirect('/')
+	for account in accounts:
+		cur_transactions = db_manager.get_account_transactions(account.id)
+		if cur_transactions:
+			transactions.extend(cur_transactions)
+	return render_template('index.html', user=user, accounts=accounts, transactions=transactions)
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    """Register user"""
-    session.clear()
+	"""Register user"""
+	session.clear()
 
-    if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        confirmation = request.form.get('confirmation')
-        print(
-            f'username: {username}, email: {email}, \
-            password: {password}, confirmation: {confirmation}'
-        )
-        if not username:
-            flash('must provide username')
-            return redirect('/register')
+	if request.method == 'POST':
+		username = request.form.get('username')
+		email = request.form.get('email')
+		password = request.form.get('password')
+		confirmation = request.form.get('confirmation')
+		print(
+			f'username: {username}, email: {email}, \
+			password: {password}, confirmation: {confirmation}'
+		)
+		if not username:
+			flash('must provide username')
+			return redirect('/register')
 
-        if not email:
-            flash('must provide email')
-            return redirect('/register')
+		if not email:
+			flash('must provide email')
+			return redirect('/register')
 
-        if not password:
-            flash('must provide password')
-            return redirect('/register')
+		if not password:
+			flash('must provide password')
+			return redirect('/register')
 
-        if not confirmation:
-            flash('must provide password confirmation')
-            return redirect('/register')
+		if not confirmation:
+			flash('must provide password confirmation')
+			return redirect('/register')
 
-        if password != confirmation:
-            flash('passwords must match')
-            return redirect('/register')
+		if password != confirmation:
+			flash('passwords must match')
+			return redirect('/register')
 
-        user = db_manager.get_user_by_name(username)
+		user = db_manager.get_user_by_name(username)
 
-        if user:
-            flash('username already exists')
-            return redirect('/register')
+		if user:
+			flash('username already exists')
+			return redirect('/register')
 
-        hash = generate_password_hash(password)
+		password = request.form.get('password')
+		confirmation = request.form.get('confirmation')
 
-        user = db_manager.create_user(username, email, hash)
-        if user is None:
-            raise Exception('Failed to Register User')
+		if password is None or confirmation is None:
+			flash('passwords must match')
+			return redirect('/register', 403)
 
-        session['user_id'] = user.id
+		if password != confirmation:
+			flash('passwords must match')
+			return redirect('/register', 403)
 
-        return redirect('/')
-    return render_template('register.html')
+		hash = generate_password_hash(password)
+
+		user = db_manager.create_user(username, email, hash)
+		if user is None:
+			raise Exception('Failed to Register User')
+
+		return redirect('/')
+	return render_template('register.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """Log user in"""
-    # Forget any user_id
-    session.clear()
+	"""Log user in"""
+	# Forget any user_id
+	session.clear()
 
-    # User reached route via POST (as by submitting a form via POST)
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        # Ensure username was submitted
-        if not username:
-            flash('must provide username')
-            return render_template('login.html')
+	# User reached route via POST (as by submitting a form via POST)
+	if request.method == 'POST':
+		username = request.form.get('username')
+		password = request.form.get('password')
+		# Ensure username was submitted
+		if not username:
+			flash('must provide username')
+			return render_template('login.html')
+		# Ensure password was submitted
+		if not password:
+			flash('must provide password')
+			return render_template('login.html')
 
-        # Ensure password was submitted
-        if not password:
-            flash('must provide password')
-            return render_template('login.html')
+		# Query database for username
+		user: User = db_manager.get_user_by_name(username)
+		if not user or password is None:
+			flash('invalid username and/or password')
+			return render_template('login.html')
 
-        # Query database for username
-        user: User = db_manager.get_user_by_name(username)
-        if not user or password is None:
-            flash('invalid username and/or password')
-            return render_template('login.html')
+		# Ensure username exists and password is correct
+		if not check_password_hash(user.password_hash, password):
+			flash('invalid username and/or password')
+			return render_template('login.html')
 
-        # Ensure username exists and password is correct
-        if not check_password_hash(user.password_hash, password):
-            flash('invalid username and/or password')
-            return render_template('login.html')
+		# Remember which user has logged in
+		session['user_id'] = user.id
 
-        # Remember which user has logged in
-        session['user_id'] = user.id
+		# Redirect user to home page
+		return redirect('/')
 
-        # Redirect user to home page
-        return redirect('/')
-
-    # User reached route via GET (as by clicking a link or via redirect)
-    return render_template('login.html')
+	# User reached route via GET (as by clicking a link or via redirect)
+	return render_template('login.html')
 
 
 @app.route('/logout')
 def logout():
-    """Log user out"""
-    # Forget any user_id
-    session.clear()
+	"""Log user out"""
+	# Forget any user_id
+	session.clear()
 
-    # Redirect user to login form
-    return redirect('/login')
+	# Redirect user to login form
+	return redirect('/login')
 
 
 @app.route('/add_account', methods=['GET', 'POST'])
@@ -194,7 +209,32 @@ def transfer():
     return render_template('transfer.html', user=user, accounts=accounts)
 
 
+@app.route('/history', methods=['GET', 'POST'])
+@login_required
+def history():
+	"""Get transaction history"""
+	all_transactions: list[Transaction] = []
+	accounts = db_manager.get_user_accounts(session['user_id'])
+	if not accounts:
+		flash('No accounts found')
+		return redirect('/')
+	for account in accounts:
+		transactions = db_manager.get_account_transactions(account.id)
+		if transactions:
+			all_transactions.extend(transactions)
+
+	return render_template('history.html', transactions=all_transactions)
+
+
+@app.route('/profile', methods=['POST', 'GET'])
+@login_required
+def profile():
+    user = db_manager.get_user_by_id(session['user_id'])
+    accounts = db_manager.get_user_accounts(session['user_id'])
+    return render_template('profile.html', user=user, accounts=accounts)
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
-    # print('Starting WSGI server on localhost:5000')
-    # serve(app, host='127.0.0.1', port=5000)
+	app.run(debug=True)
+	# print('Starting WSGI server on localhost:5000')
+	# serve(app, host='127.0.0.1', port=5000)

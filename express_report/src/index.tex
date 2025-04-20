@@ -1,6 +1,6 @@
 \begin{titlepage}
     \centering
-    {\fontsize{24}{28}\selectfont\bfseries WEB-TECHNOLOGIES PROJECT REPORT\par}
+    {\fontsize{24}{28}\selectfont\bfseries WEB-TECHONOLOGIES PROJECT REPORT\par}
     \vspace{0.3cm}
     {\fontsize{18}{22}\selectfont\bfseries on\par}
     \vspace{0.3cm}
@@ -197,7 +197,8 @@ Here are a few objectives for your E-Banking System project:
 \end{enumerate}
 
 
-\chapter{Software \& Modules Used}
+\chapter{Express Implementation}
+\section{Software \& Modules Used}
 
 \begin{enumerate}
     \item \textbf{Deno:}
@@ -283,8 +284,8 @@ Here are a few objectives for your E-Banking System project:
     This will install all the required dependencies and start the server.
 \end{enumerate}
 
-\chapter{Structure of the Project}
-\section{Overview}
+\section{Structure of the Project}
+\subsection{Overview}
 The project structure is organized into several directories and files, each serving a
 specific purpose. Below is a brief overview of the project structure:
 \begin{itemize}
@@ -302,14 +303,17 @@ specific purpose. Below is a brief overview of the project structure:
     and interact with the models.
     \item \textbf{middlewares/:} Contains middleware functions for authentication and
     logging.
-    \item \textbf{routes/:} Contains route definitions for handling HTTP requests.
+    \item \textbf{routes/:} Contains route definitions for handling HTTP
+        requests. Each route associated with a specific controller.
     \item \textbf{views/:} Contains HTML templates for rendering dynamic content using EJS.
     \item \textbf{deno.json:} Configuration file for Deno, specifying dependencies and
     runtime options.
     \item \textbf{deno.lock:} Lock file for Deno, ensuring consistent dependency versions.
 \end{itemize}
 
-\section{Project File Structure}
+\vspace{3cm}
+
+\subsection{Project File Structure}
 \begin{figure}[ht]
     \centering
     % Placeholder for project structure diagram
@@ -432,41 +436,261 @@ specific purpose. Below is a brief overview of the project structure:
 \end{forest}
 \end{figure}
 
-\include{code_listings}
+\include{express_code_listings}
 
-\chapter{Data Flow Diagram}
+\section{Data Flow Diagram}
 
-\includegraphics[width=0.8\textwidth, height=0.7\textheight, angle=90]{dataflow.png}
+\includegraphics[width=1.3\textwidth, height=0.7\textheight, angle=90]{dataflow.png}
 
-\chapter{Outputs}
+\vspace{10cm}
+
+\subsection{Outputs}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{dashboard.png}
+    \includegraphics[width=0.8\textwidth]{express_assets/dashboard.png}
     \caption{Dashboard Interface}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{register.png}
+    \includegraphics[width=0.8\textwidth]{express_assets/register.png}
     \caption{User Sign Up Interface}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{login.png}
+    \includegraphics[width=0.8\textwidth]{express_assets/login.png}
     \caption{User Account Login Interface}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{transfers.png}
+    \includegraphics[width=0.8\textwidth]{express_assets/transfers.png}
     \caption{Transaction Interface}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{error.png}
+    \includegraphics[width=0.8\textwidth]{express_assets/error.png}
+    \caption{Error Messages}
+\end{figure}
+
+\chapter{Flask Implementation}
+\section{Software \& Modules Used}
+
+\begin{enumerate}
+    \item \textbf{Python:}
+    Python is a high-level, interpreted programming language known for its
+    simplicity and readability. It is widely used for web development, data
+    analysis, artificial intelligence, and more. Python's extensive libraries
+    and frameworks make it a popular choice for building web applications. In
+    this project, Python is used for server-side scripting and handling
+    backend logic.
+
+    \item \textbf{UV:}
+    UV, developed by astral.sh, is a modern package manager for Python that
+    simplifies the process of managing dependencies and packages. It provides a
+    user-friendly interface for installing, updating, and managing Python
+    packages. UV is designed to work seamlessly with pip, the default package
+    manager for Python, and offers additional features like dependency
+    resolution and version management. In this project, UV is used to manage
+    the project's dependencies and ensure that all required packages are
+    installed correctly.
+
+    \item \textbf{Flask:}
+    Flask is a lightweight web framework for Python that allows developers to
+    build web applications quickly and easily. It provides a simple and
+    flexible way to create web applications, making it ideal for small to
+    medium-sized projects. Flask follows the WSGI (Web Server Gateway
+    Interface) standard and is designed to be easy to use and extend. In this
+    project, Flask is used to create the web application and handle HTTP
+    requests.
+
+    \item \textbf{MySQL:}
+    MySQL is an open-source relational database management system. It is widely
+    used for web applications and is known for its reliability and performance.
+    MySQL allows you to store and retrieve data efficiently, and it supports
+    SQL (Structured Query Language) for querying and managing databases. In
+    this project, MySQL is used to store user information, transaction details,
+    and other relevant data. This project uses the MariaDB version of MySQL,
+    which is an open-source fork of MySQL that is fully compatible with it.
+
+    \item \textbf{Jinja2:}
+    Jinja2 is a templating engine for Python that allows you to create dynamic
+    HTML pages. It enables you to separate the presentation layer from the
+    application logic, making it easier to manage and maintain your web
+    application. Jinja2 provides features like template inheritance, macros,
+    and filters, allowing you to create reusable templates. In this project,
+    Jinja2 is used to render HTML templates for the frontend of the web
+    application.
+
+    \item \textbf{Git:}
+    Git is a distributed version control system that allows you to track
+    changes in your codebase. It is widely used for source code management in
+    software development. Git allows multiple developers to work on the same
+    project simultaneously without conflicts. It provides features like
+    branching, merging, and version history, making it easier to collaborate on
+    projects.
+
+    \item \textbf{GitHub:}
+    GitHub is a web-based platform that uses Git for version control. It
+    provides a user-friendly interface for managing Git repositories, making it
+    easier to collaborate with other developers. GitHub also offers features
+    like issue tracking, pull requests, and project management tools, making it
+    a popular choice for open-source projects and team collaboration.
+
+    \item \textbf{Code Editor (Visual Studio Code):}
+    Visual Studio Code (VS Code) is a lightweight but powerful source code
+    editor that runs on your desktop. It is available for Windows, macOS, and
+    Linux. VS Code includes support for debugging, syntax highlighting,
+    intelligent code completion, snippets, code refactoring, and embedded
+    Git. It also has a rich ecosystem of extensions for additional features
+    and functionality.
+\end{enumerate}
+
+\textbf{Installation Steps:}
+\begin{enumerate}
+    \item \textbf{Install UV}
+    Follow the official UV installation guide to set up Deno on your system.
+    You can find the installation instructions at
+    \url{https://docs.astral.sh/uv/getting-started/installation/}. Make sure to choose the appropriate version for your
+
+    \item \textbf{Install Git:}
+    Download and install Git from the official website:
+    \url{https://git-scm.com/downloads}. Follow the instructions for your
+    operating system.
+
+    \item \textbf{Project Setup:}
+    Clone the project repository from GitHub using the following command:
+    \begin{lstlisting}[language=bash]
+        git clone https://github.com/Atan-D-RP4/wt_project
+    \end{lstlisting}
+    Navigate to the project directory:
+    \begin{lstlisting}[language=bash]
+        cd wt_project/flask
+    \end{lstlisting}
+    Now, simply run the following command to start the server:
+    \begin{lstlisting}[language=bash]
+        uv sync && uv run app.py
+    \end{lstlisting}
+    This will install all the required dependencies and start the server.
+\end{enumerate}
+
+\section{Structure of the Project}
+\subsection{Overview}
+The project structure is organized into several directories and files, each serving a
+specific purpose. Below is a brief overview of the project structure:
+\begin{itemize}
+    \item \textbf{app.py:} This is the main entry point of the application. It contains the
+    Flask application instance and the routing logic for handling HTTP requests.
+
+    \item \textbf{database.py:} This file contains the database connection and query logic. It
+    handles interactions with the MySQL database, including user authentication and transaction
+    management.
+
+    \item \textbf{static/:} This directory contains static files such as CSS and JavaScript
+    files. These files are used to style the web application and add interactivity to the user
+    interface.
+
+    \item \textbf{templates/:} This directory contains HTML templates used for rendering the
+    frontend of the application. The templates are rendered using Jinja2, allowing for dynamic
+    content generation based on user input and database queries.
+
+    \item \textbf{pyproject.toml:} This file contains the project metadata and dependencies. It is used by
+    UV to manage the project's dependencies and ensure that all required packages are installed.
+
+    \item \textbf{.venv/} This directory contains the virtual environment for the project. It is created
+    when you run the command \texttt{uv sync} and contains all the installed packages and dependencies
+    for the project. It helps to isolate the project's dependencies from the system Python
+    installation, ensuring that the project runs with the correct versions of the required packages.
+\end{itemize}
+
+\subsection{Project File Structure}
+\begin{figure}[ht]
+    \centering
+    % Placeholder for project structure diagram
+    \caption{Project File Structure}
+\begin{forest}
+    for tree={
+        font=\ttfamily,
+        grow'=0,
+        child anchor=west,
+        parent anchor=south,
+        anchor=west,
+        calign=first,
+        edge path={
+            \noexpand\path [draw, \forestoption{edge}]
+            (!u.south west) ++(5pt,0) |- (.child anchor)\forestoption{edge label};
+        },
+        before typesetting nodes={
+            if n=1
+            {insert before={[,phantom]}}
+            {}
+        },
+        fit=band,
+        before computing xy={l=15pt},
+    }
+[project-root
+    [app.py]
+    [database.py]
+    [templates
+        [index.html]
+        [layout.html]
+        [transfer.html]
+        [register.html]
+        [login.html]
+    ]
+    [static
+        [css]
+        [js]
+    ]
+]
+\end{forest}
+\end{figure}
+
+\include{flask_code_listings.tex}
+
+\section{Data Flow Diagram}
+
+\includegraphics[width=1.3\textwidth, height=0.7\textheight, angle=90]{dataflow.png}
+\vspace{2cm}
+
+\subsection{Outputs}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{flask_assets/dashboard.jpg}
+    \caption{Dashboard Interface}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{flask_assets/register.jpg}
+    \caption{User Sign Up Interface}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{flask_assets/login.jpg}
+    \caption{User Account Login Interface}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{flask_assets/transfers.jpg}
+    \caption{Transaction Interface}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{flask_assets/transfer_success.jpg}
+    \caption{Transaction Success}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{flask_assets/error.jpg}
     \caption{Error Messages}
 \end{figure}
 
@@ -480,6 +704,25 @@ specific purpose. Below is a brief overview of the project structure:
     \item \raggedright \url{https://www.geeksforgeeks.org/how-to-connect-node-js-application-to-mysql/}
     \item \raggedright \url{https://stackoverflow.com/questions/13396119/how-to-add-a-value-to-existing-value-using-sql-query}
     \item \raggedright \url{https://stackoverflow.blog/css/}
+
+    \item \raggedright \url{https://flask.palletsprojects.com/en/2.0.x/}
+    \item \raggedright \url{https://www.python.org/doc/}
+    \item \raggedright \url{https://jinja.palletsprojects.com/en/3.0.x/}
+    \item \raggedright \url{https://docs.sqlalchemy.org/en/14/}
+    \item \raggedright \url{https://docs.pipenv.org/}
+    \item \raggedright \url{https://www.fullstackpython.com/flask.html}
+    \item \raggedright \url{https://realpython.com/tutorials/flask/}
+    \item \raggedright \url{https://www.sqlalchemy.org/}
+    \item \raggedright \url{https://www.jetbrains.com/pycharm/}
+
+    \item \raggedright Flask Documentation: \url{https://flask.palletsprojects.com/en/2.0.x/}
+    \item \raggedright Python Documentation: \url{https://www.python.org/doc/}
+    \item \raggedright Jinja2 Documentation: \url{https://jinja.palletsprojects.com/en/3.0.x/}
+    \item \raggedright SQLAlchemy Documentation: \url{https://docs.sqlalchemy.org/en/14/}
+    \item \raggedright Pipenv Documentation: \url{https://docs.pipenv.org/}
+    \item \raggedright Full Stack Python: \url{https://www.fullstackpython.com/flask.html}
+    \item \raggedright Real Python Flask Tutorials: \url{https://realpython.com/tutorials/flask/}
+    \item \raggedright SQLAlchemy Official Site: \url{https://www.sqlalchemy.org/}
 \end{enumerate}
 
 \begin{thebibliography}{9}
@@ -491,6 +734,18 @@ specific purpose. Below is a brief overview of the project structure:
 
     \bibitem{GitHub}
     GitHub: \textit{htps://github.com/}
+
+    \bibitem{UV}
+    UV: \textit{https://docs.astral.sh/uv/}
+
+    \bibitem{Python}
+    Python: \textit{https://www.python.org/}
+
+    \bibitem{Flask}
+    Flask: \textit{https://flask.palletsprojects.com/}
+
+    \bibitem{Jinja2}
+    Jinja2: \textit{https://jinja.palletsprojects.com/}
 
     \bibitem{Deno}
     Deno: \textit{https://deno.com/}
@@ -507,7 +762,6 @@ specific purpose. Below is a brief overview of the project structure:
     \bibitem{ejs}
     EJS; \textit{https://ejs.co/}
 
-    \bibitem{mysql}
     MySQL: \textit{https://www.mysql.com/}
 
     \bibitem{visualstudio}
