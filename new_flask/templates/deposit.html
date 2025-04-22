@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Deposit
+{% endblock %}
+
+{% block main %}
+<h2>Transfer Funds</h2>
+<link href={{ url_for('static', filename='transfer.css' ) }} rel="stylesheet">
+<h2 class="mb-4">Deposit</h2>
+<form method="POST" action="{{ url_for('deposit') }}">
+    <div class="mb-3">
+        <label for="intoAccount" class="form-label">Into Account</label>
+        <select class="form-control" id="intoAccount" name="into_account" required>
+            <option value="" disabled selected>Select an account</option>
+            {% for account in accounts %}
+            <option value="{{ account.account_number }}">{{ account.account_type }} - ${{ account.balance }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <center>
+        <div class="mb-3">
+            <label for="amount" class="form-label">Amount</label>
+            <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0.01" required>
+        </div>
+    </center>
+    <button type="submit" class="btn btn-primary">Deposit</button>
+</form>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Edit Profile
+{% endblock %}
+
+{% block main %}
+<link href={{ url_for('static', filename='transfer.css') }} rel="stylesheet">
+<script>
+    function changePassword() {
+        const confirmChange = globalThis.window.confirm("Are you sure you want to change your password? Press 'ok' to proceed.");
+        if (confirmChange) {
+            // Proceed with password change
+            const newPassword = globalThis.window.prompt("Enter your new password:");
+            const confirmPassword = globalThis.window.prompt("Confirm your new password:");
+            if (newPassword === confirmPassword) {
+                const form = document.getElementById('passwordForm');
+                const passwordField = document.createElement('input');
+                const confirmField = document.createElement('input');
+                passwordField.type = 'hidden';
+                passwordField.name = 'password';
+                passwordField.value = newPassword;
+                confirmField.type = 'hidden';
+                confirmField.name = 'confirmation';
+                confirmField.value = confirmPassword;
+                form.appendChild(passwordField);
+                form.appendChild(confirmField);
+            } else {
+                globalThis.window.alert("Passwords do not match. Please try again.");
+            }
+        } else {
+            globalThis.window.alert("Password change cancelled.");
+        }
+    }
+</script>
+<div class="container">
+    <h2>Edit Profile</h2>
+    <form id="passwordForm" class="form" enctype="multipart/form-data" method="POST" action="{{ url_for('edit_profile') }}">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <button type="button" class="btn btn-secondary" onclick="changePassword()">Change Password</button>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+{% endblock %}
+

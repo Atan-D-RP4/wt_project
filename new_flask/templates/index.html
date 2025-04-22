@@ -5,99 +5,99 @@ Dashboard
 {% endblock %}
 
 {% block main %}
-    <link href={{ url_for('static', filename='index.css') }} rel="stylesheet">
+<link href={{ url_for('static', filename='index.css' ) }} rel="stylesheet">
 
-    <!-- Main Content -->
-    <!-- Header with user greeting -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="user-greeting">
-            <h2>Welcome back, <span class="user-name">{{ user.username }}</span>!</h2>
-        </div>
-        <div class="profile-button">{{ user.username[0] }}</div>
+<!-- Main Content -->
+<!-- Header with user greeting -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="user-greeting">
+        <h2>Welcome back, <span class="user-name">{{ user.username }}</span>!</h2>
     </div>
+    <div class="profile-button">{{ user.username[0] }}</div>
+</div>
 
-    <!-- Add Account Button -->
-    <div class="add-account-button">
-        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addAccountModal">
-            <i class="fas fa-plus"></i> Add Account
-        </button>
-    </div>
+<!-- Add Account Button -->
+<div class="add-account-button">
+    <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addAccountModal">
+        <i class="fas fa-plus"></i> Add Account
+    </button>
+</div>
 
-    <!-- Add Account Modal -->
-    <div class="modal fade" id="addAccountModal" tabindex="-1" aria-labelledby="addAccountModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addAccountModalLabel">Add New Account</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="/add_account">
-                        <div class="form-group mb-3">
-                            <label for="accountType">Select Account Type</label>
-                            <select class="form-control" id="accountType" name="account_type" required>
-                                <option value="" disabled selected>Select an account type</option>
-                                <option value="savings">Savings</option>
-                                <option value="checking">Checking</option>
-                                <!-- Add more account types as needed -->
-                            </select>
-                        </div>
-                        <button class="btn btn-primary" type="submit">
-                            <i class="fas fa-plus"></i> Add Account
-                        </button>
-                    </form>
-                </div>
+<!-- Add Account Modal -->
+<div class="modal fade" id="addAccountModal" tabindex="-1" aria-labelledby="addAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAccountModalLabel">Add New Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/add_account">
+                    <div class="form-group mb-3">
+                        <label for="accountType">Select Account Type</label>
+                        <select class="form-control" id="accountType" name="account_type" required>
+                            <option value="" disabled selected>Select an account type</option>
+                            <option value="savings">Savings</option>
+                            <option value="checking">Checking</option>
+                            <!-- Add more account types as needed -->
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-plus"></i> Add Account
+                    </button>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Accounts Overview Section -->
-    <h5 class="mb-4">Your Accounts</h5>
-    <div class="row">
-        {% for account in accounts %}
-        <div class="col-md-6 col-lg-3 mb-4">
-            <div class="account-card">
-                <div class="account-number">{{ account.account_number }}</div>
-                <div class="account-type">{{ account.account_type }}</div>
-                <div class="account-balance">${{ account.balance }}</div>
-            </div>
+<!-- Accounts Overview Section -->
+<h5 class="mb-4">Your Accounts</h5>
+<div class="row">
+    {% for account in accounts %}
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="account-card">
+            <div class="account-number">{{ account.account_number }}</div>
+            <div class="account-type">{{ account.account_type }}</div>
+            <div class="account-balance">${{ account.balance }}</div>
         </div>
-        {% endfor %}
     </div>
+    {% endfor %}
+</div>
 
-    <!-- Quick Stats Section -->
-    <!-- <h5 class="mb-4 mt-4">Financial Summary</h5> -->
-    <!-- <div class="row"> -->
-    <!-- Example Stat -->
-    <!--     <div class="col-md-6 col-lg-3 mb-4"> -->
-    <!--         <div class="stats-card"> -->
-    <!--             <div class="stat-label">Monthly Spending</div> -->
-    <!--             <div class="stat-value">$1,245.62</div> -->
-    <!--             <div class="text-muted small"> -->
-    <!--                 <i class="fas fa-arrow-down text-success"></i> 12% from last month -->
-    <!--             </div> -->
-    <!--         </div> -->
-    <!--     </div> -->
-    <!-- Add more stats as needed -->
-    <!-- </div> -->
+<!-- Quick Stats Section -->
+<!-- <h5 class="mb-4 mt-4">Financial Summary</h5> -->
+<!-- <div class="row"> -->
+<!-- Example Stat -->
+<!--     <div class="col-md-6 col-lg-3 mb-4"> -->
+<!--         <div class="stats-card"> -->
+<!--             <div class="stat-label">Monthly Spending</div> -->
+<!--             <div class="stat-value">$1,245.62</div> -->
+<!--             <div class="text-muted small"> -->
+<!--                 <i class="fas fa-arrow-down text-success"></i> 12% from last month -->
+<!--             </div> -->
+<!--         </div> -->
+<!--     </div> -->
+<!-- Add more stats as needed -->
+<!-- </div> -->
 
-    <!-- Recent Transactions Section -->
-    <h5 class="mb-4">Recent Transactions</h5>
-    <div class="transaction-list">
+<!-- Recent Transactions Section -->
+<h5 class="mb-4">Recent Transactions</h5>
+<div class="transaction-list">
+    <div class="list-group list-group-flush">
         <div class="list-group list-group-flush">
-            <div class="list-group list-group-flush">
-                {% for transaction in transactions %}
-                <div class="list-group-item">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <p class="mb-0">{{ transaction.timestamp }}</p>
-                        </div>
-                        <div>
-                            <p class="mb-0">{{ transaction.to_account_id }}</p>
-                        </div>
-                        <div>
-                            <span class="badge bg-success">${{ transaction.amount }}</span>
-                        </div>
+            {% for transaction in transactions %}
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="mb-0">{{ transaction.timestamp }}</p>
+                    </div>
+                    <div>
+                        <p class="mb-0">{{ transaction.to_account_id }}</p>
+                    </div>
+                    <div>
+                        <span class="badge bg-success">${{ transaction.amount }}</span>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -105,17 +105,17 @@ Dashboard
     </div>
 
     <!-- Quick Action Button -->
-    <div class="quick-actions">
-        <div class="dropdown">
-            <button class="quick-action-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-plus"></i>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#"><i class="fas fa-exchange-alt me-2"></i> New Transfer</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card me-2"></i> Pay Bill</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-mobile-alt me-2"></i> Mobile Deposit</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-user-friends me-2"></i> Send to Friend</a></li>
-            </ul>
-        </div>
-    </div>
-{% endblock %}
+    <!-- <div class="quick-actions"> -->
+    <!--     <div class="dropdown"> -->
+    <!--         <button class="quick-action-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"> -->
+    <!--             <i class="fas fa-plus"></i> -->
+    <!--         </button> -->
+    <!--         <ul class="dropdown-menu dropdown-menu-end"> -->
+    <!--             <li><a class="dropdown-item" href="#"><i class="fas fa-exchange-alt me-2"></i> New Transfer</a></li> -->
+    <!--             <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card me-2"></i> Pay Bill</a></li> -->
+    <!--             <li><a class="dropdown-item" href="#"><i class="fas fa-mobile-alt me-2"></i> Mobile Deposit</a></li> -->
+    <!--             <li><a class="dropdown-item" href="#"><i class="fas fa-user-friends me-2"></i> Send to Friend</a></li> -->
+    <!--         </ul> -->
+    <!--     </div> -->
+    <!-- </div> -->
+    {% endblock %}
