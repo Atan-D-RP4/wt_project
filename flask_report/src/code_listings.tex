@@ -1,38 +1,40 @@
 % Code listing style
 \lstset{
-    basicstyle=\ttfamily\small,
-    breaklines=true,
-    commentstyle=\color{green!50!black},
-    keywordstyle=\color{blue},
-    stringstyle=\color{red},
-    numbers=left,
-    numberstyle=\tiny\color{gray},
-    numbersep=5pt,
-    frame=single,
-    framexleftmargin=15pt,
-    framexrightmargin=0pt,
-    framexbottommargin=5pt,
-    framextopmargin=5pt,
-    backgroundcolor=\color{gray!10},
-    showstringspaces=false
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  commentstyle=\color{green!50!black},
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=5pt,
+  frame=single,
+  framexleftmargin=15pt,
+  framexrightmargin=0pt,
+  framexbottommargin=5pt,
+  framextopmargin=5pt,
+  backgroundcolor=\color{gray!10},
+  showstringspaces=false
 }
 
 \lstdefinelanguage{Python}{
-    keywords={def, return, if, else, elif, for, while, in, import, from, as, with, try, except, finally, raise, class},
-    sensitive=true,
-    comment=[l]{\#},
-    morecomment=[s]{"""*}{"""*},
-    morestring=[b]',
-    morestring=[b]"
+  keywords={def, return, if, else, elif, for, while, in, import,
+  from, as, with, try, except, finally, raise, class},
+  sensitive=true,
+  comment=[l]{\#},
+  morecomment=[s]{"""*}{"""*},
+  morestring=[b]',
+  morestring=[b]"
 }
 
 \lstdefinelanguage{HTML}{
-    keywords={<!DOCTYPE, html, head, title, body, div, span, a, href, class, id, style, script},
-    sensitive=true,
-    comment=[l]{<!--},
-    morecomment=[s]{<!--}{-->},
-    morestring=[b]',
-    morestring=[b]"
+  keywords={<!DOCTYPE, html, head, title, body, div, span, a, href,
+  class, id, style, script},
+  sensitive=true,
+  comment=[l]{<!--},
+  morecomment=[s]{<!--}{-->},
+  morestring=[b]',
+  morestring=[b]"
 }
 
 \chapter{Code Listings}
@@ -57,201 +59,193 @@ _ = Session(app)
 DB_URL = getenv('DATABASE_URL', 'mysql+pymysql://root:password@localhost/flask_ebank')
 db_manager = DatabaseManager(DB_URL)
 
-
 def login_required(f):
-	"""Decorate routes to require login.
+  """Decorate routes to require login.
 
-	https://flask.palletsprojects.com/en/latest/patterns/viewdecorators/
-	"""
+  https://flask.palletsprojects.com/en/latest/patterns/viewdecorators/
+  """
 
-	@wraps(f)
-	def decorated_function(*args, **kwargs):
-		if session.get('user_id') is None:
-			return redirect('/login')
-		return f(*args, **kwargs)
+  @wraps(f)
+  def decorated_function(*args, **kwargs):
+    if session.get('user_id') is None:
+      return redirect('/login')
+    return f(*args, **kwargs)
 
-	return decorated_function
-
+  return decorated_function
 
 @app.route('/')
 @login_required
 def index():
-	user = db_manager.get_user_by_id(session['user_id'])
-	accounts = db_manager.get_user_accounts(session['user_id'])
-	transactions = [db_manager.get_account_transactions(account.id) for account in accounts]
-	return render_template('index.html', user=user, accounts=accounts, transactions=transactions)
-
+  user = db_manager.get_user_by_id(session['user_id'])
+  accounts = db_manager.get_user_accounts(session['user_id'])
+  transactions = [db_manager.get_account_transactions(account.id) for account in accounts]
+  return render_template('index.html', user=user, accounts=accounts, transactions=transactions)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-	"""Register user"""
-	session.clear()
+  """Register user"""
+  session.clear()
 
-	if request.method == 'POST':
-		username = request.form.get('username')
-		email = request.form.get('email')
-		password = request.form.get('password')
-		confirmation = request.form.get('confirmation')
-		print(
-			f'username: {username}, email: {email}, \
-			password: {password}, confirmation: {confirmation}'
-		)
-		if not username:
-			flash('must provide username')
-			return redirect('/register', 403)
+  if request.method == 'POST':
+    username = request.form.get('username')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    confirmation = request.form.get('confirmation')
+    print(
+      f'username: {username}, email: {email}, \
+      password: {password}, confirmation: {confirmation}'
+    )
+    if not username:
+      flash('must provide username')
+      return redirect('/register', 403)
 
-		if not email:
-			flash('must provide password')
-			return redirect('/register', 403)
+    if not email:
+      flash('must provide password')
+      return redirect('/register', 403)
 
-		if not password:
-			flash('must provide password')
-			return redirect('/register', 403)
+    if not password:
+      flash('must provide password')
+      return redirect('/register', 403)
 
-		if not confirmation:
-			flash('must provide password confirmation')
-			return redirect('/register', 403)
+    if not confirmation:
+      flash('must provide password confirmation')
+      return redirect('/register', 403)
 
-		if password != confirmation:
-			flash('passwords must match')
-			return redirect('/register', 403)
+    if password != confirmation:
+      flash('passwords must match')
+      return redirect('/register', 403)
 
-		user = db_manager.get_user_by_name(username)
+    user = db_manager.get_user_by_name(username)
 
-		if user:
-			flash('username already exists')
-			return redirect('/register', 403)
+    if user:
+      flash('username already exists')
+      return redirect('/register', 403)
 
-		password = request.form.get('password')
-		confirmation = request.form.get('confirmation')
+    password = request.form.get('password')
+    confirmation = request.form.get('confirmation')
 
-		if password is None or confirmation is None:
-			flash('passwords must match')
-			return redirect('/register', 403)
+    if password is None or confirmation is None:
+      flash('passwords must match')
+      return redirect('/register', 403)
 
-		if password != confirmation:
-			flash('passwords must match')
-			return redirect('/register', 403)
+    if password != confirmation:
+      flash('passwords must match')
+      return redirect('/register', 403)
 
-		hash = generate_password_hash(password)
+    hash = generate_password_hash(password)
 
-		user = db_manager.create_user(username, email, hash)
-		if user is None:
-			raise Exception('Failed to Register User')
+    user = db_manager.create_user(username, email, hash)
+    if user is None:
+      raise Exception('Failed to Register User')
 
-		session['user_id'] = user.id
+    session['user_id'] = user.id
 
-		return redirect('/')
-	return render_template('register.html')
-
+    return redirect('/')
+  return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	"""Log user in"""
-	# Forget any user_id
-	session.clear()
+  """Log user in"""
+  # Forget any user_id
+  session.clear()
 
-	# User reached route via POST (as by submitting a form via POST)
-	if request.method == 'POST':
-		username = request.form.get('username')
-		password = request.form.get('password')
-		# Ensure username was submitted
-		if not username:
-			flash('must provide username')
-			return redirect('/', 403)
+  # User reached route via POST (as by submitting a form via POST)
+  if request.method == 'POST':
+    username = request.form.get('username')
+    password = request.form.get('password')
+    # Ensure username was submitted
+    if not username:
+      flash('must provide username')
+      return redirect('/', 403)
 
-		# Ensure password was submitted
-		if not password:
-			flash('must provide password')
-			return redirect('/', 403)
+    # Ensure password was submitted
+    if not password:
+      flash('must provide password')
+      return redirect('/', 403)
 
-		# Query database for username
-		user: User = db_manager.get_user_by_name(username)
-		password = request.form.get('password')
-		if not user or password is None:
-			flash('invalid username and/or password')
-			return redirect('/', 403)
+    # Query database for username
+    user: User = db_manager.get_user_by_name(username)
+    password = request.form.get('password')
+    if not user or password is None:
+      flash('invalid username and/or password')
+      return redirect('/', 403)
 
-		# Ensure username exists and password is correct
-		if not check_password_hash(user.password_hash, password):
-			flash('invalid username and/or password')
-			return redirect('/', 403)
+    # Ensure username exists and password is correct
+    if not check_password_hash(user.password_hash, password):
+      flash('invalid username and/or password')
+      return redirect('/', 403)
 
-		# Remember which user has logged in
-		session['user_id'] = user.id
+    # Remember which user has logged in
+    session['user_id'] = user.id
 
-		# Redirect user to home page
-		return redirect('/')
+    # Redirect user to home page
+    return redirect('/')
 
-	# User reached route via GET (as by clicking a link or via redirect)
-	return render_template('/')
-
+  # User reached route via GET (as by clicking a link or via redirect)
+  return render_template('/')
 
 @app.route('/logout')
 def logout():
-	"""Log user out"""
-	# Forget any user_id
-	session.clear()
+  """Log user out"""
+  # Forget any user_id
+  session.clear()
 
-	# Redirect user to login form
-	return redirect('/')
-
+  # Redirect user to login form
+  return redirect('/')
 
 @app.route('/add_account', methods=['GET', 'POST'])
 @login_required
 def add_account():
-	"""Add account"""
-	if request.method == 'POST':
-		account_type = request.form.get('account_type')
-		if not account_type:
-			flash('must provide account type')
-			return redirect('/add_account')
+  """Add account"""
+  if request.method == 'POST':
+    account_type = request.form.get('account_type')
+    if not account_type:
+      flash('must provide account type')
+      return redirect('/add_account')
 
-		db_manager.create_account(session['user_id'], account_type)
-		return redirect('/')
-	return render_template('add_account.html')
-
+    db_manager.create_account(session['user_id'], account_type)
+    return redirect('/')
+  return render_template('add_account.html')
 
 @app.route('/transfer', methods=['GET', 'POST'])
 @login_required
 def transfer():
-	"""Transfer money between accounts"""
-	if request.method == 'POST':
-		from_account_id = request.form.get('from_account')
-		to_account_id = request.form.get('to_account')
-		if not from_account_id or not to_account_id:
-			flash('must provide from and to account')
-			return redirect(url_for('transfer'))
-		from_account_id = int(from_account_id)
-		to_account_id = int(to_account_id)
+  """Transfer money between accounts"""
+  if request.method == 'POST':
+    from_account_id = request.form.get('from_account')
+    to_account_id = request.form.get('to_account')
+    if not from_account_id or not to_account_id:
+      flash('must provide from and to account')
+      return redirect(url_for('transfer'))
+    from_account_id = int(from_account_id)
+    to_account_id = int(to_account_id)
 
-		amount = request.form.get('amount')
-		if not amount:
-			flash('must provide amount')
-			return redirect(url_for('transfer'))
-		amount = float(amount)
+    amount = request.form.get('amount')
+    if not amount:
+      flash('must provide amount')
+      return redirect(url_for('transfer'))
+    amount = float(amount)
 
-		if from_account_id == to_account_id:
-			flash('Cannot transfer to the same account')
-			return redirect(url_for('transfer'))
+    if from_account_id == to_account_id:
+      flash('Cannot transfer to the same account')
+      return redirect(url_for('transfer'))
 
-		try:
-			db_manager.transfer_funds(from_account_id, to_account_id, amount)
-			flash('Transfer successful')
-			return redirect(url_for('index'))
-		except Exception as e:
-			flash(str(e))
-			return redirect(url_for('transfer'))
+    try:
+      db_manager.transfer_funds(from_account_id, to_account_id, amount)
+      flash('Transfer successful')
+      return redirect(url_for('index'))
+    except Exception as e:
+      flash(str(e))
+      return redirect(url_for('transfer'))
 
-	user = db_manager.get_user_by_id(session['user_id'])
-	accounts = db_manager.get_user_accounts(session['user_id'])
-	return render_template('transfer.html', user=user, accounts=accounts)
-
+  user = db_manager.get_user_by_id(session['user_id'])
+  accounts = db_manager.get_user_accounts(session['user_id'])
+  return render_template('transfer.html', user=user, accounts=accounts)
 
 if __name__ == '__main__':
-	# app.run(debug=True)
-	print('Starting WSGI server on localhost:5000')
-	serve(app, host='127.0.0.1', port=5000)
+  # app.run(debug=True)
+  print('Starting WSGI server on localhost:5000')
+  serve(app, host='127.0.0.1', port=5000)
 
 \end{lstlisting}
 
@@ -260,251 +254,247 @@ if __name__ == '__main__':
 from datetime import datetime
 
 from sqlalchemy import (
-	Column,
-	DateTime,
-	Engine,
-	Enum,
-	Float,
-	ForeignKey,
-	Integer,
-	String,
-	create_engine,
+  Column,
+  DateTime,
+  Engine,
+  Enum,
+  Float,
+  ForeignKey,
+  Integer,
+  String,
+  create_engine,
 )
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import (
-	Relationship,
-	Session,
-	declarative_base,
-	relationship,
-	sessionmaker,
+  Relationship,
+  Session,
+  declarative_base,
+  relationship,
+  sessionmaker,
 )
 
 Base = declarative_base()
 
-
 class User(Base):
-	__tablename__: str = 'users'
+  __tablename__: str = 'users'
 
-	id: Column[int] = Column(Integer, primary_key=True)
-	username: Column[str] = Column(String(50), unique=True, nullable=False)
-	email: Column[str] = Column(String(100), unique=True, nullable=False)
-	password_hash: Column[str] = Column(String(255), nullable=False)
+  id: Column[int] = Column(Integer, primary_key=True)
+  username: Column[str] = Column(String(50), unique=True, nullable=False)
+  email: Column[str] = Column(String(100), unique=True, nullable=False)
+  password_hash: Column[str] = Column(String(255), nullable=False)
 
-	accounts = relationship('Account', back_populates='user')
-
+  accounts = relationship('Account', back_populates='user')
 
 class Account(Base):
-	__tablename__: str = 'accounts'
+  __tablename__: str = 'accounts'
 
-	id: Column[int] = Column(Integer, primary_key=True)
-	user_id: Column[int] = Column(Integer, ForeignKey('users.id'), nullable=False)
-	account_number: Column[str] = Column(String(20), unique=True, nullable=False)
-	account_type: Column[Enum] = Column(
-		Enum('savings', 'checking', name='account_types'), nullable=False
-	)
-	balance: Column[float] = Column(Float, default=0.0)
+  id: Column[int] = Column(Integer, primary_key=True)
+  user_id: Column[int] = Column(Integer, ForeignKey('users.id'), nullable=False)
+  account_number: Column[str] = Column(String(20), unique=True, nullable=False)
+  account_type: Column[Enum] = Column(
+    Enum('savings', 'checking', name='account_types'), nullable=False
+  )
+  balance: Column[float] = Column(Float, default=0.0)
 
-	user = relationship('User', back_populates='accounts')
-	transactions = relationship(
-		'Transaction', foreign_keys='Transaction.to_account_id', back_populates='to_account'
-	)
-	transactions_from = relationship(
-		'Transaction', foreign_keys='Transaction.from_account_id', back_populates='from_account'
-	)
-
+  user = relationship('User', back_populates='accounts')
+  transactions = relationship(
+    'Transaction', foreign_keys='Transaction.to_account_id', back_populates='to_account'
+  )
+  transactions_from = relationship(
+    'Transaction', foreign_keys='Transaction.from_account_id', back_populates='from_account'
+  )
 
 class Transaction(Base):
-	__tablename__: str = 'transactions'
+  __tablename__: str = 'transactions'
 
-	id: Column[int] = Column(Integer, primary_key=True)
-	to_account_id: Column[int] = Column(Integer, ForeignKey('accounts.id'), nullable=False)
-	from_account_id: Column[int] = Column(Integer, ForeignKey('accounts.id'), nullable=False)
-	amount: Column[float] = Column(Float, nullable=False)
-	transaction_type: Column[str] = Column(
-		String(20), nullable=False
-	)  # e.g., 'deposit', 'withdrawal', 'transfer'
-	description: Column[str] = Column(String(255))
-	timestamp: Column[datetime] = Column(DateTime, default=datetime.now)
+  id: Column[int] = Column(Integer, primary_key=True)
+  to_account_id: Column[int] = Column(Integer, ForeignKey('accounts.id'), nullable=False)
+  from_account_id: Column[int] = Column(Integer, ForeignKey('accounts.id'), nullable=False)
+  amount: Column[float] = Column(Float, nullable=False)
+  transaction_type: Column[str] = Column(
+    String(20), nullable=False
+  )  # e.g., 'deposit', 'withdrawal', 'transfer'
+  description: Column[str] = Column(String(255))
+  timestamp: Column[datetime] = Column(DateTime, default=datetime.now)
 
-	to_account: Relationship[Account] = relationship(
-		'Account', foreign_keys=[to_account_id], back_populates='transactions'
-	)
-	from_account: Relationship[Account] = relationship(
-		'Account', foreign_keys=[from_account_id], back_populates='transactions_from'
-	)
-
+  to_account: Relationship[Account] = relationship(
+    'Account', foreign_keys=[to_account_id], back_populates='transactions'
+  )
+  from_account: Relationship[Account] = relationship(
+    'Account', foreign_keys=[from_account_id], back_populates='transactions_from'
+  )
 
 class DatabaseManager:
-	def __init__(self, db_url: str):
-		"""
-		Initialize database connection and session
+  def __init__(self, db_url: str):
+    """
+    Initialize database connection and session
 
-		:param db_url: SQLAlchemy database connection URL
-		"""
-		try:
-			self.engine: Engine = create_engine(db_url)
-			Base.metadata.create_all(self.engine)
-			self.Session: sessionmaker[Session] = sessionmaker(bind=self.engine)
-		except SQLAlchemyError as e:
-			print(f'Failed to connect to database with url: {db_url}')
-			raise Exception(f'Database connection error: {e}') from e
+    :param db_url: SQLAlchemy database connection URL
+    """
+    try:
+      self.engine: Engine = create_engine(db_url)
+      Base.metadata.create_all(self.engine)
+      self.Session: sessionmaker[Session] = sessionmaker(bind=self.engine)
+    except SQLAlchemyError as e:
+      print(f'Failed to connect to database with url: {db_url}')
+      raise Exception(f'Database connection error: {e}') from e
 
-	def create_user(self, username: str, email: str, password_hash: str) -> User | None:
-		"""
-		Create a new user in the database
+  def create_user(self, username: str, email: str, password_hash: str) -> User | None:
+    """
+    Create a new user in the database
 
-		:return: Created User object
-		"""
-		print(f'Creating user: {username}, {email}')
-		with self.Session() as session:
-			try:
-				user = User(
-					username=username,
-					email=email,
-					password_hash=password_hash,
-				)
-				session.add(user)
-				session.commit()
-				print(f'User created: {user.username}, {user.email}')
-				# Create a default account for the user
-				self.create_account(user.id, 'savings', 1000.0)
-				return user
-			except SQLAlchemyError as e:
-				session.rollback()
-				raise Exception(f'Error creating user: {e}') from e
+    :return: Created User object
+    """
+    print(f'Creating user: {username}, {email}')
+    with self.Session() as session:
+      try:
+        user = User(
+          username=username,
+          email=email,
+          password_hash=password_hash,
+        )
+        session.add(user)
+        session.commit()
+        print(f'User created: {user.username}, {user.email}')
+        # Create a default account for the user
+        self.create_account(user.id, 'savings', 1000.0)
+        return user
+      except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f'Error creating user: {e}') from e
 
-	def create_account(
-		self,
-		user_id: int,
-		account_type: str,
-		initial_balance: float = 0.0,
-	) -> Account | None:
-		"""
-		Create a new account for a user
+  def create_account(
+    self,
+    user_id: int,
+    account_type: str,
+    initial_balance: float = 0.0,
+  ) -> Account | None:
+    """
+    Create a new account for a user
 
-		:return: Created Account object
-		"""
-		with self.Session() as session:
-			try:
-				account = Account(
-					user_id=user_id,
-					account_number=str(user_id) + str(int(datetime.now().timestamp())),
-					account_type=account_type,
-					balance=initial_balance,
-				)
-				session.add(account)
-				session.commit()
-				return account
-			except SQLAlchemyError as e:
-				session.rollback()
-				raise Exception(f'Error creating account: {e}') from e
+    :return: Created Account object
+    """
+    with self.Session() as session:
+      try:
+        account = Account(
+          user_id=user_id,
+          account_number=str(user_id) + str(int(datetime.now().timestamp())),
+          account_type=account_type,
+          balance=initial_balance,
+        )
+        session.add(account)
+        session.commit()
+        return account
+      except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f'Error creating account: {e}') from e
 
-	def get_user_by_name(self, name: str) -> User | None:
-		"""
-		Retrieve a user by name
+  def get_user_by_name(self, name: str) -> User | None:
+    """
+    Retrieve a user by name
 
-		:return: User object
-		"""
-		with self.Session() as session:
-			try:
-				return session.query(User).filter_by(username=name).first()
-			except SQLAlchemyError as e:
-				raise Exception(f'Error retrieving user: {e}') from e
+    :return: User object
+    """
+    with self.Session() as session:
+      try:
+        return session.query(User).filter_by(username=name).first()
+      except SQLAlchemyError as e:
+        raise Exception(f'Error retrieving user: {e}') from e
 
-	def get_user_by_id(self, id: int) -> User | None:
-		"""
-		Retrieve a user by ID
+  def get_user_by_id(self, id: int) -> User | None:
+    """
+    Retrieve a user by ID
 
-		:return: User object
-		"""
-		with self.Session() as session:
-			try:
-				return session.query(User).filter_by(id=id).first()
-			except SQLAlchemyError as e:
-				raise Exception(f'Error retrieving user: {e}') from e
+    :return: User object
+    """
+    with self.Session() as session:
+      try:
+        return session.query(User).filter_by(id=id).first()
+      except SQLAlchemyError as e:
+        raise Exception(f'Error retrieving user: {e}') from e
 
-	def get_user_accounts(self, user_id: int) -> list[Account] | None:
-		"""
-		Retrieve all accounts for a specific user
+  def get_user_accounts(self, user_id: int) -> list[Account] | None:
+    """
+    Retrieve all accounts for a specific user
 
-		:return: List of Account objects
-		"""
-		with self.Session() as session:
-			try:
-				return session.query(Account).filter_by(user_id=user_id).all()
-			except SQLAlchemyError as e:
-				raise Exception(f'Error retrieving user accounts: {e}') from e
+    :return: List of Account objects
+    """
+    with self.Session() as session:
+      try:
+        return session.query(Account).filter_by(user_id=user_id).all()
+      except SQLAlchemyError as e:
+        raise Exception(f'Error retrieving user accounts: {e}') from e
 
-	def get_account_transactions(
-		self, account_id: int, limit: int | None = None
-	) -> list[Transaction] | None:
-		"""
-		Retrieve transactions for a specific account
+  def get_account_transactions(
+    self, account_id: int, limit: int | None = None
+  ) -> list[Transaction] | None:
+    """
+    Retrieve transactions for a specific account
 
-		:param limit: Optional limit on number of transactions
-		:return: List of Transaction objects
-		"""
-		with self.Session() as session:
-			try:
-				query = (
-					session.query(Transaction)
-					.filter_by(from_account_id=account_id)
-					.order_by(Transaction.timestamp.desc())
-				)
-				if limit:
-					query = query.limit(limit)
-				return query.all()
-			except SQLAlchemyError as e:
-				raise Exception(f'Error retrieving account transactions: {e}') from e
+    :param limit: Optional limit on number of transactions
+    :return: List of Transaction objects
+    """
+    with self.Session() as session:
+      try:
+        query = (
+          session.query(Transaction)
+          .filter_by(from_account_id=account_id)
+          .order_by(Transaction.timestamp.desc())
+        )
+        if limit:
+          query = query.limit(limit)
+        return query.all()
+      except SQLAlchemyError as e:
+        raise Exception(f'Error retrieving account transactions: {e}') from e
 
-	def transfer_funds(
-		self, from_account_number: int, to_account_number: int, amount: float
-	) -> None:
-		"""
-		Transfer funds from one account to another
+  def transfer_funds(
+    self, from_account_number: int, to_account_number: int, amount: float
+  ) -> None:
+    """
+    Transfer funds from one account to another
 
-		:param from_account_id: ID of the account to transfer from
-		:param to_account_id: ID of the account to transfer to
-		:param amount: Amount to transfer
-		"""
-		with self.Session() as session:
-			try:
-				from_account = (
-					session.query(Account).filter_by(account_number=from_account_number).first()
-				)
-				to_account = (
-					session.query(Account).filter_by(account_number=to_account_number).first()
-				)
+    :param from_account_id: ID of the account to transfer from
+    :param to_account_id: ID of the account to transfer to
+    :param amount: Amount to transfer
+    """
+    with self.Session() as session:
+      try:
+        from_account = (
+          session.query(Account).filter_by(account_number=from_account_number).first()
+        )
+        to_account = (
+          session.query(Account).filter_by(account_number=to_account_number).first()
+        )
 
-				if not from_account or not to_account:
-					print(f'Account not found: {from_account_number}, {to_account_number}')
-					raise ValueError('One or both accounts not found')
+        if not from_account or not to_account:
+          print(f'Account not found: {from_account_number}, {to_account_number}')
+          raise ValueError('One or both accounts not found')
 
-				if from_account.balance < amount:
-					raise ValueError('Insufficient funds in the source account')
+        if from_account.balance < amount:
+          raise ValueError('Insufficient funds in the source account')
 
-				# Deduct from the source account
-				from_account.balance -= amount
+        # Deduct from the source account
+        from_account.balance -= amount
 
-				# Add to the destination account
-				to_account.balance += amount
+        # Add to the destination account
+        to_account.balance += amount
 
-				# Record the transaction
-				session.add(
-					Transaction(
-						from_account_id=from_account.id,
-						to_account_id=to_account.id,
-						amount=amount,
-						transaction_type='transfer',
-						description=f'Transfer from account {from_account.account_number} \
-							to account {to_account.account_number}',
-					)
-				)
+        # Record the transaction
+        session.add(
+          Transaction(
+            from_account_id=from_account.id,
+            to_account_id=to_account.id,
+            amount=amount,
+            transaction_type='transfer',
+            description=f'Transfer from account {from_account.account_number} \
+              to account {to_account.account_number}',
+          )
+        )
 
-				session.commit()
-			except SQLAlchemyError as e:
-				session.rollback()
-				raise Exception(f'Error during transfer: {e}') from e
+        session.commit()
+      except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f'Error during transfer: {e}') from e
 \end{lstlisting}
 
 \section{index.html}
@@ -634,3 +624,4 @@ Dashboard
     </div>
 {% endblock %}
 \end{lstlisting}
+

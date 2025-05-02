@@ -3,5 +3,9 @@ name = "reports"
 bundle = "https://data1.fullyjustified.net/tlextras-2022.0r0.tar"
 
 [[output]]
-name = "default"
+name = "index"
 type = "pdf"
+synctex = true
+preamble = "_preamble.tex" # the preamble file to use (within `src`)
+index = "index.tex" # the index file to use (within `src`)
+postamble = "_postamble.tex" # the postamble file to use (within `src`)

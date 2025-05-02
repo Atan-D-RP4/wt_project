@@ -15,9 +15,9 @@
 \AddToHook{shipout/background}{%
   \begin{tikzpicture}[remember picture, overlay]
     \draw [line width=1pt, black]
-      ($(current page.north west) + (1cm,-1cm)$)
-      rectangle
-      ($(current page.south east) + (-1cm,1cm)$);
+    ($(current page.north west) + (1cm,-1cm)$)
+    rectangle
+    ($(current page.south east) + (-1cm,1cm)$);
   \end{tikzpicture}
 }
 

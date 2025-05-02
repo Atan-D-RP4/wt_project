@@ -15,9 +15,9 @@
 \AddToHook{shipout/background}{%
   \begin{tikzpicture}[remember picture, overlay]
     \draw [line width=1pt, black]
-      ($(current page.north west) + (1cm,-1cm)$)
-      rectangle
-      ($(current page.south east) + (-1cm,1cm)$);
+    ($(current page.north west) + (1cm,-1cm)$)
+    rectangle
+    ($(current page.south east) + (-1cm,1cm)$);
   \end{tikzpicture}
 }
 
@@ -28,25 +28,26 @@
 
 % Code listing style
 \lstset{
-    basicstyle=\ttfamily\small,
-    breaklines=true,
-    commentstyle=\color{green!50!black},
-    keywordstyle=\color{blue},
-    stringstyle=\color{red},
-    numbers=left,
-    numberstyle=\tiny\color{gray},
-    numbersep=5pt,
-    frame=single,
-    framexleftmargin=15pt,
-    framexrightmargin=0pt,
-    framexbottommargin=5pt,
-    framextopmargin=5pt,
-    backgroundcolor=\color{gray!10},
-    showstringspaces=false
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  commentstyle=\color{green!50!black},
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=5pt,
+  frame=single,
+  framexleftmargin=15pt,
+  framexrightmargin=0pt,
+  framexbottommargin=5pt,
+  framextopmargin=5pt,
+  backgroundcolor=\color{gray!10},
+  showstringspaces=false
 }
 
 \lstdefinelanguage{JavaScript}{
-  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywords={typeof, new, true, false, catch, function, return, null,
+  catch, switch, var, if, in, while, do, else, case, break},
   keywordstyle=\color{blue}\bfseries,
   ndkeywords={class, export, boolean, throw, implements, import, this},
   ndkeywordstyle=\color{darkgray}\bfseries,
@@ -61,7 +62,8 @@
 }
 
 \lstdefinelanguage{TypeScript}{
-  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywords={typeof, new, true, false, catch, function, return, null,
+  catch, switch, var, if, in, while, do, else, case, break},
   keywordstyle=\color{blue}\bfseries,
   ndkeywords={class, export, boolean, throw, implements, import, this},
   ndkeywordstyle=\color{darkgray}\bfseries,
@@ -83,3 +85,4 @@
 \fancyhead[R]{E-Banking System}
 
 \begin{document}
+

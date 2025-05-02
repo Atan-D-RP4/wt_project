@@ -651,7 +651,6 @@ export const transactionController = {
       const userId = (req as any).user.id; // From auth middleware
       const amountNum = Number(amount);
 
-
       // Validate input
       if (!fromAccountId || !toAccountId || !amount || amount <= 0) {
         return res.status(400).json({ error: "Invalid transfer details" });
@@ -1229,3 +1228,4 @@ export const TransactionModel = {
 
 </html>
 \end{lstlisting}
+
