@@ -204,7 +204,7 @@ def transfer():
             flash('Transfer successful')
             return redirect(url_for('index'))
         except Exception as e:
-            flash(str(e))
+            flash(f'Error: {str(e)}')
             return redirect(url_for('transfer'))
 
     user = db_manager.get_user_by_id(session['user_id'])

@@ -1,5 +1,7 @@
 from datetime import datetime
+import enum
 
+from flask.config import T
 from sqlalchemy import (
     Column,
     DateTime,
@@ -34,6 +36,10 @@ class User(Base):
     accounts = relationship('Account', back_populates='user')
 
 
+class AccountType(enum.Enum):
+    SAVINGS = 'savings'
+    CHECKING = 'checking'
+
 class Account(Base):
     __tablename__: str = 'accounts'
 
@@ -41,7 +47,7 @@ class Account(Base):
     user_id: Column[int] = Column(Integer, ForeignKey('users.id'), nullable=False)
     account_number: Column[str] = Column(String(20), unique=True, nullable=False)
     account_type: Column[Enum] = Column(
-        Enum('savings', 'checking', name='account_types'), nullable=False
+        Enum(AccountType, name='account_types'), nullable=False
     )
     balance: Column[float] = Column(Float, default=0.0)
 
@@ -54,6 +60,12 @@ class Account(Base):
     )
 
 
+class TransactionType(enum.Enum):
+    DEPOSIT = 'deposit'
+    WITHDRAWAL = 'withdrawal'
+    TRANSFER = 'transfer'
+
+
 class Transaction(Base):
     __tablename__: str = 'transactions'
 
@@ -63,7 +75,7 @@ class Transaction(Base):
     from_account_id: Column[int] = Column(Integer, ForeignKey('accounts.id'), nullable=False)
     amount: Column[float] = Column(Float, nullable=False)
     transaction_type: Column[str] = Column(
-        Enum('deposit', 'withdrawal', 'transfer', name='transaction_types'),
+        Enum(TransactionType, name='transaction_types'),
     )
     description: Column[str] = Column(String(255))
     timestamp: Column[datetime] = Column(DateTime, default=datetime.now)
@@ -290,7 +302,7 @@ class DatabaseManager:
                         from_account_id=from_account.id,
                         to_account_id=to_account.id,
                         amount=amount,
-                        transaction_type=Transaction.transaction_type.transfer,
+                        transaction_type=TransactionType.TRANSFER.value,
                         description=f'Transfer from account {from_account.account_number} \
 							to account {to_account.account_number}',
                     )
@@ -324,7 +336,7 @@ class DatabaseManager:
                         to_account_id=account.id,
                         from_account_id=account.id,
                         amount=amount,
-                        transaction_type='deposit',
+                        transaction_type=TransactionType.DEPOSIT.value,
                         description=f'Deposit into account {account.account_number}',
                     )
                 )

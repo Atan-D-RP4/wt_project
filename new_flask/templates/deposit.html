@@ -14,7 +14,7 @@ Deposit
         <select class="form-control" id="intoAccount" name="into_account" required>
             <option value="" disabled selected>Select an account</option>
             {% for account in accounts %}
-            <option value="{{ account.account_number }}">{{ account.account_type }} - ${{ account.balance }}</option>
+            <option value="{{ account.account_number }}">{{ account.account_type.value }} - ${{ account.balance }}</option>
             {% endfor %}
         </select>
     </div>
