@@ -120,6 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }</p>
             <div class="account-balance mb-3">$${account.balance}</div>
             <div class="d-flex gap-2">
+              <a href="/deposit/" method="POST" class="btn btn-sm btn-outline-primary">Deposit</a>
               <a href="/transfer" class="btn btn-sm btn-outline-primary">Transfer</a>
               <a href="/details" class="btn btn-sm btn-outline-secondary">Details</a>
             </div>

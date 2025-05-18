@@ -2,7 +2,6 @@ from functools import wraps
 from os import getenv
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
-from waitress import serve
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import DatabaseManager, Transaction, User
@@ -308,10 +307,12 @@ def delete_account():
         flash('Account deleted successfully')
         return redirect('/profile')
     accounts = db_manager.get_user_accounts(session['user_id'])
+    db_manager.delete_account(accounts[0].id)
     return redirect('/profile')
 
 
 if __name__ == '__main__':
     app.run(debug=True)
     # print('Starting WSGI server on localhost:5000')
-    # serve(app, host='127.0.0.1', port=5000)
+    # import waitress
+    # waitress.serve(app, host='127.0.0.1', port=5000)

@@ -2,6 +2,7 @@
 // @ts-tpes="npm:@types/node"
 import { Request, Response } from "npm:express@^4.21.2";
 import { AccountModel } from "../models/account.ts";
+import { TransactionModel } from "../models/transaction.ts";
 
 export const accountController = {
   createAccount: async (req: Request, res: Response) => {
@@ -100,6 +101,61 @@ export const accountController = {
       console.error("Get account transactions error:", error);
       res.status(500).json({
         error: "Server error retrieving account transactions",
+        details: (error as Error).message,
+      });
+    }
+  },
+
+  deposit: async (req: Request, res: Response) => {
+    const { accountId } = req.params;
+    const { amount } = req.body;
+    const userId = (req as any).user.id; // From auth middleware
+    console.log("Deposit request:", { accountId, amount });
+    if (!accountId || !amount) {
+      return res.status(400).json({
+        error: "Account ID and amount are required",
+      });
+    }
+    if (amount <= 0) {
+      return res.status(400).json({ error: "Amount must be greater than 0" });
+    }
+
+    try {
+      const account = await AccountModel.findById(accountId);
+      // Check if account exists and belongs to user
+      if (!account || account.userId !== userId) {
+        return res.status(404).json({ error: "Account not found" });
+      }
+      if (account.balance + amount < 0) {
+        return res.status(400).json({ error: "Insufficient funds" });
+      }
+      const updatedAccount = await AccountModel.updateBalance(
+        accountId,
+        amount,
+      );
+      if (!updatedAccount) {
+        return res.status(404).json({ error: "Account not found" });
+      }
+      const transaction = await TransactionModel.create({
+        fromId: accountId,
+        toId: accountId,
+        type: "deposit",
+        amount,
+        description: `Deposit of ${amount} to account ${accountId}`,
+        balance: updatedAccount.balance,
+      });
+      if (!transaction) {
+        return res.status(500).json({ error: "Transaction creation failed" });
+      }
+      res.status(200).json({
+        message: "Deposit successful",
+        account: updatedAccount,
+        transaction,
+      });
+    } catch (error) {
+      console.error("Deposit error:", error);
+      res.status(500).json({
+        error: "Server error processing deposit",
         details: (error as Error).message,
       });
     }

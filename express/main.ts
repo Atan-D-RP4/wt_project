@@ -14,6 +14,7 @@ import transactionRoutes from "./routes/transactions.ts";
 import { authMiddleware } from "./middleware/auth.ts";
 import { UserModel } from "./models/user.ts";
 import { AccountModel } from "./models/account.ts";
+import { accountController } from "./controllers/accountController.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -84,6 +85,18 @@ if (import.meta.main) {
 
   app.get("/transfer", (_req: express.Request, res: express.Response) => {
     res.render("transfer");
+  });
+
+  app.get("/deposit", (req: express.Request, res: express.Response) => {
+    res.render(
+      "deposit",
+      accounts = accountController.getAllAccounts(req, res),
+    );
+  });
+
+  app.post("/deposit/:accountId", async (req, res) => {
+    console.log("Account ID:", req.params.accountId);
+    await accountController.deposit(req, res);
   });
 
   app.listen(PORT, () => {
